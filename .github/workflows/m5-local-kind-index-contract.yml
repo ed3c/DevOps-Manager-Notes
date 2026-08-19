@@ -8,6 +8,7 @@ on:
       - 'docs/INDEX.md'
       - 'docs/milestones/PUBLIC_M5_LOCAL_KIND_RUNNER_READY.md'
       - 'registry/public-m5-local-kind-readiness.json'
+      - 'registry/public-m6-runner-contracts.json'
       - 'registry/stack-plan.yaml'
       - '.github/workflows/m5-local-kind-index-contract.yml'
   workflow_dispatch:
@@ -28,42 +29,44 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Validate machine index and evidence boundary
+      - name: Validate historical M5 machine index
         run: |
-          python3 -m json.tool registry/public-m5-local-kind-readiness.json >/dev/null
           python3 - <<'PY'
           import json
           from pathlib import Path
 
-          index = json.loads(Path('registry/public-m5-local-kind-readiness.json').read_text())
-          assert index['milestone'] == 'PUBLIC_LOCAL_KIND_RUNNER_AND_QUEUE_READY'
-          assert index['verdict'] == 'PASS_BOUNDED'
-          assert index['runner']['pull_request'] == 51
-          assert index['runner']['head'] == '20d2ccb0ed8c877309452eece7c755bb3411c4c1'
-          assert index['runner']['tree'] == '7d4b5d5aaba2d023803b152ce5ac7f23f274eba0'
-          assert index['runner']['contract_workflow_run'] == 32259961112
-          assert index['runner']['local_runtime_verdict'] == 'NOT_EXERCISED'
-          assert index['runner']['local_runtime_receipt'] is None
-          assert index['queue']['pull_request'] == 52
-          assert index['queue']['head'] == '660d4deea81712f3d6ab5288ae09288b2e15cc27'
-          assert index['queue']['contract_workflow_run'] == 32260403160
-          assert index['queue_items']['M4-LOCAL-REVIEWER-001']['state'] == 'ACTIVE'
-          assert index['queue_items']['M4-LIVE-SUBSTRATE-002']['state'] == 'WAITING_PREDECESSOR'
-          assert index['queue_items']['M5-ARGO-MODEL-CAPACITY-003']['state'] == 'BLOCKED_UNRESOLVED'
-          assert index['queue_items']['M5-ARGO-MODEL-CAPACITY-003']['commands'] == []
-          assert index['residuals']['local_kind_kubernetes_application_smoke'] == 'NOT_EXERCISED'
-          print('m5-index-shape=PASS')
+          m5 = json.loads(Path('registry/public-m5-local-kind-readiness.json').read_text())
+          assert m5['milestone'] == 'PUBLIC_LOCAL_KIND_RUNNER_AND_QUEUE_READY'
+          assert m5['verdict'] == 'PASS_BOUNDED'
+          assert m5['runner']['pull_request'] == 51
+          assert m5['runner']['head'] == '20d2ccb0ed8c877309452eece7c755bb3411c4c1'
+          assert m5['runner']['tree'] == '7d4b5d5aaba2d023803b152ce5ac7f23f274eba0'
+          assert m5['runner']['contract_workflow_run'] == 32259961112
+          assert m5['runner']['local_runtime_verdict'] == 'NOT_EXERCISED'
+          assert m5['queue']['pull_request'] == 52
+          assert m5['queue']['head'] == '660d4deea81712f3d6ab5288ae09288b2e15cc27'
+          assert m5['queue']['contract_workflow_run'] == 32260403160
+          assert m5['residuals']['local_kind_kubernetes_application_smoke'] == 'NOT_EXERCISED'
+          print('m5-historical-index=PASS')
           PY
 
-      - name: Re-fetch mutable PR heads
+      - name: Validate later canonical PR52 correction without laundering M5 history
         run: |
           python3 - <<'PY'
           import json, os
+          from pathlib import Path
           from urllib import request
+
+          m6 = json.loads(Path('registry/public-m6-runner-contracts.json').read_text())
+          correction = m6['canonical_local_handoff']
+          assert correction['pull_request'] == 52
+          assert correction['current_head'] == 'f7a3937d7d0979e3adfaf1ebc4adc0532450d925'
+          assert correction['workflow_run'] == 32263239722
+          assert correction['runtime_state'] == 'NOT_EXERCISED'
 
           expected = {
               51: '20d2ccb0ed8c877309452eece7c755bb3411c4c1',
-              52: '660d4deea81712f3d6ab5288ae09288b2e15cc27',
+              52: 'f7a3937d7d0979e3adfaf1ebc4adc0532450d925',
           }
           for pr, head in expected.items():
               req = request.Request(
@@ -78,32 +81,27 @@ jobs:
                   payload = json.load(response)
               actual = payload['head']['sha']
               if actual != head:
-                  raise SystemExit(f'stale M5 index PR #{pr}: expected {head} observed {actual}')
-          print('m5-pr-head-readback=PASS')
+                  raise SystemExit(f'stale current PR #{pr}: expected {head}, observed {actual}')
+          print('m5-current-subject-readback=PASS')
           PY
 
-      - name: Validate README AGENTS and Stack routing
+      - name: Validate M5 history and M6 correction routing
         run: |
           grep -q 'M5 PUBLIC_LOCAL_KIND_RUNNER_AND_QUEUE_READY' README.md
-          grep -q 'M4-LIVE-SUBSTRATE-002       WAITING_PREDECESSOR' AGENTS.md
-          grep -q 'id: K5-live-kind-runner' registry/stack-plan.yaml
-          grep -q 'pull_request: 51' registry/stack-plan.yaml
-          grep -q 'id: D5-live-kind-queue-compiler' registry/stack-plan.yaml
-          grep -q 'pull_request: 52' registry/stack-plan.yaml
-          grep -q 'local_execution:' registry/stack-plan.yaml
-          grep -q 'state: NOT_EXERCISED' registry/stack-plan.yaml
-          grep -q 'runner CI PASS       → local kind PASS' docs/milestones/PUBLIC_M5_LOCAL_KIND_RUNNER_READY.md
+          grep -q 'Canonical Local Handoff' README.md
+          grep -q 'D5-canonical-local-handoff-queue' registry/stack-plan.yaml
+          grep -q 'f7a3937d7d0979e3adfaf1ebc4adc0532450d925' registry/stack-plan.yaml
+          grep -q 'M5 — PUBLIC_LOCAL_KIND_RUNNER_AND_QUEUE_READY' docs/milestones/PUBLIC_M5_LOCAL_KIND_RUNNER_READY.md
 
       - name: Evidence boundary
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          ## M5 index boundary
-          - runner PR/head/tree/CI subject: re-read and indexed
-          - queue PR/head/CI subject: re-read and indexed
-          - README/AGENTS/Stack routing: validated
-          - runner/queue readiness: `PASS_BOUNDED`
+          ## M5 historical-index boundary
+          - M5 runner PR #51 evidence subject: preserved
+          - M5 original PR #52 queue-contract subject: preserved as historical evidence
+          - later canonical PR #52 current head: separately re-read and bound through M6 correction
+          - historical evidence is not relabeled as evidence for the newer PR head
           - local deterministic reviewer execution: **NOT_EXERCISED**
           - local kind/Kubernetes execution: **NOT_EXERCISED**
-          - local kind runtime receipt: **ABSENT**
-          - evidence ceiling: `GITHUB_HOSTED_M5_TRACEABILITY_INDEX_ONLY`
+          - evidence ceiling: `GITHUB_HOSTED_M5_HISTORICAL_TRACEABILITY_ONLY`
           EOF
