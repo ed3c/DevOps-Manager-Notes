@@ -352,12 +352,17 @@ atoms:
     atom: D
     issues: [63]
     pull_request: 66
-    state: PR_DRAFT_INDEX_PENDING_FIRST_GREEN
+    state: PR_DRAFT_INDEX_FIRST_GREEN
     stack_class: documentation_convergence
     branch: docs/public-m7-advanced-bundle-index
     base_branch: docs/public-m6-runner-contract-index
     exact_side_inputs: [D6-m6-traceability-index, X7-advanced-execution-bundle]
-    blockers: [INDEX_CI_PENDING, HUMAN_ADMIT_MERGE]
+    evidence_head: 7abfe21a31540ea5b9af947a581e128f1d6bfceb
+    evidence_tree: 961ca8e0a2ab2c3f49852d3a44d423c7533c0e24
+    index_validation:
+      workflow_run_id: 32277405093
+      evidence_ceiling: GITHUB_HOSTED_M7_TRACEABILITY_INDEX_ONLY
+    blockers: [HUMAN_ADMIT_MERGE]
 
 notes:
   - PR #12 → #13 → #14 are true children because each consumes prior unmerged contract bytes.
