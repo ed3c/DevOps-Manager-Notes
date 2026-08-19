@@ -30,9 +30,9 @@
       "pull_request": 55,
       "git_parent_pull_request": 39,
       "branch": "handoff/m6-argo-runtime",
-      "head": "284dbf1d2e9a1759cab0a8cb21987f76112946b5",
-      "tree": "fff48ba347d9f9004af84f18008e64e33a186073",
-      "workflow_run": 32265921102,
+      "head": "8d976171f4aa2eba72bee360823b660f9bed99d4",
+      "tree": "fada58f36c83de296decb41dcd34531b9d73145a",
+      "workflow_run": 32274548200,
       "contract_state": "PASS",
       "contract_evidence_ceiling": "GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY",
       "potential_runtime_evidence_ceiling": "LOCAL_ARGO_CONTROLLERS_READY_ONLY",
@@ -40,8 +40,18 @@
       "owned_paths": [
         "scripts/handoff/run_argo_control_plane.py",
         "scripts/handoff/run_argo_control_plane_from_env.sh",
+        "scripts/handoff/run_argo_ephemeral_kind.py",
+        "scripts/handoff/run_argo_ephemeral_kind_from_env.sh",
         "tests/handoff/test_argo_control_plane_contract.py",
+        "tests/handoff/test_argo_ephemeral_kind_contract.py",
         ".github/workflows/m6-argo-contract.yml"
+      ],
+      "shadow_corrections": [
+        "self-contained ephemeral kind ownership because the prior live-kind lane deletes its cluster during cleanup",
+        "exact kind node image digest required",
+        "refuse pre-existing scoped cluster takeover",
+        "delete attempted cluster and restore caller kubectl context",
+        "controller readiness still cannot promote Application reconciliation or live canary"
       ]
     },
     {
