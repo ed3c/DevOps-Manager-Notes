@@ -1,0 +1,9 @@
+{
+  "dataset_version": "manager-eval-v1",
+  "cases": [
+    {"id": "case-1", "expected": "approved", "observed": "approved"},
+    {"id": "case-2", "expected": "rejected", "observed": "rejected"},
+    {"id": "case-3", "expected": "approved", "observed": "approved"},
+    {"id": "case-4", "expected": "rejected", "observed": "rejected"}
+  ]
+}
