@@ -1,0 +1,87 @@
+{
+  "schema_version": "agentic-tech-lead/local-handoff-queue/v1",
+  "subject": {
+    "repository": "ed3c/DevOps-Manager-Notes",
+    "commit": "e7e6f19afc446e322dbfcf885e50bed01800e480",
+    "tree": "4fbb35a6753b10424bea5845e8295bc4543f95a1",
+    "rollback_commit": "93c21152939b76f2f89de5997c6b9dcd296059c4"
+  },
+  "authority": {
+    "automation_forbidden": [
+      "semantic conflict resolution",
+      "force push",
+      "merge",
+      "release",
+      "production promotion",
+      "repository visibility change",
+      "permission widening",
+      "issue closure as evidence",
+      "production rollback admission"
+    ],
+    "human_owned": [
+      "merge and release admission",
+      "repository visibility and permission decisions",
+      "semantic conflict decisions",
+      "production or real-experience claims"
+    ]
+  },
+  "current": {
+    "active_item": "DEVOPS-LOCAL-001",
+    "state": "ACTIVE"
+  },
+  "items": [
+    {
+      "id": "DEVOPS-LOCAL-001",
+      "task_ref": "ed3c/DevOps-Manager-Notes#2",
+      "state": "ACTIVE",
+      "entry": {
+        "predecessor": null,
+        "required_subject_commit": "e7e6f19afc446e322dbfcf885e50bed01800e480",
+        "required_capabilities": [
+          "LOCAL_HOST",
+          "repository checkout at exact commit",
+          "python3"
+        ]
+      },
+      "runtime_lane": {
+        "class": "LOCAL_RUNTIME",
+        "commands": [
+          {
+            "argv": [
+              "python3",
+              "scripts/handoff/check_local_capabilities.py",
+              "--output",
+              "evidence/receipts/local-capabilities.json"
+            ],
+            "cwd": ".",
+            "timeout_seconds": 120,
+            "environment_names": []
+          }
+        ],
+        "unresolved_operations": [],
+        "live_evidence_required": true
+      },
+      "receipt": {
+        "path": "evidence/receipts/local-capabilities.json",
+        "schema": "devops-manager/local-capabilities/v1",
+        "required_states": [
+          "PASS",
+          "FAIL"
+        ],
+        "forbidden_promotions": [
+          "capability reachability to application correctness",
+          "docker daemon reachability to Kubernetes deployment PASS",
+          "local capability PASS to production infrastructure experience",
+          "optional git-town absence to base-runtime failure",
+          "queue validation to queue execution"
+        ]
+      },
+      "exit": {
+        "requires_receipt": true,
+        "required_verdict": "PASS",
+        "cleanup_required": false
+      },
+      "next": null
+    }
+  ]
+}
