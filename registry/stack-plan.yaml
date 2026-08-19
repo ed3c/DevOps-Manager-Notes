@@ -351,13 +351,13 @@ atoms:
   - id: D7-m7-traceability-index
     atom: D
     issues: [63]
-    pull_request: null
-    state: BRANCH_CREATED_PR_PENDING
+    pull_request: 66
+    state: PR_DRAFT_INDEX_PENDING_FIRST_GREEN
     stack_class: documentation_convergence
     branch: docs/public-m7-advanced-bundle-index
     base_branch: docs/public-m6-runner-contract-index
     exact_side_inputs: [D6-m6-traceability-index, X7-advanced-execution-bundle]
-    blockers: [PR_IDENTITY_PENDING, INDEX_CI_PENDING, HUMAN_ADMIT_MERGE]
+    blockers: [INDEX_CI_PENDING, HUMAN_ADMIT_MERGE]
 
 notes:
   - PR #12 → #13 → #14 are true children because each consumes prior unmerged contract bytes.
@@ -367,6 +367,7 @@ notes:
   - PR #55/#56/#57/#58 are task siblings with different real Git parents according to unmerged byte consumption.
   - PR #55 was re-hardened after M7 exposed a false lifecycle assumption about the M5 cluster surviving cleanup.
   - PR #65 is a true child of PR #52 and a convergence owner for exact runner bytes from #55/#56/#57/#58.
+  - PR #66 is a docs/registry convergence child of the corrected M6 traceability branch; it does not consume PR #65 implementation bytes.
   - Fixture receipts validate compiler behavior only; they never satisfy live completion edges.
   - The future advanced Local Handoff epoch cannot be compiled from live mode until both real predecessor receipts are admitted.
   - No runner/queue/compiler/local receipt promotes to production, real adoption, legal clearance, real incidents or tenure evidence.
