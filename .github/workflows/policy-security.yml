@@ -1,0 +1,120 @@
+name: Full MVP policy security license
+
+on:
+  pull_request:
+    paths:
+      - 'platform/policies/**'
+      - 'tests/failure/policy/**'
+      - 'evidence/receipts/security/**'
+      - '.github/workflows/policy-security.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  remote-first-green:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact workflow subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Install application and license inventory tool
+        run: |
+          python -m pip install -e platform/app
+          python -m pip install pip-licenses==5.5.5
+          mkdir -p live-evidence
+      - name: Inventory installed direct runtime licenses
+        run: |
+          pip-licenses --format=json --packages fastapi pydantic SQLAlchemy alembic psycopg psycopg-binary uvicorn > live-evidence/python-licenses.json
+          python platform/policies/check_license_policy.py live-evidence/python-licenses.json --receipt live-evidence/license-policy.json
+      - name: Prove forbidden license is rejected
+        run: |
+          if python platform/policies/check_license_policy.py tests/failure/policy/forbidden-license.json --receipt live-evidence/forbidden-license-negative.json; then
+            echo 'forbidden license fixture was incorrectly admitted'
+            exit 1
+          fi
+          grep -q '"verdict": "FAIL"' live-evidence/forbidden-license-negative.json
+      - name: Prove OPA admits bounded deployment
+        run: |
+          docker run --rm -v "$PWD:/workspace:ro" openpolicyagent/opa:1.16.2-static \
+            eval --format=json --data /workspace/platform/policies/deployment.rego \
+            --input /workspace/tests/failure/policy/admitted-deployment.json \
+            'data.manager.admission.allow' > live-evidence/opa-admitted.json
+          jq -e '.result[0].expressions[0].value == true' live-evidence/opa-admitted.json >/dev/null
+      - name: Prove OPA rejects unsafe deployment
+        run: |
+          docker run --rm -v "$PWD:/workspace:ro" openpolicyagent/opa:1.16.2-static \
+            eval --format=json --data /workspace/platform/policies/deployment.rego \
+            --input /workspace/tests/failure/policy/rejected-deployment.json \
+            'data.manager.admission.allow' > live-evidence/opa-rejected.json
+          jq -e '.result[0].expressions[0].value == false' live-evidence/opa-rejected.json >/dev/null
+          docker run --rm -v "$PWD:/workspace:ro" openpolicyagent/opa:1.16.2-static \
+            eval --format=json --data /workspace/platform/policies/deployment.rego \
+            --input /workspace/tests/failure/policy/rejected-deployment.json \
+            'data.manager.admission.violations' > live-evidence/opa-violations.json
+          jq -e '.result[0].expressions[0].value | length >= 3' live-evidence/opa-violations.json >/dev/null
+      - name: Build exact source container
+        run: docker build -f platform/docker/Dockerfile -t full-manager-mvp:${SOURCE_COMMIT} platform/app
+      - name: Trivy CRITICAL vulnerability gate
+        run: |
+          mkdir -p live-evidence/trivy-cache
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$PWD/live-evidence:/reports" \
+            aquasec/trivy:0.72.0 image \
+            --scanners vuln --ignore-unfixed --severity CRITICAL --exit-code 1 \
+            --format json --output /reports/trivy-vuln.json \
+            full-manager-mvp:${SOURCE_COMMIT}
+          test -s live-evidence/trivy-vuln.json
+      - name: Generate lane receipt
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          license_receipt = json.loads(Path('live-evidence/license-policy.json').read_text())
+          receipt = {
+            'schema_version': 'full-manager-mvp/policy-security-receipt/v1',
+            'source_commit': os.environ['SOURCE_COMMIT'],
+            'workflow_commit': os.environ['GITHUB_WORKFLOW_SHA'],
+            'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+            'checks': {
+              'opa_positive': 'PASS', 'opa_negative': 'PASS',
+              'license_inventory': license_receipt['verdict'],
+              'forbidden_license_negative': 'PASS',
+              'trivy_critical_vulnerability_gate': 'PASS',
+              'transitive_legal_clearance': 'NOT_EXERCISED',
+            },
+            'license_review_required': license_receipt['review_required'],
+            'verdict': 'PASS',
+            'evidence_ceiling': 'GITHUB_HOSTED_POLICY_SECURITY_AND_LICENSE_METADATA_ONLY_NOT_LEGAL_CLEARANCE',
+          }
+          Path('live-evidence/policy-security-receipt.json').write_text(json.dumps(receipt, indent=2, sort_keys=True) + '\n')
+          PY
+      - name: Persist lane evidence
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: full-manager-mvp-policy-${{ github.run_id }}-${{ github.run_attempt }}
+          path: live-evidence
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Policy/security FIRST_GREEN boundary
+          - OPA admit/reject controls: exercised
+          - dependency license inventory + planted forbidden license: exercised
+          - Trivy CRITICAL vulnerability gate: exercised
+          - blanket legal/commercial clearance: **NOT CLAIMED**
+          - artifact digest: \`${{ steps.upload.outputs.artifact-digest }}\`
+          EOF
