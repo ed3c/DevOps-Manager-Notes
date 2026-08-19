@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: manager-demo
+  namespace: manager-demo
+spec:
+  selector:
+    app.kubernetes.io/name: manager-demo
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
