@@ -126,21 +126,25 @@ jobs:
             --queue /tmp/canonical-local-handoff-queue.json \
             --selftest
 
-      - name: Validate README AGENTS Stack and milestone routing
+      - name: Validate M6 invariants survive descendant indexes
         run: |
           grep -q 'M6 PUBLIC_ADVANCED_RUNNER_CONTRACTS_READY' README.md
-          grep -q 'PR #55 Argo control-plane contract' README.md
-          grep -q 'PR #56 local model contract' README.md
-          grep -q 'PR #57 1,000-VU capacity contract' README.md
-          grep -q 'PR #58 registry-signing contract' README.md
-          grep -q 'Canonical Local Handoff law' AGENTS.md
           grep -q 'M6 runner contracts' AGENTS.md
-          grep -q 'version: 8' registry/stack-plan.yaml
-          grep -q 'pull_request: 55' registry/stack-plan.yaml
-          grep -q 'pull_request: 56' registry/stack-plan.yaml
-          grep -q 'pull_request: 57' registry/stack-plan.yaml
-          grep -q 'pull_request: 58' registry/stack-plan.yaml
           grep -q 'M6 — PUBLIC_ADVANCED_RUNNER_CONTRACTS_READY' docs/milestones/PUBLIC_M6_ADVANCED_RUNNER_CONTRACTS_READY.md
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          text = Path('registry/stack-plan.yaml').read_text()
+          match = re.search(r'^version:\s*(\d+)\s*$', text, re.M)
+          assert match and int(match.group(1)) >= 8
+          for pr in (55, 56, 57, 58):
+              assert f'pull_request: {pr}' in text
+          assert 'GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY' in text
+          assert 'GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY' in text
+          assert 'GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY' in text
+          assert 'GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY' in text
+          print('m6-monotonic-routing=PASS')
+          PY
           if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_)' README.md AGENTS.md docs/milestones/PUBLIC_M6_ADVANCED_RUNNER_CONTRACTS_READY.md registry/public-m6-runner-contracts.json; then
             echo 'secret-like material found in M6 public index'
             exit 1
@@ -149,11 +153,11 @@ jobs:
       - name: Evidence boundary
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          ## M6 advanced runner-contract index boundary
+          ## M6 advanced runner-contract invariant boundary
           - exact PR #52/#55/#56/#57/#58 current-head readback: exercised
           - canonical PR #52 queue re-fetch + portable assertion/selftest: exercised
-          - hardened Argo ephemeral-kind lifecycle correction is bound to current PR #55
-          - M6 README/AGENTS/Stack/machine-index consistency: exercised
+          - hardened Argo lifecycle correction remains bound to current PR #55
+          - M6 machine invariants survive monotonic M7+ documentation/Stack evolution
           - physical local reviewer execution: **NOT_EXERCISED**
           - physical kind/Kubernetes execution: **NOT_EXERCISED**
           - physical Argo/model/1000-VU/signing execution: **NOT_EXERCISED**
