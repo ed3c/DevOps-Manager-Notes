@@ -1,0 +1,129 @@
+name: Full MVP reviewer convergence
+
+on:
+  pull_request:
+    paths:
+      - 'demo-console/**'
+      - 'scripts/demo/**'
+      - 'evidence/receipts/convergence/**'
+      - 'tests/failure/scenarios/**'
+      - 'platform/app/**'
+      - '.github/workflows/full-reviewer-demo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: full-reviewer-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  remote-reviewer-first-green:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout exact convergence head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_COMMIT }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '22.22.0'
+
+      - name: Re-fetch exact prerequisite PR heads
+        run: |
+          mkdir -p live-evidence
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from urllib import request
+
+          manifest = json.loads(Path('evidence/receipts/convergence/public-inputs.json').read_text())
+          entries = [manifest['git_base'], *manifest['byte_inputs'], *manifest['receipt_inputs']]
+          expected = {}
+          for item in entries:
+              pr = item.get('pull_request')
+              head = item.get('head')
+              if pr and head:
+                  if pr in expected and expected[pr] != head:
+                      raise SystemExit(f'conflicting expected head for PR #{pr}')
+                  expected[pr] = head
+
+          observed = {}
+          for pr, expected_head in sorted(expected.items()):
+              req = request.Request(
+                  f'https://api.github.com/repos/ed3c/DevOps-Manager-Notes/pulls/{pr}',
+                  headers={
+                      'Authorization': f'Bearer {os.environ["GITHUB_TOKEN"]}',
+                      'Accept': 'application/vnd.github+json',
+                      'X-GitHub-Api-Version': '2022-11-28',
+                  },
+              )
+              with request.urlopen(req, timeout=10) as response:
+                  payload = json.load(response)
+              actual = payload['head']['sha']
+              observed[str(pr)] = {'expected': expected_head, 'observed': actual}
+              if actual != expected_head:
+                  raise SystemExit(f'stale convergence input: PR #{pr} expected {expected_head} observed {actual}')
+
+          Path('live-evidence/current-pr-heads.json').write_text(
+              json.dumps(observed, indent=2, sort_keys=True) + '\n'
+          )
+          print('pr-head-readback=PASS')
+          PY
+
+      - name: Run bounded one-command reviewer path
+        run: bash scripts/demo/run_reviewer_demo.sh live-evidence
+
+      - name: Assert convergence evidence boundary
+        run: |
+          jq -e '.verdict == "PASS_BOUNDED"' live-evidence/reviewer-demo-receipt.json >/dev/null
+          jq -e '.checks.seven_failure_drills == "PASS"' live-evidence/reviewer-demo-receipt.json >/dev/null
+          jq -e '.checks.live_kind_kubernetes == "NOT_EXERCISED"' live-evidence/reviewer-demo-receipt.json >/dev/null
+          jq -e '.checks.local_qwen_llama_cpp == "NOT_EXERCISED"' live-evidence/reviewer-demo-receipt.json >/dev/null
+          test -f live-evidence/console/index.html
+          test -f live-evidence/console/evidence-index.json
+          if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_)' live-evidence; then
+            echo 'secret-like material found in public convergence artifact'
+            exit 1
+          fi
+
+      - name: Persist bounded reviewer evidence
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: full-manager-mvp-reviewer-${{ github.run_id }}-${{ github.run_attempt }}
+          path: live-evidence
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Full reviewer convergence FIRST_GREEN boundary
+          - exact prerequisite PR head readback: exercised
+          - one-command deterministic reviewer path: exercised
+          - Demo Console build + canonical public evidence render: exercised
+          - seven bounded failure/recovery drills + same-failure re-test: exercised
+          - paid API dependency: none
+          - live kind/Kubernetes: **NOT_EXERCISED**
+          - real Argo CD/Rollouts: **NOT_EXERCISED**
+          - local Qwen/llama.cpp: **NOT_EXERCISED**
+          - 1,000 VU: **NOT_EXERCISED**
+          - production incidents/users/tenure: **NOT CLAIMED**
+          - evidence ceiling: `GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY`
+          EOF
