@@ -1,0 +1,212 @@
+name: M7 advanced execution bundle index
+
+on:
+  pull_request:
+    paths:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'docs/INDEX.md'
+      - 'docs/milestones/PUBLIC_M7_ADVANCED_EXECUTION_BUNDLE_READY.md'
+      - 'registry/public-m7-advanced-bundle.json'
+      - 'registry/stack-plan.yaml'
+      - '.github/workflows/m7-advanced-bundle-index.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: m7-advanced-bundle-index-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      GITHUB_TOKEN: ${{ github.token }}
+      SKILLS_SHARED_COMMIT: 4ca9417b1da5ff32f1d4d3e7af64a15908749024
+      QUEUE_HEAD: f7a3937d7d0979e3adfaf1ebc4adc0532450d925
+      ARGO_HEAD: 8d976171f4aa2eba72bee360823b660f9bed99d4
+      MODEL_HEAD: 63355992f382cf260c624e2c7c7c3733cce82c20
+      CAPACITY_HEAD: 2240e8ee7ae9f151503d5c03d8043938dbbdce95
+      SIGNING_HEAD: 1b543fdfad73377fa6ba51e3f190b56ed60452fa
+      M7_BUNDLE_HEAD: cf63e2fc85d56c2e49cfefd33fefbec30316e1fa
+      M7_BUNDLE_TREE: 7dce94e01dd3630662deb6dfb3c67c8b5f272bb0
+    steps:
+      - name: Checkout exact index subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_COMMIT }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout exact canonical Tech Lead method
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ed3c/skills-shared
+          ref: ${{ env.SKILLS_SHARED_COMMIT }}
+          path: _skills-shared
+          persist-credentials: false
+
+      - name: Validate M7 machine index
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          x = json.loads(Path('registry/public-m7-advanced-bundle.json').read_text())
+          assert x['schema_version'] == 'full-manager-mvp/public-m7-advanced-bundle/v1'
+          assert x['milestone'] == 'PUBLIC_ADVANCED_EXECUTION_BUNDLE_READY'
+          assert x['verdict'] == 'PASS_BOUNDED'
+          assert x['method']['commit'] == '4ca9417b1da5ff32f1d4d3e7af64a15908749024'
+          assert x['canonical_queue_parent']['pull_request'] == 52
+          assert x['canonical_queue_parent']['current_head'] == 'f7a3937d7d0979e3adfaf1ebc4adc0532450d925'
+          assert x['canonical_queue_parent']['physical_receipts_admitted'] == 0
+          bundle = x['bundle']
+          assert bundle['pull_request'] == 65
+          assert bundle['head'] == 'cf63e2fc85d56c2e49cfefd33fefbec30316e1fa'
+          assert bundle['tree'] == '7dce94e01dd3630662deb6dfb3c67c8b5f272bb0'
+          assert bundle['workflow_run'] == 32275551599
+          assert bundle['contract_state'] == 'PASS'
+          assert bundle['runtime_state'] == 'NOT_EXERCISED'
+          assert bundle['contract_evidence_ceiling'] == 'GITHUB_HOSTED_M7_ADVANCED_BUNDLE_AND_QUEUE_COMPILER_ONLY'
+          expected = {
+              55: '8d976171f4aa2eba72bee360823b660f9bed99d4',
+              56: '63355992f382cf260c624e2c7c7c3733cce82c20',
+              57: '2240e8ee7ae9f151503d5c03d8043938dbbdce95',
+              58: '1b543fdfad73377fa6ba51e3f190b56ed60452fa',
+          }
+          observed = {item['pull_request']: item['head'] for item in x['exact_side_inputs']}
+          assert observed == expected
+          assert x['compiler']['fixture_mode']['explicit_flag'] == '--fixture-mode'
+          assert x['compiler']['fixture_mode']['required_evidence_kind'] == 'FIXTURE'
+          assert x['compiler']['fixture_mode']['physical_runtime_executed'] is False
+          future = x['future_queue']
+          assert future['physical_state'] == 'NOT_COMPILED_FROM_LIVE_RECEIPTS'
+          assert future['fixture_validation'] == 'PASS'
+          assert [item['state_in_fixture'] for item in future['order']] == [
+              'ACTIVE', 'BLOCKED_BY_PREDECESSOR', 'BLOCKED_BY_PREDECESSOR', 'BLOCKED_BY_PREDECESSOR'
+          ]
+          assert all(value in {'NOT_EXERCISED', 'OUTSIDE_CURRENT_PROOF', 'OUTSIDE_REPOSITORY_PROOF'} for value in x['residuals'].values())
+          print('m7-machine-index=PASS')
+          PY
+
+      - name: Re-read mutable PR heads
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from urllib import request
+
+          expected = {
+              52: 'f7a3937d7d0979e3adfaf1ebc4adc0532450d925',
+              55: '8d976171f4aa2eba72bee360823b660f9bed99d4',
+              56: '63355992f382cf260c624e2c7c7c3733cce82c20',
+              57: '2240e8ee7ae9f151503d5c03d8043938dbbdce95',
+              58: '1b543fdfad73377fa6ba51e3f190b56ed60452fa',
+              65: 'cf63e2fc85d56c2e49cfefd33fefbec30316e1fa',
+          }
+          for pr, expected_head in sorted(expected.items()):
+              req = request.Request(
+                  f'https://api.github.com/repos/ed3c/DevOps-Manager-Notes/pulls/{pr}',
+                  headers={
+                      'Authorization': f'Bearer {os.environ["GITHUB_TOKEN"]}',
+                      'Accept': 'application/vnd.github+json',
+                      'X-GitHub-Api-Version': '2022-11-28',
+                  },
+              )
+              with request.urlopen(req, timeout=10) as response:
+                  payload = json.load(response)
+              actual = payload['head']['sha']
+              if actual != expected_head:
+                  raise SystemExit(f'stale M7 input PR #{pr}: expected {expected_head}, observed {actual}')
+          print('m7-current-head-readback=PASS')
+          PY
+
+      - name: Assert exact M7 bundle tree
+        run: |
+          actual_tree="$(git rev-parse "${M7_BUNDLE_HEAD}^{tree}")"
+          test "$actual_tree" = "$M7_BUNDLE_TREE"
+          git cat-file -e "$M7_BUNDLE_HEAD:scripts/handoff/compile_m7_advanced_queue.py"
+          git cat-file -e "$M7_BUNDLE_HEAD:tests/handoff/fixtures/m7/reviewer-pass.json"
+          git cat-file -e "$M7_BUNDLE_HEAD:tests/handoff/fixtures/m7/kind-pass.json"
+          echo 'm7-bundle-subject=PASS'
+
+      - name: Re-verify M7 runner byte parity
+        run: |
+          set -euo pipefail
+          compare_git_paths() {
+            local source_sha="$1"
+            local source_path="$2"
+            local bundle_path="$3"
+            git show "${source_sha}:${source_path}" > /tmp/source
+            git show "${M7_BUNDLE_HEAD}:${bundle_path}" > /tmp/bundle
+            cmp --silent /tmp/source /tmp/bundle || {
+              echo "M7 byte parity failed: ${source_sha}:${source_path}"
+              exit 1
+            }
+          }
+          compare_git_paths "$ARGO_HEAD" scripts/handoff/run_argo_control_plane.py scripts/handoff/run_argo_control_plane.py
+          compare_git_paths "$ARGO_HEAD" scripts/handoff/run_argo_ephemeral_kind.py scripts/handoff/run_argo_ephemeral_kind.py
+          compare_git_paths "$ARGO_HEAD" scripts/handoff/run_argo_ephemeral_kind_from_env.sh scripts/handoff/run_argo_ephemeral_kind_from_env.sh
+          compare_git_paths "$MODEL_HEAD" scripts/handoff/run_local_model.py scripts/handoff/run_local_model.py
+          compare_git_paths "$MODEL_HEAD" scripts/handoff/run_local_model_from_env.sh scripts/handoff/run_local_model_from_env.sh
+          compare_git_paths "$CAPACITY_HEAD" scripts/handoff/run_local_capacity.py scripts/handoff/run_local_capacity.py
+          compare_git_paths "$SIGNING_HEAD" scripts/handoff/run_local_registry_signing.py scripts/handoff/run_local_registry_signing.py
+          compare_git_paths "$SIGNING_HEAD" scripts/handoff/run_local_registry_signing_from_env.sh scripts/handoff/run_local_registry_signing_from_env.sh
+          echo 'm7-index-runner-byte-parity=PASS'
+
+      - name: Re-exercise fixture compiler on exact bundle subject
+        run: |
+          git worktree add --detach /tmp/m7-bundle "$M7_BUNDLE_HEAD"
+          cd /tmp/m7-bundle
+          python3 scripts/handoff/compile_m7_advanced_queue.py \
+            --fixture-mode \
+            --reviewer-receipt tests/handoff/fixtures/m7/reviewer-pass.json \
+            --kind-receipt tests/handoff/fixtures/m7/kind-pass.json \
+            --output /tmp/m7-index-queue.json \
+            --compile-receipt /tmp/m7-index-compile-receipt.json
+          jq -e '.evidence_kind == "FIXTURE" and .physical_runtime_executed == false' /tmp/m7-index-compile-receipt.json >/dev/null
+          jq -e '.current.active_item == "M7-ARGO-CONTROLLERS-001"' /tmp/m7-index-queue.json >/dev/null
+
+      - name: Run canonical assertion on recompiled fixture queue
+        run: |
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue /tmp/m7-index-queue.json
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue /tmp/m7-index-queue.json \
+            --selftest
+
+      - name: Validate README AGENTS Stack and milestone routing
+        run: |
+          grep -q 'M7 PUBLIC_ADVANCED_EXECUTION_BUNDLE_READY' README.md
+          grep -q 'PR #65 Advanced Execution Bundle' README.md
+          grep -q 'M7 advanced execution bundle' AGENTS.md
+          grep -q 'fixture_evidence_cannot_satisfy_live_admission: true' registry/stack-plan.yaml
+          grep -q 'version: 9' registry/stack-plan.yaml
+          grep -q 'pull_request: 65' registry/stack-plan.yaml
+          grep -q 'M7 — PUBLIC_ADVANCED_EXECUTION_BUNDLE_READY' docs/milestones/PUBLIC_M7_ADVANCED_EXECUTION_BUNDLE_READY.md
+          grep -q 'full-manager-mvp/public-m7-advanced-bundle/v1' registry/public-m7-advanced-bundle.json
+          if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_)' \
+            README.md AGENTS.md docs/INDEX.md docs/milestones/PUBLIC_M7_ADVANCED_EXECUTION_BUNDLE_READY.md registry/public-m7-advanced-bundle.json; then
+            echo 'secret-like material found in M7 public index'
+            exit 1
+          fi
+
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M7 advanced bundle traceability boundary
+          - PR #52/#55/#56/#57/#58/#65 current-head readback: exercised
+          - exact PR #65 tree/path readback: exercised
+          - exact runner byte parity against PR #65 bundle: exercised
+          - fixture compiler re-execution from exact PR #65 subject: exercised
+          - portable Local Handoff assertion + selftest: exercised
+          - physical local reviewer execution: **NOT_EXERCISED**
+          - physical kind/Kubernetes execution: **NOT_EXERCISED**
+          - live advanced queue compilation: **NOT_EXERCISED**
+          - Argo/model/1,000-VU/signing runtime: **NOT_EXERCISED**
+          - evidence ceiling: `GITHUB_HOSTED_M7_TRACEABILITY_INDEX_ONLY`
+          EOF
