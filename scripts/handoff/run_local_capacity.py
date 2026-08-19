@@ -7,6 +7,7 @@ import json
 import os
 import re
 import shutil
+import socket
 import subprocess
 import tempfile
 import time
@@ -31,6 +32,14 @@ def bounded_float(name: str, value: float, minimum: float, maximum: float) -> fl
 
 def safe_port(value: int) -> int:
     return bounded_int("local_port", value, 1024, 65535)
+
+
+def assert_port_free(port: int) -> None:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.bind(("127.0.0.1", port))
+        except OSError as exc:
+            raise RuntimeError(f"local port {port} is already in use; refusing takeover") from exc
 
 
 def run(argv: list[str], *, cwd: Path, timeout: int, env: dict[str, str] | None = None, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -95,9 +104,11 @@ def plan(*, users: int, spawn_rate: int, duration_seconds: int, p95_limit_ms: fl
             "max_duration_seconds": 60,
             "loopback_only": True,
             "persistent_service": False,
+            "pip_cache": False,
         },
         "operations": [
-            "create a temporary Python virtual environment and install the exact local app dev dependencies",
+            "refuse to take over an occupied loopback port",
+            "create a temporary Python virtual environment and install exact local app dev dependencies without a persistent pip cache",
             "start one loopback-only demo service on the requested high port",
             "run bounded Locust headless load against loopback only",
             "persist CSV statistics and evaluate aggregate failure ratio plus p95 latency",
@@ -120,6 +131,8 @@ def write_receipt(path: Path, value: dict) -> None:
 
 
 def find_aggregate(stats_path: Path) -> dict[str, str]:
+    if not stats_path.is_file():
+        raise RuntimeError("Locust stats CSV missing")
     with stats_path.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     for row in rows:
@@ -169,6 +182,7 @@ def main() -> int:
         "plan": execution_plan,
         "evidence_ceiling": EVIDENCE_CEILING,
         "checks": {
+            "loopback_port_free": "NOT_EXERCISED",
             "loopback_service_live": "NOT_EXERCISED",
             "locust_exit_zero": "NOT_EXERCISED",
             "aggregate_stats_present": "NOT_EXERCISED",
@@ -183,12 +197,22 @@ def main() -> int:
     try:
         if shutil.which("python3") is None:
             raise RuntimeError("python3 is required")
+        assert_port_free(args.local_port)
+        receipt["checks"]["loopback_port_free"] = "PASS"
         temp_root = Path(tempfile.mkdtemp(prefix="manager-demo-m6-capacity-"))
         venv = temp_root / "venv"
         run(["python3", "-m", "venv", str(venv)], cwd=repo_root, timeout=60)
         python_bin = venv / "bin" / "python"
         locust_bin = venv / "bin" / "locust"
-        run([str(python_bin), "-m", "pip", "install", "--disable-pip-version-check", "--no-input", "-e", "platform/app[dev]"], cwd=repo_root, timeout=240)
+        run(
+            [
+                str(python_bin), "-m", "pip", "install",
+                "--disable-pip-version-check", "--no-input", "--no-cache-dir",
+                "-e", "platform/app[dev]",
+            ],
+            cwd=repo_root,
+            timeout=240,
+        )
 
         env = os.environ.copy()
         env["DATABASE_URL"] = f"sqlite+pysqlite:///{temp_root / 'capacity.db'}"
