@@ -67,7 +67,7 @@ jobs:
           assert q['workflow_run'] == 32263239722
           assert q['runtime_state'] == 'NOT_EXERCISED'
           expected = {
-              55: ('284dbf1d2e9a1759cab0a8cb21987f76112946b5', 32265921102, 'GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY'),
+              55: ('8d976171f4aa2eba72bee360823b660f9bed99d4', 32274548200, 'GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY'),
               56: ('63355992f382cf260c624e2c7c7c3733cce82c20', 32265971683, 'GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY'),
               57: ('2240e8ee7ae9f151503d5c03d8043938dbbdce95', 32266078175, 'GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY'),
               58: ('1b543fdfad73377fa6ba51e3f190b56ed60452fa', 32266026763, 'GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY'),
@@ -152,6 +152,7 @@ jobs:
           ## M6 advanced runner-contract index boundary
           - exact PR #52/#55/#56/#57/#58 current-head readback: exercised
           - canonical PR #52 queue re-fetch + portable assertion/selftest: exercised
+          - hardened Argo ephemeral-kind lifecycle correction is bound to current PR #55
           - M6 README/AGENTS/Stack/machine-index consistency: exercised
           - physical local reviewer execution: **NOT_EXERCISED**
           - physical kind/Kubernetes execution: **NOT_EXERCISED**
