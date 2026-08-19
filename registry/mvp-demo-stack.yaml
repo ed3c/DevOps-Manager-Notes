@@ -1,0 +1,307 @@
+version: 1
+verified_date: 2026-08-19
+policy:
+  default_distribution_requires_no_forced_source_disclosure: true
+  preferred_license_families:
+    - MIT
+    - Apache-2.0
+    - BSD
+    - PostgreSQL
+  copyleft_or_source_available_requires_separate_adr: true
+  top_level_license_does_not_clear_transitives: true
+  images_plugins_models_marketplace_actions_and_saas_terms_are_separate_subjects: true
+  downloaded_artifacts_require_digest_and_license_record: true
+  deterministic_demo_requires_no_paid_api_key: true
+
+states:
+  - SELECTED_MANDATORY
+  - SELECTED_LOCAL_OPTION
+  - SELECTED_FUTURE_ADAPTER
+  - NEEDS_TRANSITIVE_AUDIT
+  - REJECTED_DEFAULT
+
+stack:
+  - id: fastapi
+    category: api
+    role: control-plane HTTP API
+    source: https://github.com/fastapi/fastapi
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: pydantic
+    category: api
+    role: typed request/evidence/state contracts
+    source: https://github.com/pydantic/pydantic
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: postgresql
+    category: persistence
+    role: durable control-plane and lifecycle state
+    source: https://github.com/postgres/postgres
+    license: PostgreSQL
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: sqlalchemy
+    category: persistence
+    role: Python persistence abstraction
+    source: https://github.com/sqlalchemy/sqlalchemy
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: alembic
+    category: persistence
+    role: schema migrations and rollback evidence
+    source: https://github.com/sqlalchemy/alembic
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: react
+    category: frontend
+    role: recruiter-facing Manager Demo Console
+    source: https://github.com/facebook/react
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 8
+
+  - id: vite
+    category: frontend
+    role: frontend build and license artifact generation
+    source: https://github.com/vitejs/vite
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 8
+
+  - id: tanstack-query
+    category: frontend
+    role: server-state synchronization
+    source: https://github.com/TanStack/query
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 8
+
+  - id: apache-echarts
+    category: frontend
+    role: SLO/eval/rollout/capacity/incident visualization
+    source: https://github.com/apache/echarts
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 8
+
+  - id: mlflow
+    category: mlops
+    role: experiments, evaluation, model/prompt lifecycle and registry
+    source: https://github.com/mlflow/mlflow
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 7
+
+  - id: llama-cpp
+    category: llm-runtime
+    role: local deterministic LLM-serving lane without paid API key
+    source: https://github.com/ggml-org/llama.cpp
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 7
+    note: model weights remain separate licensed artifacts
+
+  - id: qwen2.5-0.5b-instruct-gguf
+    category: model-artifact
+    role: initial tiny local demo model candidate
+    source: https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 7
+    remaining_proof:
+      - pin exact filename/revision/digest
+      - preserve model license/notice independently from llama.cpp
+
+  - id: vllm
+    category: llm-runtime
+    role: production-shaped GPU/OpenAI-compatible serving adapter
+    source: https://github.com/vllm-project/vllm
+    license: Apache-2.0
+    state: SELECTED_FUTURE_ADAPTER
+    issue: 7
+    note: not required for deterministic core demo
+
+  - id: kserve
+    category: llm-runtime
+    role: Kubernetes inference-serving adapter
+    source: https://github.com/kserve/kserve
+    license: Apache-2.0
+    state: SELECTED_FUTURE_ADAPTER
+    issue: 7
+    note: not required for deterministic core demo
+
+  - id: docker-cli
+    category: container
+    role: Docker-compatible CLI workflow required by job profile
+    source: https://github.com/docker/cli
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 2
+    note: Docker Desktop terms are a separate subject
+
+  - id: moby
+    category: container
+    role: open container engine reference/runtime
+    source: https://github.com/moby/moby
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: colima
+    category: local-runtime
+    role: permissive macOS/Linux local Docker runtime option
+    source: https://github.com/abiosoft/colima
+    license: MIT
+    state: SELECTED_LOCAL_OPTION
+    issue: 2
+
+  - id: rancher-desktop
+    category: local-runtime
+    role: permissive desktop container/Kubernetes runtime option
+    source: https://github.com/rancher-sandbox/rancher-desktop
+    license: Apache-2.0
+    state: SELECTED_LOCAL_OPTION
+    issue: 2
+
+  - id: kind
+    category: kubernetes
+    role: reproducible local Kubernetes substrate
+    source: https://github.com/kubernetes-sigs/kind
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: kubernetes
+    category: kubernetes
+    role: orchestration and resource/lifecycle semantics
+    source: https://github.com/kubernetes/kubernetes
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: argo-cd
+    category: delivery
+    role: GitOps desired/observed reconciliation
+    source: https://github.com/argoproj/argo-cd
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: argo-rollouts
+    category: delivery
+    role: canary/progressive delivery and rollback
+    source: https://github.com/argoproj/argo-rollouts
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 7
+
+  - id: opentelemetry-collector
+    category: observability
+    role: trace/metric/log collection boundary
+    source: https://github.com/open-telemetry/opentelemetry-collector
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 3
+
+  - id: prometheus
+    category: observability
+    role: SLI/SLO, alert and rollout-analysis metrics
+    source: https://github.com/prometheus/prometheus
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 3
+
+  - id: jaeger
+    category: observability
+    role: distributed trace inspection for demo and incident diagnosis
+    source: https://github.com/jaegertracing/jaeger
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 3
+
+  - id: opa
+    category: policy
+    role: deployment/promotion policy gate
+    source: https://github.com/open-policy-agent/opa
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 4
+
+  - id: trivy
+    category: security
+    role: vulnerability and dependency/license scanning
+    source: https://github.com/aquasecurity/trivy
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 4
+
+  - id: syft
+    category: supply-chain
+    role: exact-image SBOM generation
+    source: https://github.com/anchore/syft
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 10
+
+  - id: cosign
+    category: supply-chain
+    role: image/artifact signing and verification
+    source: https://github.com/sigstore/cosign
+    license: Apache-2.0
+    state: SELECTED_MANDATORY
+    issue: 10
+
+  - id: locust
+    category: reliability
+    role: reproducible synthetic load and 1,000-VU experiment
+    source: https://github.com/locustio/locust
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 3
+
+  - id: toxiproxy
+    category: reliability
+    role: bounded network/dependency latency and timeout injection
+    source: https://github.com/Shopify/toxiproxy
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 10
+
+  - id: pytest
+    category: test
+    role: unit/integration/failure oracle framework
+    source: https://github.com/pytest-dev/pytest
+    license: MIT
+    state: SELECTED_MANDATORY
+    issue: 2
+
+  - id: github-actions
+    category: ci
+    role: exact-head CI and publication checks
+    source: https://github.com/features/actions
+    license: proprietary_service_terms
+    state: SELECTED_MANDATORY
+    issue: 2
+    note: workflow/action dependencies require separate exact pin and license review
+
+rejected_defaults:
+  - id: grafana-oss
+    reason: default stack does not require AGPL/copyleft dashboard dependency; ECharts + Prometheus/Jaeger provide the demo surfaces
+    state: REJECTED_DEFAULT
+  - id: docker-desktop-as-required-runtime
+    reason: Docker Desktop commercial terms are separate and unnecessary; demo supports permissive local engine options
+    state: REJECTED_DEFAULT
+
+closure_rule:
+  selected_entry_does_not_equal_runtime_pass: true
+  every_runtime_pass_requires_exact_subject_environment_and_receipt: true
+  every_model_or_image_requires_separate_digest_and_license_evidence: true
