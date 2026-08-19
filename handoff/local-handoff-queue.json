@@ -29,7 +29,8 @@
   },
   "current": {
     "active_item": "M4-LOCAL-REVIEWER-001",
-    "state": "ACTIVE"
+    "state": "ACTIVE",
+    "next_concrete_item": "M4-LIVE-SUBSTRATE-002"
   },
   "items": [
     {
@@ -106,25 +107,139 @@
     },
     {
       "id": "M4-LIVE-SUBSTRATE-002",
-      "task_ref": "ed3c/DevOps-Manager-Notes#9",
-      "state": "BLOCKED_UNRESOLVED",
+      "task_ref": "ed3c/DevOps-Manager-Notes#47",
+      "queue_compiler_ref": "ed3c/DevOps-Manager-Notes#48",
+      "state": "WAITING_PREDECESSOR",
       "entry": {
         "predecessor": "M4-LOCAL-REVIEWER-001",
-        "required_subject_commit": "55d18cdc556ca5d66c67406318ae25196c077fd2",
+        "required_subject_commit": "20d2ccb0ed8c877309452eece7c755bb3411c4c1",
+        "required_subject_tree": "7d4b5d5aaba2d023803b152ce5ac7f23f274eba0",
+        "required_subject_pr": 51,
         "required_capabilities": [
-          "Docker-compatible daemon",
-          "kind and kubectl for a bounded local Kubernetes substrate",
-          "concrete committed runner for live GitOps/canary/model lanes before execution"
+          "LOCAL_HOST",
+          "repository checkout at exact runner commit",
+          "git",
+          "python3",
+          "Docker-compatible daemon with buildx",
+          "kind",
+          "kubectl",
+          "one exact kind node image supplied through M5_KIND_NODE_IMAGE as name@sha256:<64 hex>",
+          "outbound image/package reachability needed by the exact local build"
         ]
+      },
+      "resource_budget": {
+        "max_clusters_created": 1,
+        "allowed_cluster_name_prefix": "manager-demo-",
+        "cluster_name": "manager-demo-m5",
+        "deployment_replicas": 2,
+        "pod_cpu_request": "100m",
+        "pod_cpu_limit": "1",
+        "pod_memory_request": "128Mi",
+        "pod_memory_limit": "512Mi",
+        "timeout_seconds": 900,
+        "local_port": 18030
       },
       "runtime_lane": {
         "class": "LOCAL_REAL_SUBSTRATE",
+        "commands": [
+          {
+            "argv": [
+              "bash",
+              "scripts/handoff/run_live_kind_from_env.sh",
+              "--output",
+              "evidence/local-kind/local-kind-receipt.json",
+              "--cluster-name",
+              "manager-demo-m5",
+              "--local-port",
+              "18030"
+            ],
+            "cwd": ".",
+            "timeout_seconds": 900,
+            "environment_names": [
+              "M5_KIND_NODE_IMAGE"
+            ]
+          }
+        ],
+        "unresolved_operations": [],
+        "live_evidence_required": true,
+        "external_side_effects": [
+          "build one local OCI archive using Docker buildx",
+          "pull the exact kind node image if absent",
+          "create one new manager-demo-m5 kind cluster",
+          "temporarily change kubectl current-context while kind is active",
+          "bind loopback port 18030 during health/business probes"
+        ],
+        "cleanup_contract": [
+          "refuse to take over any pre-existing manager-demo-m5 cluster",
+          "delete the attempted manager-demo-m5 kind cluster in finally",
+          "remove temporary OCI/render/port-forward files",
+          "terminate port-forward",
+          "restore the caller kubectl context when one existed"
+        ]
+      },
+      "receipt": {
+        "path": "evidence/local-kind/local-kind-receipt.json",
+        "schema": "full-manager-mvp/local-kind-substrate-receipt/v1",
+        "required_states": [
+          "PASS",
+          "FAIL"
+        ],
+        "required_verdict": "PASS",
+        "evidence_ceiling": "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY",
+        "required_checks": [
+          "local_kind_cluster_created=PASS",
+          "oci_digest_bound=PASS",
+          "deployment_ready=PASS",
+          "business_oracle_pass=PASS",
+          "business_oracle_forced_fail_visible=PASS",
+          "pod_image_ids_captured=PASS",
+          "cleanup=PASS",
+          "kubectl_context_restored in {PASS,SKIPPED_NO_PRIOR_CONTEXT}"
+        ],
+        "required_residuals": [
+          "real_argo_cd_reconcile=NOT_EXERCISED",
+          "live_argo_rollouts_canary=NOT_EXERCISED",
+          "local_qwen_llama_cpp=NOT_EXERCISED",
+          "load_1000_vu=NOT_EXERCISED"
+        ],
+        "forbidden_promotions": [
+          "queue contract PASS to local execution PASS",
+          "local kind PASS to production Kubernetes experience",
+          "local kind PASS to Argo CD or Argo Rollouts runtime PASS",
+          "local kind PASS to Qwen or llama.cpp runtime PASS",
+          "local kind PASS to 1000-VU capacity/recovery PASS",
+          "synthetic or local failure behavior to production incident history",
+          "local substrate execution to people-management tenure"
+        ]
+      },
+      "exit": {
+        "requires_receipt": true,
+        "required_verdict": "PASS",
+        "cleanup_required": true
+      },
+      "next": "M5-ARGO-MODEL-CAPACITY-003"
+    },
+    {
+      "id": "M5-ARGO-MODEL-CAPACITY-003",
+      "task_ref": "ed3c/DevOps-Manager-Notes#9",
+      "state": "BLOCKED_UNRESOLVED",
+      "entry": {
+        "predecessor": "M4-LIVE-SUBSTRATE-002",
+        "required_capabilities": [
+          "concrete committed Argo CD/Argo Rollouts runner with exact image/tool identities",
+          "exact Qwen revision/file/digest/license plus committed llama.cpp runner",
+          "explicit host resource budget before 1000-VU execution"
+        ]
+      },
+      "runtime_lane": {
+        "class": "LOCAL_ADVANCED_SUBSTRATE",
         "commands": [],
         "unresolved_operations": [
-          "compile a committed bounded kind/Kubernetes runner before activating this item",
-          "bind exact Argo CD/Argo Rollouts image/tool versions and cleanup behavior",
-          "bind exact Qwen model revision/file/digest/license before any model download",
-          "define a resource budget before any 1000-VU execution"
+          "bind exact Argo CD/Argo Rollouts image/tool versions and rollback cleanup",
+          "bind exact Qwen model revision/file/digest/license before model download",
+          "bind an exact llama.cpp build/binary subject",
+          "define CPU/memory/FD/network budget and abort thresholds for any 1000-VU run",
+          "separate registry-stored signing from the existing same-run blob signature evidence"
         ],
         "live_evidence_required": true
       },
@@ -136,12 +251,11 @@
           "FAIL",
           "NOT_EXERCISED"
         ],
-        "evidence_ceiling": "NOT_EXERCISED_UNTIL_CONCRETE_RUNNER_EXISTS",
+        "evidence_ceiling": "NOT_EXERCISED_UNTIL_CONCRETE_RUNNERS_EXIST",
         "forbidden_promotions": [
           "planned command to execution evidence",
-          "local Kubernetes to production tenure",
-          "synthetic 1000 VU to 1000 real users",
-          "local model inference to production LLM traffic"
+          "local Argo/model/load evidence to production tenure",
+          "synthetic 1000 VU to 1000 real users"
         ]
       },
       "exit": {
