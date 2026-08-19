@@ -1,0 +1,25 @@
+version: 1
+evidence_states:
+  - PASS
+  - FAIL
+  - ABSENT
+  - NOT_IMPLEMENTED
+  - NOT_EXERCISED
+  - SKIPPED_BY_POLICY
+  - HUMAN_ADMIT_REQUIRED
+ladder:
+  L0: SOURCE_CLAIM
+  L1: STATIC_REASONING
+  L2: DETERMINISTIC_TEST
+  L3: LOCAL_INTEGRATION
+  L4: REAL_SUBSTRATE
+  L5: ADVERSARIAL_OR_CHAOS
+  L6: PRODUCTION_OBSERVATION
+records: []
+rules:
+  - exact subject, revision, workload and environment must be bound before PASS
+  - CI green does not prove business or operational correctness
+  - local Kubernetes does not prove production Kubernetes behavior
+  - virtual users do not prove real user adoption
+  - synthetic incidents must remain DRILL or SIMULATION
+  - rollback and recovery evidence are distinct from successful deployment evidence
