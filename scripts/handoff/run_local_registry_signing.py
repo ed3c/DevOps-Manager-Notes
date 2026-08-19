@@ -46,7 +46,16 @@ def sha256_file(path: Path) -> str:
 
 
 def run(argv: list[str], *, cwd: Path, timeout: int, env: dict[str, str] | None = None, check: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(argv, cwd=cwd, env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=check)
+    return subprocess.run(
+        argv,
+        cwd=cwd,
+        env=env,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=timeout,
+        check=check,
+    )
 
 
 def git_subject(repo_root: Path) -> dict[str, str]:
@@ -101,7 +110,7 @@ def plan(*, registry_image: str, cosign_bin: str, cosign_sha256: str, registry_p
             "sign with transparency-log upload disabled and HTTP registry explicitly allowed for local testing",
             "verify the stored registry signature with the ephemeral public key and tlog verification explicitly disabled",
             "persist only non-secret digest/version/verification metadata",
-            "remove registry container, temporary key material and local staging files in finally",
+            "remove the built local image tag, registry container, temporary key material and local staging files in finally",
         ],
         "forbidden_promotions": [
             "plan-only PASS to registry signing PASS",
@@ -162,6 +171,7 @@ def main() -> int:
     temp_root: Path | None = None
     registry_name = f"manager-demo-m6-registry-{subject['commit'][:8]}"
     registry_started = False
+    built_local_tag: str | None = None
     cleanup_errors: list[str] = []
     receipt = {
         "schema_version": SCHEMA,
@@ -176,6 +186,7 @@ def main() -> int:
             "ephemeral_keypair_generated": "NOT_EXERCISED",
             "registry_signature_uploaded": "NOT_EXERCISED",
             "registry_signature_verified": "NOT_EXERCISED",
+            "local_image_removed": "NOT_EXERCISED",
             "cleanup": "NOT_EXERCISED",
             "production_registry_signing": "NOT_EXERCISED",
             "production_key_custody": "NOT_EXERCISED",
@@ -183,7 +194,11 @@ def main() -> int:
     }
 
     try:
-        existing = run(["docker", "ps", "-a", "--format", "{{.Names}}"], cwd=repo_root, timeout=20).stdout.splitlines()
+        existing = run(
+            ["docker", "ps", "-a", "--format", "{{.Names}}"],
+            cwd=repo_root,
+            timeout=20,
+        ).stdout.splitlines()
         if registry_name in existing:
             raise RuntimeError(f"refusing to take over existing container {registry_name}")
         temp_root = Path(tempfile.mkdtemp(prefix="manager-demo-m6-registry-"))
@@ -191,9 +206,14 @@ def main() -> int:
 
         run(
             [
-                "docker", "run", "-d", "--rm",
-                "--name", registry_name,
-                "-p", f"127.0.0.1:{args.registry_port}:5000",
+                "docker",
+                "run",
+                "-d",
+                "--rm",
+                "--name",
+                registry_name,
+                "-p",
+                f"127.0.0.1:{args.registry_port}:5000",
                 args.registry_image,
             ],
             cwd=repo_root,
@@ -203,8 +223,17 @@ def main() -> int:
         receipt["checks"]["registry_started_from_exact_digest"] = "PASS"
 
         local_tag = f"127.0.0.1:{args.registry_port}/manager-demo:{subject['commit'][:12]}"
+        built_local_tag = local_tag
         run(
-            ["docker", "build", "-t", local_tag, "-f", "platform/docker/Dockerfile", "platform/app"],
+            [
+                "docker",
+                "build",
+                "-t",
+                local_tag,
+                "-f",
+                "platform/docker/Dockerfile",
+                "platform/app",
+            ],
             cwd=repo_root,
             timeout=300,
         )
@@ -218,7 +247,17 @@ def main() -> int:
 
         cosign_env = os.environ.copy()
         cosign_env["COSIGN_PASSWORD"] = secrets.token_urlsafe(24)
-        run([str(cosign_path), "generate-key-pair", "--output-key-prefix", str(key_prefix)], cwd=repo_root, timeout=60, env=cosign_env)
+        run(
+            [
+                str(cosign_path),
+                "generate-key-pair",
+                "--output-key-prefix",
+                str(key_prefix),
+            ],
+            cwd=repo_root,
+            timeout=60,
+            env=cosign_env,
+        )
         key_file = Path(f"{key_prefix}.key")
         pub_file = Path(f"{key_prefix}.pub")
         if not key_file.is_file() or not pub_file.is_file():
@@ -227,8 +266,11 @@ def main() -> int:
 
         sign = run(
             [
-                str(cosign_path), "sign", "--yes",
-                "--key", str(key_file),
+                str(cosign_path),
+                "sign",
+                "--yes",
+                "--key",
+                str(key_file),
                 "--allow-http-registry",
                 "--tlog-upload=false",
                 digest_ref,
@@ -242,8 +284,10 @@ def main() -> int:
 
         verify = run(
             [
-                str(cosign_path), "verify",
-                "--key", str(pub_file),
+                str(cosign_path),
+                "verify",
+                "--key",
+                str(pub_file),
                 "--allow-http-registry",
                 "--insecure-ignore-tlog",
                 digest_ref,
@@ -258,7 +302,11 @@ def main() -> int:
             "image_digest_ref": digest_ref,
             "registry_image": args.registry_image,
             "cosign_binary_sha256": sha256_file(cosign_path),
-            "cosign_version": run([str(cosign_path), "version"], cwd=repo_root, timeout=20).stdout[:2000],
+            "cosign_version": run(
+                [str(cosign_path), "version"],
+                cwd=repo_root,
+                timeout=20,
+            ).stdout[:2000],
             "ephemeral_public_key_sha256": sha256_file(pub_file),
         }
         receipt["state"] = "PASS"
@@ -266,8 +314,25 @@ def main() -> int:
         receipt["error"] = f"{type(exc).__name__}: {exc}"
         receipt["state"] = "FAIL"
     finally:
+        if built_local_tag is not None:
+            result = run(
+                ["docker", "image", "rm", "-f", built_local_tag],
+                cwd=repo_root,
+                timeout=60,
+                check=False,
+            )
+            if result.returncode == 0:
+                receipt["checks"]["local_image_removed"] = "PASS"
+            else:
+                cleanup_errors.append("failed to remove built local image tag")
+                receipt["checks"]["local_image_removed"] = "FAIL"
         if registry_started:
-            result = run(["docker", "rm", "-f", registry_name], cwd=repo_root, timeout=60, check=False)
+            result = run(
+                ["docker", "rm", "-f", registry_name],
+                cwd=repo_root,
+                timeout=60,
+                check=False,
+            )
             if result.returncode != 0:
                 cleanup_errors.append("failed to remove local registry container")
         if temp_root is not None:
@@ -282,7 +347,12 @@ def main() -> int:
         receipt["duration_seconds"] = round(time.monotonic() - started, 3)
         write_receipt(output, receipt)
 
-    print(json.dumps({"receipt": str(output.relative_to(repo_root)), "state": receipt["state"], "ceiling": EVIDENCE_CEILING}, sort_keys=True))
+    print(
+        json.dumps(
+            {"receipt": str(output.relative_to(repo_root)), "state": receipt["state"], "ceiling": EVIDENCE_CEILING},
+            sort_keys=True,
+        )
+    )
     return 0 if receipt["state"] == "PASS" else 1
 
 
