@@ -1,16 +1,29 @@
 # DevOps Manager Notes
 
-Public executable evidence plane for the **Full Manager MVP Demo**: an Internal AI Platform demo that covers Technical Product Manager and DevOps Manager role requirements through explicit, bounded evidence.
+Public executable evidence plane for the **Full Manager MVP Demo**: an Internal AI Platform demo that covers Technical Product Manager and DevOps Manager requirements through explicit, bounded evidence.
 
-`Product-Manager-Notes` is the public-safe management/routing center. `skills-shared` owns reusable Tech Lead, Shadow Architect and Git Town procedures. This repository owns public-safe implementation, CI/runtime evidence, ML lifecycle, SLO/policy/supply-chain evidence, failure/recovery drills, the recruiter-facing Demo Console and exact receipts.
+`Product-Manager-Notes` is the public-safe Manager requirement/routing/narrative plane. `skills-shared` owns reusable Tech Lead, Shadow Architect and Git Town procedures. This repository owns public-safe implementation, CI/runtime evidence, ML lifecycle, SLO/policy/supply-chain proof, failure/recovery drills, the recruiter-facing Demo Console, reviewer convergence and typed Local Handoff.
 
 ## Current milestones
 
 ```text
-M1 CORE_REMOTE_FIRST_GREEN                       = PASS_BOUNDED
-M2 PUBLIC_REMOTE_FANOUT_FIRST_GREEN              = PASS_BOUNDED
-M3 PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN    = PASS_BOUNDED
-M4 PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN = PASS_BOUNDED
+M1 CORE_REMOTE_FIRST_GREEN                         PASS_BOUNDED
+M2 PUBLIC_REMOTE_FANOUT_FIRST_GREEN                PASS_BOUNDED
+M3 PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN      PASS_BOUNDED
+M4 PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN  PASS_BOUNDED
+M5 PUBLIC_LOCAL_KIND_RUNNER_AND_QUEUE_READY         PASS_BOUNDED
+```
+
+M5 is **runner/queue readiness**, not a kind/Kubernetes runtime PASS. The current public proof frontier is:
+
+```text
+remote reviewer convergence              PASS_BOUNDED
+local deterministic reviewer             NOT_EXERCISED
+local kind/Kubernetes application smoke  NOT_EXERCISED
+Argo CD / Rollouts runtime               NOT_EXERCISED
+Qwen / llama.cpp runtime                 NOT_EXERCISED
+1,000-VU capacity/recovery               NOT_EXERCISED
+production users/incidents/tenure        OUTSIDE_CURRENT_PROOF
 ```
 
 Canonical milestone indexes:
@@ -25,12 +38,13 @@ registry/public-m3-failure-recovery.json
 docs/milestones/PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN.md
 registry/public-m4-reviewer-convergence.json
 
+docs/milestones/PUBLIC_M5_LOCAL_KIND_RUNNER_READY.md
+registry/public-m5-local-kind-readiness.json
+
 registry/stack-plan.yaml
 ```
 
-M4 means the public MVP is **reviewer-demo-ready at the remote GitHub evidence ceiling**. It does not mean production-ready. Live kind/Kubernetes, real Argo CD reconciliation, live Argo Rollouts/Prometheus canary, local Qwen/llama.cpp, 1,000-VU capacity/recovery, production users/incidents and real people-management tenure remain outside the current proof ceiling.
-
-`FIRST_GREEN` is a checkpoint, never terminal production closure.
+`FIRST_GREEN` is a checkpoint, never production closure.
 
 ## Read first
 
@@ -42,13 +56,15 @@ README.md
 → docs/milestones/PUBLIC_REMOTE_FANOUT_FIRST_GREEN.md
 → docs/milestones/PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN.md
 → docs/milestones/PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN.md
+→ docs/milestones/PUBLIC_M5_LOCAL_KIND_RUNNER_READY.md
 → registry/mvp-demo-stack.yaml
 → registry/stack-plan.yaml
 → registry/public-m2-first-green.json
 → registry/public-m3-failure-recovery.json
 → registry/public-m4-reviewer-convergence.json
-→ prompts/README.md
-→ exact issue / PR / commit / Local Handoff / receipt
+→ registry/public-m5-local-kind-readiness.json
+→ handoff/local-handoff-queue.json
+→ exact issue / PR / commit / Actions run / artifact / receipt
 ```
 
 ## Authority boundary
@@ -56,35 +72,35 @@ README.md
 ```text
 skills-shared
   Tech Lead / Shadow Architect / Git Town methods
-       ↓ method dependency
+       ↓
 Product-Manager-Notes
   source / requirement / product decision / gap / routing graph
        ↓ public-safe evidence request
 DevOps-Manager-Notes
-  app / CI / ML lifecycle / SLO / policy / supply-chain / failure / UI / receipts
+  app / CI / ML lifecycle / SLO / policy / supply-chain / failure / UI / runtime receipts
        ↓ exact evidence subject
 Product-Manager-Notes
   competency closure / interview narrative / portfolio projection
 ```
 
-GitHub repository metadata is the visibility source of truth. Public reachability does not promote evidence and does not authorize credentials, customer/user private data, employer/client confidential material, private source bodies or redistribution-restricted material. Merge, release, repository visibility/permissions, production promotion/rollback and real-experience claims remain Human-owned.
+GitHub repository metadata is the visibility source of truth. Public reachability does not promote evidence and never authorizes credentials, user/customer private data, employer/client confidential material or redistribution-restricted material. Merge, release, visibility/permissions, production promotion/rollback and real-experience claims remain Human-owned.
 
 ## Eight-stage execution program
 
 | Stage | Transition | Output |
 |---|---|---|
-| P0 Subject / authority | `REQUEST_BOUND → SUBJECT_ADMITTED` | exact repo/branch/commit/issue + authority + evidence ceiling |
+| P0 Subject / authority | `REQUEST_BOUND → SUBJECT_ADMITTED` | exact repo/branch/commit/issue + authority + ceiling |
 | P1 Source / evidence | `SUBJECT_ADMITTED → CONTEXT_ADMITTED` | source/claim/evidence/gap graph |
-| P2 Problem closure / System Design | `CONTEXT_ADMITTED → SYSTEM_CONTRACT_EXTRACTED` | invariants, state machines, SLO/failure contract |
+| P2 Problem closure / System Design | `CONTEXT_ADMITTED → SYSTEM_CONTRACT_EXTRACTED` | invariants, State Machines, SLO/failure contracts |
 | P3 Technology / ADR | `SYSTEM_CONTRACT_EXTRACTED → ARCHITECTURE_ADMITTED` | selected/rejected stack + license/ops boundaries |
 | P4 Tech Lead DAG / Stack | `ARCHITECTURE_ADMITTED → WORKERS_ADMITTED` | real dependency DAG + leases + molecular PR plan |
 | P5 Implementation | `WORKERS_ADMITTED → FIRST_GREEN` | code/tests/CI/receipt per bounded lane |
-| P6 Runtime / failure proof | `FIRST_GREEN → REVERIFIED` | load/fault/recovery/postmortem/same-failure re-test |
-| P7 Convergence / export / handoff | `REVERIFIED → DEMO_EVIDENCE_READY` | reviewer packet + public evidence index + Local Handoff residuals |
+| P6 Runtime / failure proof | `FIRST_GREEN → REVERIFIED` | load/fault/recovery/postmortem/re-test |
+| P7 Convergence / handoff | `REVERIFIED → DEMO_EVIDENCE_READY` | reviewer packet + Local Handoff residuals |
 
-M2 is the remote fan-out checkpoint, M3 is the remote failure/recovery checkpoint, and M4 is the remote reviewer-convergence checkpoint. None skips Local Handoff for evidence that requires a physical/local substrate.
+M2/M3/M4 are remote proof checkpoints. M5 compiles the first concrete local-substrate command while respecting predecessor receipts.
 
-## End-to-end state machine
+## End-to-end State Machine
 
 ```text
 SOURCE_BOUND
@@ -114,22 +130,30 @@ SOURCE_BOUND
 → ARTIFACTS_REDOWNLOADED
 → ARTIFACT_DIGESTS_VERIFIED
 → REVIEWER_PACKET_ASSEMBLED
-→ DEMO_EVIDENCE_READY
+→ REMOTE_DEMO_EVIDENCE_READY
+→ LOCAL_HANDOFF_ACTIVE
+    ├─ LOCAL_REVIEWER_PASS → LIVE_KIND_WAITING
+    └─ LOCAL_REVIEWER_FAIL → LOCAL_GAP_OPEN
+→ LIVE_KIND_RUNNING
+    ├─ LIVE_KIND_PASS → LOCAL_KIND_EVIDENCE_READY
+    └─ LIVE_KIND_FAIL → LOCAL_GAP_OPEN
+→ ADVANCED_SUBSTRATE_BLOCKED | ADVANCED_SUBSTRATE_READY
 ```
 
 Illegal promotions:
 
 ```text
-CI_GREEN               → BUSINESS_CORRECT              forbidden
-REMOTE_FIRST_GREEN     → PRODUCTION_RUNTIME            forbidden
-LOCAL_K8S_PASS         → PRODUCTION_INFRA_EXPERIENCE   forbidden
-1000_VU_PASS           → 1000_REAL_USERS               forbidden
-DRILL_COMPLETE         → PRODUCTION_INCIDENT_HISTORY   forbidden
-LICENSE_METADATA_PASS  → BLANKET_LEGAL_CLEARANCE       forbidden
-UI_GREEN               → BACKEND_EVIDENCE_PASS         forbidden
-ISSUE_CLOSED           → RUNTIME_CLOSED                forbidden
-CURRENT_PR_HEAD         → HISTORICAL_ARTIFACT_EVIDENCE forbidden
-QUEUE_EXISTS            → LOCAL_EXECUTION_PASS         forbidden
+CI_GREEN               → BUSINESS_CORRECT               forbidden
+REMOTE_FIRST_GREEN     → PRODUCTION_RUNTIME             forbidden
+RUNNER_CONTRACT_PASS   → LOCAL_KIND_PASS                forbidden
+QUEUE_CONTRACT_PASS    → QUEUE_EXECUTED                 forbidden
+LOCAL_REVIEWER_PASS    → LIVE_KIND_PASS                 forbidden
+LOCAL_K8S_PASS         → PRODUCTION_INFRA_EXPERIENCE    forbidden
+1000_VU_PASS           → 1000_REAL_USERS                forbidden
+DRILL_COMPLETE         → PRODUCTION_INCIDENT_HISTORY    forbidden
+LICENSE_METADATA_PASS  → BLANKET_LEGAL_CLEARANCE        forbidden
+UI_GREEN               → BACKEND_EVIDENCE_PASS          forbidden
+CURRENT_PR_HEAD         → HISTORICAL_ARTIFACT_EVIDENCE  forbidden
 ```
 
 ## Repository topology
@@ -138,7 +162,6 @@ QUEUE_EXISTS            → LOCAL_EXECUTION_PASS         forbidden
 DevOps-Manager-Notes/
 ├── README.md
 ├── AGENTS.md
-├── LICENSE
 ├── docs/
 │   ├── INDEX.md
 │   ├── architecture/
@@ -146,17 +169,17 @@ DevOps-Manager-Notes/
 │   └── milestones/
 │       ├── PUBLIC_REMOTE_FANOUT_FIRST_GREEN.md
 │       ├── PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN.md
-│       └── PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN.md
+│       ├── PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN.md
+│       └── PUBLIC_M5_LOCAL_KIND_RUNNER_READY.md
 ├── registry/
 │   ├── evidence.yaml
 │   ├── gaps.yaml
-│   ├── technology-candidates.yaml
 │   ├── mvp-demo-stack.yaml
 │   ├── stack-plan.yaml
 │   ├── public-m2-first-green.json
 │   ├── public-m3-failure-recovery.json
-│   └── public-m4-reviewer-convergence.json
-├── system-design/
+│   ├── public-m4-reviewer-convergence.json
+│   └── public-m5-local-kind-readiness.json
 ├── platform/
 │   ├── app/
 │   ├── docker/
@@ -172,37 +195,39 @@ DevOps-Manager-Notes/
 ├── tests/
 │   ├── unit/
 │   ├── integration/
-│   ├── e2e/
 │   ├── load/
-│   └── failure/scenarios/
+│   ├── failure/scenarios/
+│   └── handoff/
 ├── incidents/
 ├── runbooks/
 ├── management/
-├── prompts/
 ├── scripts/
 │   ├── demo/
 │   └── handoff/
+│       ├── run_live_kind_smoke.py
+│       └── run_live_kind_from_env.sh
 ├── handoff/local-handoff-queue.json
 ├── evidence/receipts/
 └── .github/workflows/
 ```
 
-Directories are introduced only with real artifacts. Path presence is not capability proof.
+Directories are created only with real artifacts. Path presence is not capability proof.
 
-## Directory → State Machine → DAG ownership
+## Directory → State Machine → DAG owner
 
-| Surface | State responsibility | Owner | Current evidence ceiling |
+| Surface | State responsibility | Owner | Evidence ceiling |
 |---|---|---:|---|
 | `system-design/` | requirement → invariant/failure contract | #1 / PR #13 | design/static |
-| `platform/app/`, `docker/`, `kubernetes/`, `gitops/` | request → artifact → desired deployment | #2 / PR #14 | GitHub-hosted deterministic/container; live K8s separate |
+| `platform/app/`, `docker/`, `kubernetes/`, `gitops/` | request → artifact → desired deployment | #2 / PR #14 | remote deterministic/container; live K8s separate |
 | `observability/`, `sre/`, `tests/load/` | execution → trace/SLI/SLO/load | #3 / PR #36 | remote telemetry + synthetic smoke |
 | `platform/policies/` | candidate → admit/reject | #4 / PR #38 | policy/security/license metadata |
 | `mlops/`, `platform/rollouts/` | model/prompt/config → eval → canary/rollback contract | #7 / PR #39 | deterministic MLflow lifecycle |
-| `demo-console/` | canonical public evidence → reviewer UI | #8 / PR #37 | frontend build/render |
-| `supply-chain/`, network fault tests | artifact → SBOM/signature/fault drill | #10 / PR #40 | same-run signing + bounded drill |
-| `incidents/`, `runbooks/`, `management/`, failure scenarios | failure → detection → authority → recovery → re-test | #5 / PR #42 | deterministic/local-process DRILL |
-| `scripts/demo/`, convergence receipts | exact evidence → reviewer path | #9 / PR #44 | remote reviewer convergence + artifact re-verification |
-| `handoff/local-handoff-queue.json` | remote boundary → local command → receipt | #9 / PR #45 | queue contract until executed |
+| `demo-console/` | canonical evidence → reviewer UI | #8 / PR #37 | frontend build/render |
+| `supply-chain/`, network faults | artifact → SBOM/signature/fault | #10 / PR #40 | same-run signing + bounded drill |
+| incident/runbook/management/failure scenarios | failure → authority → recovery → re-test | #5 / PR #42 | deterministic/local-process DRILL |
+| `scripts/demo/`, convergence receipts | exact evidence → reviewer packet | #9 / PR #44 | remote reviewer + artifact re-verification |
+| `handoff/local-handoff-queue.json` | runtime predecessor → concrete local command → receipt | #9 / PR #45, #48 / PR #52 | queue contract only |
+| `scripts/handoff/run_live_kind_*`, `tests/handoff/` | local substrate plan → bounded runner | #47 / PR #51 | GitHub-hosted runner contract only until local execution |
 
 ## Full data flow
 
@@ -211,126 +236,118 @@ flowchart TD
     S[Job / Article / PDF / Repo / Tech Candidate] --> P[Product Requirement Graph]
     P --> TL[Tech Lead Contract + DAG + Stack]
     TL --> K2[PR #14 Core]
-    K2 --> O[PR #36 Observability / Load]
-    K2 --> SEC[PR #38 Policy / Security]
-    K2 --> ML[PR #39 ML / LLMOps]
+    K2 --> O[PR #36 Observability]
+    K2 --> SEC[PR #38 Policy/Security]
+    K2 --> ML[PR #39 ML/LLMOps]
     K2 --> UI[PR #37 Demo Console]
-    K2 --> SUP[PR #40 Supply Chain / Fault]
-    O --> X5[PR #42 / #5 Failure / Recovery]
+    K2 --> SUP[PR #40 Supply/Fault]
+    O --> X5[PR #42 Failure/Recovery]
     SEC -. exact evidence .-> X5
     ML -. exact evidence .-> X5
     SUP -. exact evidence .-> X5
-    X5 --> X9[PR #44 / #9 Reviewer Convergence]
-    UI -. exact bytes + artifact .-> X9
-    O -. exact Actions artifact .-> X9
-    SEC -. exact Actions artifact .-> X9
-    ML -. exact Actions artifact .-> X9
-    SUP -. exact Actions artifact .-> X9
-    X9 --> EV[Bounded Public Reviewer Packet]
-    EV --> P
-    X9 --> LH[PR #45 Local Handoff Queue]
-    SH[Shadow Architect MONITOR] -. material deltas .-> K2
-    SH -.-> O
-    SH -.-> SEC
-    SH -.-> ML
-    SH -.-> UI
-    SH -.-> SUP
-    SH -.-> X5
-    SH -.-> X9
+    X5 --> X9[PR #44 Reviewer Convergence]
+    UI -. exact bytes/artifact .-> X9
+    X9 --> RP[Bounded Reviewer Packet]
+    RP --> P
+    X9 --> D9[PR #45 Local Handoff]
+    D9 --> K5[PR #51 Live-kind Runner]
+    K5 --> D5[PR #52 Queue Compiler]
+    D5 --> LR[M4 Local Reviewer ACTIVE]
+    LR -->|receipt PASS| LK[M4 Live Kind WAITING → ACTIVE]
+    LK -->|receipt PASS| ADV[M5 Argo/Model/Capacity frontier]
+    SH[Shadow Architect MONITOR] -. deltas .-> X9
+    SH -.-> K5
+    SH -.-> D5
 ```
 
 ## Observed molecular Git Town Stack
 
-Canonical machine plan: `registry/stack-plan.yaml`.
+Machine authority: `registry/stack-plan.yaml`.
 
 ```text
 C0    PR #6   bootstrap                                      ROOT
-└─ C11 PR #12 Full MVP technology/architecture              TRUE_CHILD
-   └─ E1  PR #13 evidence audit + invariant freeze          TRUE_CHILD
-      └─ K2  PR #14 Core remote FIRST_GREEN                 TRUE_CHILD
-         ├─ A3  PR #36 #3 observability/load                SIBLING
-         ├─ E4  PR #38 #4 policy/security/license           SIBLING
-         ├─ A7  PR #39 #7 ML/LLMOps                         SIBLING
-         ├─ A8  PR #37 #8 Demo Console                      SIBLING
-         └─ E10 PR #40 #10 supply-chain/fault               SIBLING
+└─ C11 PR #12 Full MVP architecture                         TRUE_CHILD
+   └─ E1  PR #13 evidence/invariant freeze                  TRUE_CHILD
+      └─ K2  PR #14 Core                                    TRUE_CHILD
+         ├─ A3  PR #36 Observability                        SIBLING
+         ├─ E4  PR #38 Policy/Security                      SIBLING
+         ├─ A7  PR #39 ML/LLMOps                            SIBLING
+         ├─ A8  PR #37 Demo Console                         SIBLING
+         └─ E10 PR #40 Supply/Fault                         SIBLING
 
-A3 PR #36
-└─ X5 PR #42 #5 failure/recovery                            TRUE_CHILD + CONVERGENCE
-     ↑ exact evidence from PR #38 / #39 / #40
+PR #36
+└─ X5 PR #42 Failure/Recovery                               TRUE_CHILD + CONVERGENCE
+     ↑ exact side evidence #38/#39/#40
 
-X5 PR #42
-└─ X9 PR #44 #9 reviewer convergence                        TRUE_CHILD + CONVERGENCE
-     ↑ exact Demo Console bytes from PR #37
-     ↑ exact M2/M3 Actions artifacts
-     └─ D9 PR #45 Local Handoff Queue                       TRUE_CHILD / LOCAL_HANDOFF
+PR #42
+└─ X9 PR #44 Reviewer Convergence                           TRUE_CHILD + CONVERGENCE
+     ↑ exact Demo Console bytes #37 + M2/M3 artifacts
+     └─ D9 PR #45 Local Handoff                             TRUE_CHILD
+          └─ K5 PR #51 Live-kind Runner                     TRUE_CHILD
+               └─ D5 PR #52 Queue Compiler                  TRUE_CHILD
 ```
 
-Task convergence and Git ancestry are deliberately separate. X5/X9 have one Git parent each and consume remaining prerequisites as typed side inputs.
+Task convergence and Git ancestry are separate graphs. No fake multi-parent Git history is created.
 
-## Exact M4 remote receipts
-
-### Deterministic reviewer replay
+## M4 remote reviewer receipts
 
 ```text
-PR / source      #44 / 55d18cdc556ca5d66c67406318ae25196c077fd2
-workflow         Full MVP reviewer convergence
-run              32256802856
-artifact         9366615717
-digest           sha256:e652cdf3ccb8de7a8655f9148bc6471a29bcaeaef2d55f6255bca2cb2b1e19d3
-size             1,394,198 bytes
-ceiling          GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY
+PR #44 head 55d18cdc556ca5d66c67406318ae25196c077fd2
+
+Deterministic reviewer:
+  run      32256802856
+  artifact 9366615717
+  digest   sha256:e652cdf3ccb8de7a8655f9148bc6471a29bcaeaef2d55f6255bca2cb2b1e19d3
+  ceiling  GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY
+
+Artifact re-download/reviewer bundle:
+  run      32256802554
+  artifact 9366596481
+  digest   sha256:696f56be2fb637e386941eb313caa7c9448900ad0bad88b3a96119b95315596c
+  ceiling  GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY
 ```
 
-### Exact Actions artifact re-verification
+## M5 runner and queue subjects
+
+### Runner PR #51
 
 ```text
-PR / source      #44 / 55d18cdc556ca5d66c67406318ae25196c077fd2
-workflow         Full MVP public reviewer convergence
-run              32256802554
-artifact         9366596481
-digest           sha256:696f56be2fb637e386941eb313caa7c9448900ad0bad88b3a96119b95315596c
-size             2,841,522 bytes
-ceiling          GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY
+head      20d2ccb0ed8c877309452eece7c755bb3411c4c1
+tree      7d4b5d5aaba2d023803b152ce5ac7f23f274eba0
+CI run    32259961112 SUCCESS
+ceiling   GITHUB_HOSTED_LOCAL_RUNNER_CONTRACT_ONLY
+runtime   NOT_EXERCISED
 ```
 
-The second workflow re-downloads all six bound M2/M3 Actions archives, verifies their GitHub-published SHA-256 digests and admits only required public-safe files before building the final static reviewer packet.
+Shadow corrections: restore caller kubectl context, cleanup partial cluster creation, bind exact node-image digest, align resource/timeout language, retain failed intermediate CI as non-admitted evidence.
 
-## Shadow Architect M4 review
-
-Material corrections at the reviewer boundary:
-
-- `EVIDENCE_DELTA`: current PR heads are now separated from historical artifact evidence heads. PR #42 current head and M3 evidence head are intentionally different subjects.
-- `DAG/EVIDENCE_DELTA`: Demo Console byte consumption is CI-verified against exact PR #37 evidence head rather than trusted by prose.
-- `EVIDENCE_DELTA`: six prerequisite Actions artifacts are independently re-downloaded and SHA-256 verified before admission.
-- `RESOURCE_DELTA`: both reviewer artifacts stay below the 5 MB public packet budget.
-- `OWNERSHIP_DELTA`: two #9 workflows remain only because one proves fresh deterministic replay while the other proves historical artifact readback/re-verification.
-
-No L3 blocker remains for **remote M4**. The remaining blockers require Local Handoff or Human Admit.
-
-## Local Handoff Execution Queue
-
-PR #45 binds the exact hardened M4 subject:
+### Queue PR #52
 
 ```text
-commit 55d18cdc556ca5d66c67406318ae25196c077fd2
-tree   a4ad37d9baf73a5239f79c516c67b0182420336a
+head      660d4deea81712f3d6ab5288ae09288b2e15cc27
+CI run    32260403160 SUCCESS
+ceiling   GITHUB_HOSTED_LOCAL_HANDOFF_CONTRACT_VALIDATION_ONLY
 ```
 
-ACTIVE item:
+Queue state:
+
+```text
+M4-LOCAL-REVIEWER-001     ACTIVE
+M4-LIVE-SUBSTRATE-002     WAITING_PREDECESSOR
+M5-ARGO-MODEL-CAPACITY-003 BLOCKED_UNRESOLVED
+```
+
+A future live-kind invocation is bound to:
 
 ```bash
-bash scripts/demo/run_reviewer_demo.sh evidence/local-reviewer
+M5_KIND_NODE_IMAGE='<exact-name>@sha256:<64-hex>' \
+bash scripts/handoff/run_live_kind_from_env.sh \
+  --output evidence/local-kind/local-kind-receipt.json \
+  --cluster-name manager-demo-m5 \
+  --local-port 18030
 ```
 
-Expected receipt:
-
-```text
-evidence/local-reviewer/reviewer-demo-receipt.json
-```
-
-Evidence ceiling: `LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY`.
-
-The next live-substrate queue item remains `BLOCKED_UNRESOLVED`; no kind/Kubernetes, Argo, model or 1,000-VU command is fabricated until a bounded committed runner, exact artifacts, resource budget and cleanup contract exist.
+Do not execute the second item before the current active local-reviewer receipt passes.
 
 ## Selected MVP stack
 
@@ -349,7 +366,7 @@ Locust / Toxiproxy / pytest
 GitHub Actions
 ```
 
-Top-level permissive licenses do not recursively clear transitive packages, images, plugins, model weights, downloaded binaries, Actions or SaaS terms.
+Top-level licenses do not recursively clear transitive packages, images, plugins, model weights, downloaded binaries, Actions or SaaS terms.
 
 ## Evidence ladder
 
@@ -363,7 +380,7 @@ L5 ADVERSARIAL_OR_CHAOS
 L6 PRODUCTION_OBSERVATION
 ```
 
-Evidence states:
+States:
 
 ```text
 PASS
@@ -380,15 +397,15 @@ Lower evidence never self-promotes.
 ## Next legal frontier
 
 ```text
-M4 remote reviewer packet = PASS_BOUNDED
+M5 runner + queue readiness  PASS_BOUNDED
         ↓
-PR #45 Local Handoff
-        ├─ local deterministic reviewer receipt
-        └─ live-substrate runner compilation only when concrete
-                ↓
-optional higher-substrate evidence
-        +
-Product-Manager-Notes interview/public-portfolio convergence
+M4-LOCAL-REVIEWER-001        requires real local receipt
+        ↓ PASS_BOUNDED
+M4-LIVE-SUBSTRATE-002        becomes executable/ACTIVE
+        ↓ real local PASS
+LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY
+        ↓
+compile exact Argo / model / 1,000-VU runners before activation
 ```
 
-The remote public engineering MVP is now stage-complete at the M4 evidence ceiling. Further capability promotion requires exact Local Handoff/runtime receipts or Human-owned evidence; it cannot be created by README, issue or UI state.
+The remote engineering work for this checkpoint is stage-complete. Further capability promotion requires exact Local Handoff receipts; README/CI/queue state cannot substitute for physical execution.
