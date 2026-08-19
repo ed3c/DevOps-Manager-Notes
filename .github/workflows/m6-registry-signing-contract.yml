@@ -39,16 +39,17 @@ jobs:
             exit 1
           fi
           grep -q 'M6_REGISTRY_IMAGE' /tmp/m6-registry-missing.out
-      - name: Assert plan-only boundary
+      - name: Assert hardened plan-only boundary
         run: |
           M6_REGISTRY_IMAGE='registry.example.invalid/distribution@sha256:1111111111111111111111111111111111111111111111111111111111111111' \
           M6_COSIGN_BIN='/usr/local/bin/cosign' \
           M6_COSIGN_SHA256='2222222222222222222222222222222222222222222222222222222222222222' \
             bash scripts/handoff/run_local_registry_signing_from_env.sh --plan-only > /tmp/m6-registry-plan.json
           jq -e '.evidence_ceiling_after_real_execution == "LOCAL_REGISTRY_STORED_IMAGE_SIGNATURE_ONLY"' /tmp/m6-registry-plan.json >/dev/null
-          jq -e '.registry.host == "127.0.0.1" and .resource_budget.max_registry_containers == 1 and .resource_budget.max_signatures == 1' /tmp/m6-registry-plan.json >/dev/null
+          jq -e '.registry.host == "127.0.0.1" and .resource_budget.max_registry_containers == 1 and .resource_budget.max_signatures == 1 and .resource_budget.max_local_images_built == 1' /tmp/m6-registry-plan.json >/dev/null
           jq -e '.resource_budget.ephemeral_keypair_only == true and .resource_budget.external_registry_credentials == false' /tmp/m6-registry-plan.json >/dev/null
           jq -e '.operations | any(contains("sign only the digest reference"))' /tmp/m6-registry-plan.json >/dev/null
+          jq -e '.operations | any(contains("remove the built local image tag"))' /tmp/m6-registry-plan.json >/dev/null
       - name: Evidence boundary
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
@@ -56,6 +57,7 @@ jobs:
           - exact local registry image digest gate: exercised
           - exact cosign binary path/SHA gate: exercised
           - loopback-port/resource/ephemeral-key cleanup contract: exercised
+          - local built-image cleanup contract: exercised
           - digest-addressed sign/verify plan: exercised
           - real local registry/push/sign/verify: **NOT_EXERCISED**
           - production registry/key custody: **NOT_EXERCISED**
