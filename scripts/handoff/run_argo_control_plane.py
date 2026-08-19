@@ -50,7 +50,15 @@ def sha256_file(path: Path) -> str:
 
 
 def run(argv: list[str], *, cwd: Path, timeout: int, check: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(argv, cwd=cwd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout, check=check)
+    return subprocess.run(
+        argv,
+        cwd=cwd,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        timeout=timeout,
+        check=check,
+    )
 
 
 def kubectl(context: str, args: list[str], *, cwd: Path, timeout: int, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -90,10 +98,10 @@ def plan(*, cluster_context: str, target_revision: str, argocd_url: str, argocd_
         "operations": [
             "refuse non manager-demo kind contexts and pre-existing argocd/argo-rollouts namespaces",
             "download exactly two HTTPS install manifests and verify SHA-256 before apply",
-            "apply Argo CD and Argo Rollouts only through the explicit local kind context",
+            "create both runner-owned namespaces and apply each manifest with an explicit namespace through the named local kind context",
             "wait for controller deployments and verify Application/Rollout CRDs",
             "record exact manifest digests, Git subject and Kubernetes server identity",
-            "delete applied manifests and runner-created namespaces in finally",
+            "delete applied manifests and only runner-owned namespaces in finally after the context is admitted",
         ],
         "forbidden_promotions": [
             "plan-only PASS to Argo runtime PASS",
@@ -112,7 +120,9 @@ def write_receipt(path: Path, value: dict) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Bounded Argo CD/Rollouts controller installation proof on an isolated local kind cluster.")
+    parser = argparse.ArgumentParser(
+        description="Bounded Argo CD/Rollouts controller installation proof on an isolated local kind cluster."
+    )
     parser.add_argument("--cluster-context", required=True)
     parser.add_argument("--target-revision", required=True)
     parser.add_argument("--argocd-manifest-url", required=True)
@@ -151,6 +161,8 @@ def main() -> int:
         "checks": {
             "argocd_manifest_sha256_verified": "NOT_EXERCISED",
             "rollouts_manifest_sha256_verified": "NOT_EXERCISED",
+            "argocd_namespace_owned": "NOT_EXERCISED",
+            "rollouts_namespace_owned": "NOT_EXERCISED",
             "argocd_controllers_available": "NOT_EXERCISED",
             "rollouts_controller_available": "NOT_EXERCISED",
             "application_crd_present": "NOT_EXERCISED",
@@ -163,6 +175,9 @@ def main() -> int:
     }
     started = time.monotonic()
     temp_root: Path | None = None
+    context_admitted = False
+    argocd_namespace_created = False
+    rollouts_namespace_created = False
     argocd_applied = False
     rollouts_applied = False
     cleanup_errors: list[str] = []
@@ -170,17 +185,29 @@ def main() -> int:
         contexts = run(["kubectl", "config", "get-contexts", "-o", "name"], cwd=repo_root, timeout=20).stdout.split()
         if args.cluster_context not in contexts:
             raise RuntimeError("required local kind context does not exist")
+        context_admitted = True
+
         for namespace in ("argocd", "argo-rollouts"):
-            probe = kubectl(args.cluster_context, ["get", "namespace", namespace], cwd=repo_root, timeout=20, check=False)
+            probe = kubectl(
+                args.cluster_context,
+                ["get", "namespace", namespace],
+                cwd=repo_root,
+                timeout=20,
+                check=False,
+            )
             if probe.returncode == 0:
                 raise RuntimeError(f"refusing to take over pre-existing namespace {namespace}")
 
         temp_root = Path(tempfile.mkdtemp(prefix="manager-demo-m6-argo-"))
         argocd_file = temp_root / "argocd-install.yaml"
         rollouts_file = temp_root / "argo-rollouts-install.yaml"
-        for url, destination in ((args.argocd_manifest_url, argocd_file), (args.rollouts_manifest_url, rollouts_file)):
+        for url, destination in (
+            (args.argocd_manifest_url, argocd_file),
+            (args.rollouts_manifest_url, rollouts_file),
+        ):
             with request.urlopen(url, timeout=30) as response, destination.open("wb") as handle:
                 shutil.copyfileobj(response, handle, length=1024 * 1024)
+
         if sha256_file(argocd_file) != exact_sha256(args.argocd_manifest_sha256):
             raise RuntimeError("Argo CD manifest SHA-256 mismatch")
         receipt["checks"]["argocd_manifest_sha256_verified"] = "PASS"
@@ -189,20 +216,51 @@ def main() -> int:
         receipt["checks"]["rollouts_manifest_sha256_verified"] = "PASS"
 
         kubectl(args.cluster_context, ["create", "namespace", "argocd"], cwd=repo_root, timeout=30)
-        kubectl(args.cluster_context, ["apply", "-n", "argocd", "-f", str(argocd_file)], cwd=repo_root, timeout=120)
+        argocd_namespace_created = True
+        receipt["checks"]["argocd_namespace_owned"] = "PASS"
+        kubectl(args.cluster_context, ["create", "namespace", "argo-rollouts"], cwd=repo_root, timeout=30)
+        rollouts_namespace_created = True
+        receipt["checks"]["rollouts_namespace_owned"] = "PASS"
+
+        kubectl(
+            args.cluster_context,
+            ["apply", "-n", "argocd", "-f", str(argocd_file)],
+            cwd=repo_root,
+            timeout=120,
+        )
         argocd_applied = True
-        kubectl(args.cluster_context, ["apply", "-f", str(rollouts_file)], cwd=repo_root, timeout=120)
+        kubectl(
+            args.cluster_context,
+            ["apply", "-n", "argo-rollouts", "-f", str(rollouts_file)],
+            cwd=repo_root,
+            timeout=120,
+        )
         rollouts_applied = True
 
-        kubectl(args.cluster_context, ["wait", "--for=condition=Available", "deployment", "--all", "-n", "argocd", "--timeout=180s"], cwd=repo_root, timeout=200)
+        kubectl(
+            args.cluster_context,
+            ["wait", "--for=condition=Available", "deployment", "--all", "-n", "argocd", "--timeout=180s"],
+            cwd=repo_root,
+            timeout=200,
+        )
         receipt["checks"]["argocd_controllers_available"] = "PASS"
-        kubectl(args.cluster_context, ["wait", "--for=condition=Available", "deployment", "--all", "-n", "argo-rollouts", "--timeout=180s"], cwd=repo_root, timeout=200)
+        kubectl(
+            args.cluster_context,
+            ["wait", "--for=condition=Available", "deployment", "--all", "-n", "argo-rollouts", "--timeout=180s"],
+            cwd=repo_root,
+            timeout=200,
+        )
         receipt["checks"]["rollouts_controller_available"] = "PASS"
         kubectl(args.cluster_context, ["get", "crd", "applications.argoproj.io"], cwd=repo_root, timeout=20)
         receipt["checks"]["application_crd_present"] = "PASS"
         kubectl(args.cluster_context, ["get", "crd", "rollouts.argoproj.io"], cwd=repo_root, timeout=20)
         receipt["checks"]["rollout_crd_present"] = "PASS"
-        receipt["kubernetes_version"] = kubectl(args.cluster_context, ["version", "-o", "json"], cwd=repo_root, timeout=20).stdout[:4000]
+        receipt["kubernetes_version"] = kubectl(
+            args.cluster_context,
+            ["version", "-o", "json"],
+            cwd=repo_root,
+            timeout=20,
+        ).stdout[:4000]
         receipt["manifest_subjects"] = {
             "argocd_sha256": sha256_file(argocd_file),
             "rollouts_sha256": sha256_file(rollouts_file),
@@ -213,18 +271,46 @@ def main() -> int:
         receipt["error"] = f"{type(exc).__name__}: {exc}"
         receipt["state"] = "FAIL"
     finally:
-        if rollouts_applied and temp_root is not None:
-            result = kubectl(args.cluster_context, ["delete", "-f", str(temp_root / "argo-rollouts-install.yaml"), "--ignore-not-found=true", "--wait=false"], cwd=repo_root, timeout=120, check=False)
+        if context_admitted and rollouts_applied and temp_root is not None:
+            result = kubectl(
+                args.cluster_context,
+                ["delete", "-n", "argo-rollouts", "-f", str(temp_root / "argo-rollouts-install.yaml"), "--ignore-not-found=true", "--wait=false"],
+                cwd=repo_root,
+                timeout=120,
+                check=False,
+            )
             if result.returncode != 0:
                 cleanup_errors.append("failed to delete Argo Rollouts manifest")
-        if argocd_applied and temp_root is not None:
-            result = kubectl(args.cluster_context, ["delete", "-n", "argocd", "-f", str(temp_root / "argocd-install.yaml"), "--ignore-not-found=true", "--wait=false"], cwd=repo_root, timeout=120, check=False)
+        if context_admitted and argocd_applied and temp_root is not None:
+            result = kubectl(
+                args.cluster_context,
+                ["delete", "-n", "argocd", "-f", str(temp_root / "argocd-install.yaml"), "--ignore-not-found=true", "--wait=false"],
+                cwd=repo_root,
+                timeout=120,
+                check=False,
+            )
             if result.returncode != 0:
                 cleanup_errors.append("failed to delete Argo CD manifest")
-        for namespace in ("argo-rollouts", "argocd"):
-            result = kubectl(args.cluster_context, ["delete", "namespace", namespace, "--ignore-not-found=true", "--wait=false"], cwd=repo_root, timeout=60, check=False)
+        if context_admitted and rollouts_namespace_created:
+            result = kubectl(
+                args.cluster_context,
+                ["delete", "namespace", "argo-rollouts", "--ignore-not-found=true", "--wait=false"],
+                cwd=repo_root,
+                timeout=60,
+                check=False,
+            )
             if result.returncode != 0:
-                cleanup_errors.append(f"failed to delete namespace {namespace}")
+                cleanup_errors.append("failed to delete namespace argo-rollouts")
+        if context_admitted and argocd_namespace_created:
+            result = kubectl(
+                args.cluster_context,
+                ["delete", "namespace", "argocd", "--ignore-not-found=true", "--wait=false"],
+                cwd=repo_root,
+                timeout=60,
+                check=False,
+            )
+            if result.returncode != 0:
+                cleanup_errors.append("failed to delete namespace argocd")
         if temp_root is not None:
             shutil.rmtree(temp_root, ignore_errors=True)
         receipt["checks"]["cleanup"] = "PASS" if not cleanup_errors else "FAIL"
@@ -234,7 +320,12 @@ def main() -> int:
         receipt["duration_seconds"] = round(time.monotonic() - started, 3)
         write_receipt(output, receipt)
 
-    print(json.dumps({"receipt": str(output.relative_to(repo_root)), "state": receipt["state"], "ceiling": EVIDENCE_CEILING}, sort_keys=True))
+    print(
+        json.dumps(
+            {"receipt": str(output.relative_to(repo_root)), "state": receipt["state"], "ceiling": EVIDENCE_CEILING},
+            sort_keys=True,
+        )
+    )
     return 0 if receipt["state"] == "PASS" else 1
 
 
