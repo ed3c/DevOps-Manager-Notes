@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import shutil
 import socket
@@ -12,12 +11,11 @@ import tarfile
 import tempfile
 import time
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 from urllib import error, request
 
 SCHEMA = "full-manager-mvp/local-kind-substrate-receipt/v1"
 EVIDENCE_CEILING = "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY"
-CLUSTER_PREFIX = "manager-demo-"
 IMAGE_TAG = "docker.io/library/manager-demo:m5-local"
 NAMESPACE = "manager-demo"
 DEPLOYMENT = "manager-demo"
@@ -84,7 +82,7 @@ def require_tool(name: str) -> str:
 
 def tool_version(argv: list[str], cwd: Path) -> str:
     completed = run(argv, cwd=cwd, timeout=20)
-    return completed.stdout.strip()[:2000]
+    return completed.stdout.strip()[:4000]
 
 
 def git_subject(repo_root: Path) -> tuple[str, str]:
@@ -93,6 +91,19 @@ def git_subject(repo_root: Path) -> tuple[str, str]:
     if not exact_sha(commit) or not exact_sha(tree):
         raise RuntimeError("repository subject is not an exact git commit/tree")
     return commit, tree
+
+
+def current_kubectl_context(repo_root: Path) -> str | None:
+    completed = run(
+        ["kubectl", "config", "current-context"],
+        cwd=repo_root,
+        timeout=10,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return None
+    value = completed.stdout.strip()
+    return value or None
 
 
 def oci_descriptor(archive: Path) -> dict[str, Any]:
@@ -153,17 +164,20 @@ def plan(cluster_name: str, kind_node_image: str, local_port: int) -> dict[str, 
             "pod_cpu_limit": "1",
             "pod_memory_request": "128Mi",
             "pod_memory_limit": "512Mi",
-            "max_runtime_seconds": 600,
+            "handoff_timeout_seconds": 900,
+            "individual_operation_timeouts_are_bounded": True,
         },
         "operations": [
-            "refuse if target kind cluster already exists",
+            "capture the caller kubectl context",
+            "refuse if the target kind cluster already exists",
             "build one OCI archive from platform/app using the pinned Dockerfile base image",
             "create one kind cluster from the exact --kind-node-image digest",
             "load the OCI archive into that cluster",
             "deploy the app by exact OCI digest with bounded Kubernetes resources",
             "probe liveness/readiness plus business PASS and forced business FAIL",
             "capture pod image IDs and exact tool/runtime subjects",
-            "delete the created cluster and temporary files in finally",
+            "delete the attempted manager-demo-* cluster and temporary files in finally",
+            "restore the caller kubectl context when one existed",
         ],
         "forbidden_promotions": [
             "plan-only PASS to local execution PASS",
@@ -219,6 +233,7 @@ def main() -> int:
             "business_oracle_forced_fail_visible": "NOT_EXERCISED",
             "pod_image_ids_captured": "NOT_EXERCISED",
             "cleanup": "NOT_EXERCISED",
+            "kubectl_context_restored": "NOT_EXERCISED",
             "real_argo_cd_reconcile": "NOT_EXERCISED",
             "live_argo_rollouts_canary": "NOT_EXERCISED",
             "local_qwen_llama_cpp": "NOT_EXERCISED",
@@ -237,8 +252,10 @@ def main() -> int:
     }
 
     port_forward: subprocess.Popen[str] | None = None
-    cluster_created = False
+    port_log: TextIO | None = None
+    cluster_attempted = False
     temp_dir: Path | None = None
+    previous_context: str | None = None
     try:
         for tool in ("git", "docker", "kind", "kubectl", "python3"):
             require_tool(tool)
@@ -247,18 +264,27 @@ def main() -> int:
         assert_port_free(local_port)
 
         commit, tree = git_subject(repo_root)
-        receipt["subject"] = {"repository": "ed3c/DevOps-Manager-Notes", "commit": commit, "tree": tree}
+        previous_context = current_kubectl_context(repo_root)
+        receipt["subject"] = {
+            "repository": "ed3c/DevOps-Manager-Notes",
+            "commit": commit,
+            "tree": tree,
+        }
+        receipt["kubectl_context_before"] = previous_context
         receipt["tool_versions"] = {
             "docker": tool_version(["docker", "version", "--format", "{{.Client.Version}}"], repo_root),
             "buildx": tool_version(["docker", "buildx", "version"], repo_root),
             "kind": tool_version(["kind", "version"], repo_root),
-            "kubectl_client": tool_version(["kubectl", "version", "--client", "--output=json"], repo_root),
+            "kubectl_client": tool_version(
+                ["kubectl", "version", "--client", "--output=json"], repo_root
+            ),
         }
 
         clusters = run(["kind", "get", "clusters"], cwd=repo_root, timeout=20).stdout.split()
         if cluster_name in clusters:
             raise RuntimeError(
-                f"refusing to take over existing kind cluster {cluster_name}; choose a new manager-demo-* name"
+                f"refusing to take over existing kind cluster {cluster_name}; "
+                "choose a new manager-demo-* name"
             )
 
         temp_dir = Path(tempfile.mkdtemp(prefix="manager-demo-m5-"))
@@ -294,16 +320,29 @@ def main() -> int:
         }
         receipt["checks"]["oci_digest_bound"] = "PASS"
 
+        cluster_attempted = True
         run(
-            ["kind", "create", "cluster", "--name", cluster_name, "--image", args.kind_node_image, "--wait", "120s"],
+            [
+                "kind",
+                "create",
+                "cluster",
+                "--name",
+                cluster_name,
+                "--image",
+                args.kind_node_image,
+                "--wait",
+                "120s",
+            ],
             cwd=repo_root,
             timeout=180,
         )
-        cluster_created = True
         receipt["checks"]["local_kind_cluster_created"] = "PASS"
 
-        run(["kind", "load", "image-archive", str(oci_archive), "--name", cluster_name], cwd=repo_root, timeout=120)
-
+        run(
+            ["kind", "load", "image-archive", str(oci_archive), "--name", cluster_name],
+            cwd=repo_root,
+            timeout=120,
+        )
         run(
             [
                 "python3",
@@ -316,7 +355,11 @@ def main() -> int:
             cwd=repo_root,
             timeout=20,
         )
-        run(["kubectl", "apply", "-f", "platform/kubernetes/namespace.yaml"], cwd=repo_root, timeout=30)
+        run(
+            ["kubectl", "apply", "-f", "platform/kubernetes/namespace.yaml"],
+            cwd=repo_root,
+            timeout=30,
+        )
         secret_yaml = run(
             [
                 "kubectl",
@@ -334,17 +377,47 @@ def main() -> int:
             cwd=repo_root,
             timeout=20,
         ).stdout
-        run(["kubectl", "apply", "-f", "-"], cwd=repo_root, timeout=30, input_text=secret_yaml)
-        run(["kubectl", "apply", "-f", str(render_path)], cwd=repo_root, timeout=30)
-        run(["kubectl", "apply", "-f", "platform/kubernetes/service.yaml"], cwd=repo_root, timeout=30)
         run(
-            ["kubectl", "-n", NAMESPACE, "rollout", "status", f"deployment/{DEPLOYMENT}", "--timeout=120s"],
+            ["kubectl", "apply", "-f", "-"],
+            cwd=repo_root,
+            timeout=30,
+            input_text=secret_yaml,
+        )
+        run(["kubectl", "apply", "-f", str(render_path)], cwd=repo_root, timeout=30)
+        run(
+            ["kubectl", "apply", "-f", "platform/kubernetes/service.yaml"],
+            cwd=repo_root,
+            timeout=30,
+        )
+        run(
+            [
+                "kubectl",
+                "-n",
+                NAMESPACE,
+                "rollout",
+                "status",
+                f"deployment/{DEPLOYMENT}",
+                "--timeout=120s",
+            ],
             cwd=repo_root,
             timeout=140,
         )
 
         deployment_json = json.loads(
-            run(["kubectl", "-n", NAMESPACE, "get", "deployment", DEPLOYMENT, "-o", "json"], cwd=repo_root, timeout=20).stdout
+            run(
+                [
+                    "kubectl",
+                    "-n",
+                    NAMESPACE,
+                    "get",
+                    "deployment",
+                    DEPLOYMENT,
+                    "-o",
+                    "json",
+                ],
+                cwd=repo_root,
+                timeout=20,
+            ).stdout
         )
         if deployment_json.get("status", {}).get("readyReplicas", 0) < 2:
             raise RuntimeError("expected two ready manager-demo replicas")
@@ -352,7 +425,17 @@ def main() -> int:
 
         pods_json = json.loads(
             run(
-                ["kubectl", "-n", NAMESPACE, "get", "pods", "-l", "app.kubernetes.io/name=manager-demo", "-o", "json"],
+                [
+                    "kubectl",
+                    "-n",
+                    NAMESPACE,
+                    "get",
+                    "pods",
+                    "-l",
+                    "app.kubernetes.io/name=manager-demo",
+                    "-o",
+                    "json",
+                ],
                 cwd=repo_root,
                 timeout=20,
             ).stdout
@@ -367,39 +450,72 @@ def main() -> int:
             raise RuntimeError("pod runtime image IDs are missing exact sha256 identities")
         receipt["pod_image_ids"] = sorted(set(image_ids))
         receipt["checks"]["pod_image_ids_captured"] = "PASS"
-        receipt["kubernetes_server"] = tool_version(["kubectl", "version", "--output=json"], repo_root)
+        receipt["kubernetes_server"] = tool_version(
+            ["kubectl", "version", "--output=json"], repo_root
+        )
 
         port_log = (temp_dir / "port-forward.log").open("w", encoding="utf-8")
         port_forward = subprocess.Popen(
-            ["kubectl", "-n", NAMESPACE, "port-forward", f"service/{SERVICE}", f"{local_port}:80"],
+            [
+                "kubectl",
+                "-n",
+                NAMESPACE,
+                "port-forward",
+                f"service/{SERVICE}",
+                f"{local_port}:80",
+            ],
             cwd=repo_root,
             text=True,
             stdout=port_log,
             stderr=subprocess.STDOUT,
         )
-        live = wait_http_json(f"http://127.0.0.1:{local_port}/health/live", timeout_seconds=15)
-        ready = wait_http_json(f"http://127.0.0.1:{local_port}/health/ready", timeout_seconds=15)
+        live = wait_http_json(
+            f"http://127.0.0.1:{local_port}/health/live", timeout_seconds=15
+        )
+        ready = wait_http_json(
+            f"http://127.0.0.1:{local_port}/health/ready", timeout_seconds=15
+        )
         if live.get("status") != "alive" or ready.get("status") != "ready":
             raise RuntimeError("local kind health/readiness oracle failed")
 
-        subject = {"git_commit": commit, "deployment_revision": immutable_image, "kubernetes_namespace": NAMESPACE}
+        subject = {
+            "git_commit": commit,
+            "deployment_revision": immutable_image,
+            "kubernetes_namespace": NAMESPACE,
+        }
         pass_result = post_json(
             f"http://127.0.0.1:{local_port}/v1/oracle/evaluate",
-            {"subject": subject, "expected_value": "approved", "observed_value": "approved", "force_failure": False},
+            {
+                "subject": subject,
+                "expected_value": "approved",
+                "observed_value": "approved",
+                "force_failure": False,
+            },
         )
         fail_result = post_json(
             f"http://127.0.0.1:{local_port}/v1/oracle/evaluate",
-            {"subject": subject, "expected_value": "approved", "observed_value": "rejected", "force_failure": True},
+            {
+                "subject": subject,
+                "expected_value": "approved",
+                "observed_value": "rejected",
+                "force_failure": True,
+            },
         )
-        if pass_result.get("business_ok") is not True or pass_result.get("evidence", {}).get("verdict") != "PASS":
+        if (
+            pass_result.get("business_ok") is not True
+            or pass_result.get("evidence", {}).get("verdict") != "PASS"
+        ):
             raise RuntimeError("business PASS oracle did not pass")
-        if fail_result.get("business_ok") is not False or fail_result.get("evidence", {}).get("verdict") != "FAIL":
+        if (
+            fail_result.get("business_ok") is not False
+            or fail_result.get("evidence", {}).get("verdict") != "FAIL"
+        ):
             raise RuntimeError("forced business FAIL oracle was not visible")
         receipt["checks"]["business_oracle_pass"] = "PASS"
         receipt["checks"]["business_oracle_forced_fail_visible"] = "PASS"
         receipt["business_oracle"] = {"pass": pass_result, "forced_fail": fail_result}
         receipt["verdict"] = "PASS"
-    except Exception as exc:  # noqa: BLE001 - receipt must preserve bounded failure evidence
+    except Exception as exc:  # receipt must preserve bounded failure evidence
         receipt["error"] = f"{type(exc).__name__}: {exc}"
         receipt["verdict"] = "FAIL"
     finally:
@@ -410,12 +526,34 @@ def main() -> int:
             except subprocess.TimeoutExpired:
                 port_forward.kill()
                 port_forward.wait(timeout=5)
+        if port_log is not None:
+            port_log.close()
+
         cleanup_errors: list[str] = []
-        if cluster_created:
+        if cluster_attempted:
             try:
-                run(["kind", "delete", "cluster", "--name", cluster_name], cwd=repo_root, timeout=90)
-            except Exception as exc:  # noqa: BLE001
+                run(
+                    ["kind", "delete", "cluster", "--name", cluster_name],
+                    cwd=repo_root,
+                    timeout=90,
+                )
+            except Exception as exc:  # cleanup evidence, not silent best effort
                 cleanup_errors.append(f"cluster cleanup failed: {exc}")
+
+        if previous_context:
+            try:
+                run(
+                    ["kubectl", "config", "use-context", previous_context],
+                    cwd=repo_root,
+                    timeout=20,
+                )
+                receipt["checks"]["kubectl_context_restored"] = "PASS"
+            except Exception as exc:
+                cleanup_errors.append(f"kubectl context restore failed: {exc}")
+                receipt["checks"]["kubectl_context_restored"] = "FAIL"
+        else:
+            receipt["checks"]["kubectl_context_restored"] = "SKIPPED_NO_PRIOR_CONTEXT"
+
         if temp_dir is not None:
             shutil.rmtree(temp_dir, ignore_errors=True)
         receipt["checks"]["cleanup"] = "PASS" if not cleanup_errors else "FAIL"
@@ -425,7 +563,16 @@ def main() -> int:
         receipt["duration_seconds"] = round(time.monotonic() - started, 3)
         write_receipt(output, receipt)
 
-    print(json.dumps({"receipt": str(output.relative_to(repo_root)), "verdict": receipt["verdict"], "ceiling": EVIDENCE_CEILING}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "receipt": str(output.relative_to(repo_root)),
+                "verdict": receipt["verdict"],
+                "ceiling": EVIDENCE_CEILING,
+            },
+            sort_keys=True,
+        )
+    )
     return 0 if receipt["verdict"] == "PASS" else 1
 
 
