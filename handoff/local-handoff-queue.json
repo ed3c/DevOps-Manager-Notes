@@ -2,9 +2,9 @@
   "schema_version": "agentic-tech-lead/local-handoff-queue/v1",
   "subject": {
     "repository": "ed3c/DevOps-Manager-Notes",
-    "commit": "06efd28361da2c0df4144929cfdffdf27388107a",
-    "tree": "c15d1c685bafc018561565c241c1dccfd8737a20",
-    "rollback_commit": "4637eca832f3696381089cefc58de254e5c1408e"
+    "commit": "55d18cdc556ca5d66c67406318ae25196c077fd2",
+    "tree": "a4ad37d9baf73a5239f79c516c67b0182420336a",
+    "rollback_commit": "4ce77c5e0e4ece8379badea5c3fa477a3a463d62"
   },
   "authority": {
     "automation_forbidden": [
@@ -13,75 +13,150 @@
       "merge",
       "release",
       "production promotion",
+      "production rollback admission",
       "repository visibility change",
       "permission widening",
-      "issue closure as evidence",
-      "production rollback admission"
+      "issue closure as capability evidence",
+      "claiming real users, incidents, production or people-management tenure"
     ],
     "human_owned": [
       "merge and release admission",
       "repository visibility and permission decisions",
       "semantic conflict decisions",
-      "production or real-experience claims"
+      "production promotion or rollback decisions",
+      "real-experience and employment claims"
     ]
   },
   "current": {
-    "active_item": "FULL-MVP-LOCAL-001",
+    "active_item": "M4-LOCAL-REVIEWER-001",
     "state": "ACTIVE"
   },
   "items": [
     {
-      "id": "FULL-MVP-LOCAL-001",
-      "task_ref": "ed3c/DevOps-Manager-Notes#2",
+      "id": "M4-LOCAL-REVIEWER-001",
+      "task_ref": "ed3c/DevOps-Manager-Notes#9",
       "state": "ACTIVE",
       "entry": {
-        "predecessor": null,
-        "required_subject_commit": "06efd28361da2c0df4144929cfdffdf27388107a",
+        "predecessor": "M4_PUBLIC_REMOTE_REVIEWER_FIRST_GREEN",
+        "required_subject_commit": "55d18cdc556ca5d66c67406318ae25196c077fd2",
+        "required_subject_tree": "a4ad37d9baf73a5239f79c516c67b0182420336a",
         "required_capabilities": [
           "LOCAL_HOST",
           "repository checkout at exact commit",
-          "python3"
+          "git",
+          "python3 with venv",
+          "node",
+          "npm",
+          "outbound package-download reachability"
         ]
       },
       "runtime_lane": {
-        "class": "LOCAL_RUNTIME",
+        "class": "LOCAL_DETERMINISTIC_REVIEWER",
         "commands": [
           {
             "argv": [
-              "python3",
-              "scripts/handoff/check_full_mvp_prerequisites.py",
-              "--output",
-              "evidence/receipts/base/full-mvp-prerequisites.json"
+              "bash",
+              "scripts/demo/run_reviewer_demo.sh",
+              "evidence/local-reviewer"
             ],
             "cwd": ".",
-            "timeout_seconds": 120,
+            "timeout_seconds": 900,
             "environment_names": []
           }
         ],
         "unresolved_operations": [],
+        "live_evidence_required": true,
+        "external_side_effects": [
+          "download Python/npm packages into temporary/local caches",
+          "bind loopback ports only during the bounded demo run"
+        ]
+      },
+      "receipt": {
+        "path": "evidence/local-reviewer/reviewer-demo-receipt.json",
+        "schema": "full-manager-mvp/reviewer-demo-evidence/v1",
+        "required_states": [
+          "PASS_BOUNDED",
+          "FAIL"
+        ],
+        "evidence_ceiling": "LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY",
+        "required_checks": [
+          "demo_console_build_present=PASS",
+          "seven_failure_drills=PASS",
+          "same_failure_retest=PASS",
+          "business_pass_fail_metrics_visible=PASS",
+          "paid_api_required=NO"
+        ],
+        "forbidden_promotions": [
+          "local reviewer PASS to live kind or Kubernetes PASS",
+          "local reviewer PASS to Argo CD or Argo Rollouts runtime PASS",
+          "local reviewer PASS to Qwen or llama.cpp runtime PASS",
+          "local reviewer PASS to 1000-VU capacity or recovery PASS",
+          "DRILL completion to production incident history",
+          "local execution to production infrastructure experience",
+          "queue existence to queue execution"
+        ]
+      },
+      "exit": {
+        "requires_receipt": true,
+        "required_verdict": "PASS_BOUNDED",
+        "cleanup_required": true,
+        "cleanup_contract": "run_reviewer_demo.sh removes temporary venv and generated demo-console node_modules/public/dist; evidence/local-reviewer remains as the requested receipt directory"
+      },
+      "next": "M4-LIVE-SUBSTRATE-002"
+    },
+    {
+      "id": "M4-LIVE-SUBSTRATE-002",
+      "task_ref": "ed3c/DevOps-Manager-Notes#9",
+      "state": "BLOCKED_UNRESOLVED",
+      "entry": {
+        "predecessor": "M4-LOCAL-REVIEWER-001",
+        "required_subject_commit": "55d18cdc556ca5d66c67406318ae25196c077fd2",
+        "required_capabilities": [
+          "Docker-compatible daemon",
+          "kind and kubectl for a bounded local Kubernetes substrate",
+          "concrete committed runner for live GitOps/canary/model lanes before execution"
+        ]
+      },
+      "runtime_lane": {
+        "class": "LOCAL_REAL_SUBSTRATE",
+        "commands": [],
+        "unresolved_operations": [
+          "compile a committed bounded kind/Kubernetes runner before activating this item",
+          "bind exact Argo CD/Argo Rollouts image/tool versions and cleanup behavior",
+          "bind exact Qwen model revision/file/digest/license before any model download",
+          "define a resource budget before any 1000-VU execution"
+        ],
         "live_evidence_required": true
       },
       "receipt": {
-        "path": "evidence/receipts/base/full-mvp-prerequisites.json",
-        "schema": "devops-manager/full-mvp-local-prerequisites/v1",
+        "path": null,
+        "schema": null,
         "required_states": [
           "PASS",
-          "FAIL"
+          "FAIL",
+          "NOT_EXERCISED"
         ],
+        "evidence_ceiling": "NOT_EXERCISED_UNTIL_CONCRETE_RUNNER_EXISTS",
         "forbidden_promotions": [
-          "local prerequisite reachability to application correctness",
-          "tool or Docker daemon reachability to Kubernetes deployment PASS",
-          "optional tool absence to base prerequisite failure",
-          "local prerequisite PASS to production infrastructure experience",
-          "queue validation to queue execution"
+          "planned command to execution evidence",
+          "local Kubernetes to production tenure",
+          "synthetic 1000 VU to 1000 real users",
+          "local model inference to production LLM traffic"
         ]
       },
       "exit": {
         "requires_receipt": true,
         "required_verdict": "PASS",
-        "cleanup_required": false
+        "cleanup_required": true
       },
       "next": null
+    }
+  ],
+  "superseded": [
+    {
+      "id": "FULL-MVP-LOCAL-001",
+      "reason": "pre-M4 prerequisite-only queue subject; retained here as historical identity only",
+      "previous_subject_commit": "06efd28361da2c0df4144929cfdffdf27388107a"
     }
   ]
 }
