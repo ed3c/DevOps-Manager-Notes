@@ -1,0 +1,126 @@
+version: 1
+verified_date: 2026-08-19
+policy:
+  selection_after_constraints: true
+  top_level_license_does_not_clear_transitives: true
+  base_images_plugins_models_and_downloads_require_separate_inventory: true
+  commercial_use_claim_requires_exact_source: true
+  distribution_must_preserve_applicable_notice_and_attribution: true
+status_values:
+  - VERIFIED_PERMISSIVE_TOP_LEVEL
+  - NEEDS_DEPENDENCY_AUDIT
+  - REJECTED
+candidates:
+  - id: fastapi
+    purpose: api_service
+    repository: https://github.com/fastapi/fastapi
+    license_source: https://github.com/fastapi/fastapi/blob/master/LICENSE
+    top_level_license: MIT
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - dependency lock/license inventory
+      - runtime integration evidence
+
+  - id: docker-cli
+    purpose: container_cli
+    repository: https://github.com/docker/cli
+    license_source: https://github.com/docker/cli/blob/master/LICENSE
+    top_level_license: Apache-2.0
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - local engine/distribution terms are separate from CLI repository license
+      - base image and dependency inventory
+
+  - id: moby
+    purpose: open_container_engine_reference
+    repository: https://github.com/moby/moby
+    license_source: https://github.com/moby/moby/blob/master/LICENSE
+    top_level_license: Apache-2.0
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - selected local engine/runtime availability
+      - daemon/runtime integration evidence
+
+  - id: kind
+    purpose: local_kubernetes_substrate
+    repository: https://github.com/kubernetes-sigs/kind
+    license_source: https://github.com/kubernetes-sigs/kind/blob/main/LICENSE
+    top_level_license: Apache-2.0
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - local capability receipt
+      - exact Kubernetes node image inventory
+
+  - id: kubernetes
+    purpose: orchestration_contract
+    repository: https://github.com/kubernetes/kubernetes
+    license_source: https://github.com/kubernetes/kubernetes/blob/master/LICENSE
+    top_level_license: Apache-2.0
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - selected version compatibility
+      - local cluster integration and resource-bound evidence
+
+  - id: argo-cd
+    purpose: gitops_reconciliation
+    repository: https://github.com/argoproj/argo-cd
+    license_source: https://github.com/argoproj/argo-cd/blob/master/LICENSE
+    top_level_license: Apache-2.0
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - ADR proving GitOps complexity is justified for MVP
+      - reconciliation/rollback integration evidence
+
+  - id: opentelemetry-collector
+    purpose: telemetry
+    repository: https://github.com/open-telemetry/opentelemetry-collector
+    license_source: https://github.com/open-telemetry/opentelemetry-collector/blob/main/LICENSE
+    top_level_license: Apache-2.0
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - trace/metric identity integration
+      - exporter dependency inventory
+
+  - id: prometheus
+    purpose: metrics_and_slo
+    repository: https://github.com/prometheus/prometheus
+    license_source: https://github.com/prometheus/prometheus/blob/main/LICENSE
+    top_level_license: Apache-2.0
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - SLI/SLO query and alert oracle
+      - retention/resource bounds
+
+  - id: locust
+    purpose: synthetic_load
+    repository: https://github.com/locustio/locust
+    license_source: https://github.com/locustio/locust/blob/master/LICENSE
+    top_level_license: MIT
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - reproducible workload profile
+      - explicit virtual-user != real-adoption claim boundary
+
+  - id: opa
+    purpose: deployment_policy
+    repository: https://github.com/open-policy-agent/opa
+    license_source: https://github.com/open-policy-agent/opa/blob/main/LICENSE
+    top_level_license: Apache-2.0
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - policy admission ADR
+      - negative control proving rejection behavior
+
+  - id: trivy
+    purpose: vulnerability_and_license_gate
+    repository: https://github.com/aquasecurity/trivy
+    license_source: https://github.com/aquasecurity/trivy/blob/main/LICENSE
+    top_level_license: Apache-2.0
+    status: VERIFIED_PERMISSIVE_TOP_LEVEL
+    remaining_proof:
+      - pinned scanner/version/database behavior
+      - planted vulnerability/license-policy negative controls
+notes:
+  - This registry is technical evidence, not legal advice.
+  - VERIFIED_PERMISSIVE_TOP_LEVEL means the named upstream repository license was checked; it is not a blanket clearance for every distributed artifact.
+  - Proprietary desktop distributions, hosted services, marketplace actions, plugins, model weights, base images, and transitive dependencies retain their own terms.
