@@ -2,63 +2,67 @@
   "schema_version": "agentic-tech-lead/local-handoff-queue/v1",
   "subject": {
     "repository": "ed3c/DevOps-Manager-Notes",
-    "commit": "55d18cdc556ca5d66c67406318ae25196c077fd2",
-    "tree": "a4ad37d9baf73a5239f79c516c67b0182420336a",
-    "rollback_commit": "4ce77c5e0e4ece8379badea5c3fa477a3a463d62"
+    "commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
+    "tree": "5ff3349c1eb5c7976263c2e89347a353ccbc1072",
+    "rollback_commit": "660d4deea81712f3d6ab5288ae09288b2e15cc27"
   },
   "authority": {
     "automation_forbidden": [
-      "semantic conflict resolution",
-      "force push",
       "merge",
+      "force_push",
+      "issue_close",
+      "queue_advance",
+      "provider_activation",
+      "semantic_conflict_resolution",
       "release",
-      "production promotion",
-      "production rollback admission",
-      "repository visibility change",
-      "permission widening",
-      "issue closure as capability evidence",
-      "claiming real users, incidents, production or people-management tenure"
+      "production_promotion",
+      "production_rollback_admission",
+      "repository_visibility_change",
+      "permission_widening",
+      "real_experience_claim_promotion"
     ],
     "human_owned": [
       "merge and release admission",
       "repository visibility and permission decisions",
       "semantic conflict decisions",
       "production promotion or rollback decisions",
-      "real-experience and employment claims"
+      "real user, incident, production and employment or people-management claims"
     ]
   },
   "current": {
-    "active_item": "M4-LOCAL-REVIEWER-001",
-    "state": "ACTIVE",
-    "next_concrete_item": "M4-LIVE-SUBSTRATE-002"
+    "active_item": "M5-LOCAL-REVIEWER-001",
+    "state": "ACTIVE"
   },
   "items": [
     {
-      "id": "M4-LOCAL-REVIEWER-001",
+      "id": "M5-LOCAL-REVIEWER-001",
       "task_ref": "ed3c/DevOps-Manager-Notes#9",
       "state": "ACTIVE",
       "entry": {
-        "predecessor": "M4_PUBLIC_REMOTE_REVIEWER_FIRST_GREEN",
-        "required_subject_commit": "55d18cdc556ca5d66c67406318ae25196c077fd2",
-        "required_subject_tree": "a4ad37d9baf73a5239f79c516c67b0182420336a",
+        "predecessor": null,
+        "required_subject_commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
         "required_capabilities": [
           "LOCAL_HOST",
-          "repository checkout at exact commit",
+          "repository checkout at exact queue subject",
           "git",
           "python3 with venv",
           "node",
           "npm",
-          "outbound package-download reachability"
+          "outbound package-download reachability",
+          "M4 remote reviewer evidence remains bounded and readable"
         ]
       },
       "runtime_lane": {
-        "class": "LOCAL_DETERMINISTIC_REVIEWER",
+        "class": "LOCAL_RUNTIME",
         "commands": [
           {
             "argv": [
-              "bash",
-              "scripts/demo/run_reviewer_demo.sh",
-              "evidence/local-reviewer"
+              "python3",
+              "scripts/handoff/run_local_reviewer_handoff.py",
+              "--output",
+              "evidence/local-reviewer/handoff-receipt.json",
+              "--work-dir",
+              "evidence/local-reviewer/work"
             ],
             "cwd": ".",
             "timeout_seconds": 900,
@@ -66,81 +70,53 @@
           }
         ],
         "unresolved_operations": [],
-        "live_evidence_required": true,
-        "external_side_effects": [
-          "download Python/npm packages into temporary/local caches",
-          "bind loopback ports only during the bounded demo run"
-        ]
+        "live_evidence_required": true
       },
       "receipt": {
-        "path": "evidence/local-reviewer/reviewer-demo-receipt.json",
-        "schema": "full-manager-mvp/reviewer-demo-evidence/v1",
+        "path": "evidence/local-reviewer/handoff-receipt.json",
+        "schema": "full-manager-mvp/local-reviewer-handoff-receipt/v1",
         "required_states": [
-          "PASS_BOUNDED",
+          "PASS",
           "FAIL"
         ],
-        "evidence_ceiling": "LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY",
-        "required_checks": [
-          "demo_console_build_present=PASS",
-          "seven_failure_drills=PASS",
-          "same_failure_retest=PASS",
-          "business_pass_fail_metrics_visible=PASS",
-          "paid_api_required=NO"
-        ],
         "forbidden_promotions": [
-          "local reviewer PASS to live kind or Kubernetes PASS",
-          "local reviewer PASS to Argo CD or Argo Rollouts runtime PASS",
-          "local reviewer PASS to Qwen or llama.cpp runtime PASS",
-          "local reviewer PASS to 1000-VU capacity or recovery PASS",
+          "local deterministic reviewer PASS to live kind or Kubernetes PASS",
+          "local deterministic reviewer PASS to Argo CD or Argo Rollouts runtime PASS",
+          "local deterministic reviewer PASS to Qwen or llama.cpp runtime PASS",
+          "local deterministic reviewer PASS to 1000-VU capacity or recovery PASS",
           "DRILL completion to production incident history",
-          "local execution to production infrastructure experience",
-          "queue existence to queue execution"
+          "local execution to production infrastructure or people-management experience",
+          "queue validation to queue execution"
         ]
       },
       "exit": {
         "requires_receipt": true,
-        "required_verdict": "PASS_BOUNDED",
-        "cleanup_required": true,
-        "cleanup_contract": "run_reviewer_demo.sh removes temporary venv and generated demo-console node_modules/public/dist; evidence/local-reviewer remains as the requested receipt directory"
+        "required_verdict": "PASS",
+        "cleanup_required": true
       },
-      "next": "M4-LIVE-SUBSTRATE-002"
+      "next": "M5-LIVE-KIND-002"
     },
     {
-      "id": "M4-LIVE-SUBSTRATE-002",
+      "id": "M5-LIVE-KIND-002",
       "task_ref": "ed3c/DevOps-Manager-Notes#47",
-      "queue_compiler_ref": "ed3c/DevOps-Manager-Notes#48",
-      "state": "WAITING_PREDECESSOR",
+      "state": "BLOCKED_BY_PREDECESSOR",
       "entry": {
-        "predecessor": "M4-LOCAL-REVIEWER-001",
-        "required_subject_commit": "20d2ccb0ed8c877309452eece7c755bb3411c4c1",
-        "required_subject_tree": "7d4b5d5aaba2d023803b152ce5ac7f23f274eba0",
-        "required_subject_pr": 51,
+        "predecessor": "M5-LOCAL-REVIEWER-001",
+        "required_subject_commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
         "required_capabilities": [
           "LOCAL_HOST",
-          "repository checkout at exact runner commit",
+          "repository checkout at exact queue subject",
           "git",
           "python3",
           "Docker-compatible daemon with buildx",
           "kind",
           "kubectl",
-          "one exact kind node image supplied through M5_KIND_NODE_IMAGE as name@sha256:<64 hex>",
-          "outbound image/package reachability needed by the exact local build"
+          "M5_KIND_NODE_IMAGE supplied as exact name@sha256:<64 hex>",
+          "one free loopback port 18030"
         ]
       },
-      "resource_budget": {
-        "max_clusters_created": 1,
-        "allowed_cluster_name_prefix": "manager-demo-",
-        "cluster_name": "manager-demo-m5",
-        "deployment_replicas": 2,
-        "pod_cpu_request": "100m",
-        "pod_cpu_limit": "1",
-        "pod_memory_request": "128Mi",
-        "pod_memory_limit": "512Mi",
-        "timeout_seconds": 900,
-        "local_port": 18030
-      },
       "runtime_lane": {
-        "class": "LOCAL_REAL_SUBSTRATE",
+        "class": "LOCAL_RUNTIME",
         "commands": [
           {
             "argv": [
@@ -161,21 +137,7 @@
           }
         ],
         "unresolved_operations": [],
-        "live_evidence_required": true,
-        "external_side_effects": [
-          "build one local OCI archive using Docker buildx",
-          "pull the exact kind node image if absent",
-          "create one new manager-demo-m5 kind cluster",
-          "temporarily change kubectl current-context while kind is active",
-          "bind loopback port 18030 during health/business probes"
-        ],
-        "cleanup_contract": [
-          "refuse to take over any pre-existing manager-demo-m5 cluster",
-          "delete the attempted manager-demo-m5 kind cluster in finally",
-          "remove temporary OCI/render/port-forward files",
-          "terminate port-forward",
-          "restore the caller kubectl context when one existed"
-        ]
+        "live_evidence_required": true
       },
       "receipt": {
         "path": "evidence/local-kind/local-kind-receipt.json",
@@ -184,30 +146,11 @@
           "PASS",
           "FAIL"
         ],
-        "required_verdict": "PASS",
-        "evidence_ceiling": "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY",
-        "required_checks": [
-          "local_kind_cluster_created=PASS",
-          "oci_digest_bound=PASS",
-          "deployment_ready=PASS",
-          "business_oracle_pass=PASS",
-          "business_oracle_forced_fail_visible=PASS",
-          "pod_image_ids_captured=PASS",
-          "cleanup=PASS",
-          "kubectl_context_restored in {PASS,SKIPPED_NO_PRIOR_CONTEXT}"
-        ],
-        "required_residuals": [
-          "real_argo_cd_reconcile=NOT_EXERCISED",
-          "live_argo_rollouts_canary=NOT_EXERCISED",
-          "local_qwen_llama_cpp=NOT_EXERCISED",
-          "load_1000_vu=NOT_EXERCISED"
-        ],
         "forbidden_promotions": [
-          "queue contract PASS to local execution PASS",
           "local kind PASS to production Kubernetes experience",
           "local kind PASS to Argo CD or Argo Rollouts runtime PASS",
           "local kind PASS to Qwen or llama.cpp runtime PASS",
-          "local kind PASS to 1000-VU capacity/recovery PASS",
+          "local kind PASS to 1000-VU capacity or recovery PASS",
           "synthetic or local failure behavior to production incident history",
           "local substrate execution to people-management tenure"
         ]
@@ -217,45 +160,63 @@
         "required_verdict": "PASS",
         "cleanup_required": true
       },
-      "next": "M5-ARGO-MODEL-CAPACITY-003"
+      "next": "M6-ADVANCED-SUBSTRATE-003"
     },
     {
-      "id": "M5-ARGO-MODEL-CAPACITY-003",
+      "id": "M6-ADVANCED-SUBSTRATE-003",
       "task_ref": "ed3c/DevOps-Manager-Notes#9",
-      "state": "BLOCKED_UNRESOLVED",
+      "state": "BLOCKED_BY_PREDECESSOR",
       "entry": {
-        "predecessor": "M4-LIVE-SUBSTRATE-002",
+        "predecessor": "M5-LIVE-KIND-002",
+        "required_subject_commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
         "required_capabilities": [
-          "concrete committed Argo CD/Argo Rollouts runner with exact image/tool identities",
-          "exact Qwen revision/file/digest/license plus committed llama.cpp runner",
-          "explicit host resource budget before 1000-VU execution"
+          "exact Argo CD and Argo Rollouts runner contracts",
+          "exact Qwen artifact and llama.cpp runner contracts",
+          "bounded 1000-VU load runner contract",
+          "registry-stored signing runner contract"
         ]
       },
       "runtime_lane": {
-        "class": "LOCAL_ADVANCED_SUBSTRATE",
+        "class": "LOCAL_RUNTIME",
         "commands": [],
         "unresolved_operations": [
-          "bind exact Argo CD/Argo Rollouts image/tool versions and rollback cleanup",
-          "bind exact Qwen model revision/file/digest/license before model download",
-          "bind an exact llama.cpp build/binary subject",
-          "define CPU/memory/FD/network budget and abort thresholds for any 1000-VU run",
-          "separate registry-stored signing from the existing same-run blob signature evidence"
+          {
+            "operation_id": "compile-argo-runtime-runner",
+            "resolver_source": "DevOps-Manager-Notes public M6 Argo runner issue/PR",
+            "required_output": "CONCRETE_COMMAND_CONTRACT"
+          },
+          {
+            "operation_id": "compile-local-model-runner",
+            "resolver_source": "DevOps-Manager-Notes public M6 model runner issue/PR with exact artifact identity",
+            "required_output": "CONCRETE_COMMAND_CONTRACT"
+          },
+          {
+            "operation_id": "compile-1000-vu-runner",
+            "resolver_source": "DevOps-Manager-Notes public M6 load runner issue/PR with explicit host budget",
+            "required_output": "CONCRETE_COMMAND_CONTRACT"
+          },
+          {
+            "operation_id": "compile-registry-signing-runner",
+            "resolver_source": "DevOps-Manager-Notes public M6 registry-signing issue/PR",
+            "required_output": "CONCRETE_COMMAND_CONTRACT"
+          }
         ],
         "live_evidence_required": true
       },
       "receipt": {
-        "path": null,
-        "schema": null,
+        "path": "evidence/local-advanced/advanced-substrate-receipt.json",
+        "schema": "full-manager-mvp/advanced-substrate-receipt/v1",
         "required_states": [
           "PASS",
           "FAIL",
           "NOT_EXERCISED"
         ],
-        "evidence_ceiling": "NOT_EXERCISED_UNTIL_CONCRETE_RUNNERS_EXIST",
         "forbidden_promotions": [
-          "planned command to execution evidence",
-          "local Argo/model/load evidence to production tenure",
-          "synthetic 1000 VU to 1000 real users"
+          "unresolved runner plan to execution evidence",
+          "local Argo runtime to production deployment tenure",
+          "local model inference to production LLM traffic",
+          "synthetic 1000 VU to 1000 real users",
+          "local registry signing to production supply-chain operations"
         ]
       },
       "exit": {
@@ -264,13 +225,6 @@
         "cleanup_required": true
       },
       "next": null
-    }
-  ],
-  "superseded": [
-    {
-      "id": "FULL-MVP-LOCAL-001",
-      "reason": "pre-M4 prerequisite-only queue subject; retained here as historical identity only",
-      "previous_subject_commit": "06efd28361da2c0df4144929cfdffdf27388107a"
     }
   ]
 }
