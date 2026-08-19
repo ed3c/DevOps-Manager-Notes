@@ -1,0 +1,51 @@
+{
+  "schema_version": "full-manager-mvp/public-m3-failure-recovery/v1",
+  "milestone": "PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN",
+  "status": "PASS_BOUNDED",
+  "issue": 5,
+  "pull_request": 42,
+  "branch": "feat/failure-recovery-convergence",
+  "base_branch": "feat/observability-slo-load",
+  "source_head": "e48711055572d83c872e72445cdf1389592ce85e",
+  "workflow_run": 32254018953,
+  "artifact_id": 9365550423,
+  "artifact_digest": "sha256:098ba3e3427323c9c4651d5d8683d174723039d5fe32285045f95773d7419558",
+  "artifact_size_bytes": 25773,
+  "evidence_ceiling": "GITHUB_HOSTED_DETERMINISTIC_AND_LOCAL_PROCESS_FAILURE_DRILLS_ONLY",
+  "git_relation": {
+    "class": "true_child",
+    "parent_pull_request": 36,
+    "reason": "executes against the unmerged telemetry-enabled Core app"
+  },
+  "side_inputs": [
+    {"issue": 4, "pull_request": 38, "mode": "exact_receipt_identity"},
+    {"issue": 7, "pull_request": 39, "mode": "exact_receipt_identity"},
+    {"issue": 10, "pull_request": 40, "mode": "exact_receipt_identity"}
+  ],
+  "explicit_non_dependency": {
+    "issue": 8,
+    "pull_request": 37,
+    "reason": "Demo Console is consumed by final #9 convergence, not #5 failure closure"
+  },
+  "checks": {
+    "seven_drills": "PASS",
+    "timeline_fields_complete": "PASS",
+    "recovery_verified": "PASS",
+    "same_failure_retest": "PASS",
+    "business_failure_metric_visible": "PASS",
+    "side_input_manifest_shape": "PASS",
+    "side_input_artifact_redownload": "NOT_EXERCISED",
+    "production_incident_history": "NOT_EXERCISED",
+    "live_kubernetes_recovery": "NOT_EXERCISED",
+    "real_customer_impact": "NOT_EXERCISED"
+  },
+  "scenario_ids": ["FR-01", "FR-02", "FR-03", "FR-04", "FR-05", "FR-06", "FR-07"],
+  "next_owner_issue": 9,
+  "human_owned": [
+    "merge",
+    "release",
+    "repository visibility or permission changes",
+    "production promotion or rollback",
+    "real production/users/incidents/people-management claims"
+  ]
+}
