@@ -69,8 +69,11 @@ class M7AdvancedQueueCompilerTests(unittest.TestCase):
         self.assertEqual(queue["items"][0]["runtime_lane"]["class"], "LOCAL_HOST")
         self.assertIn("queue_advance", queue["authority"]["automation_forbidden"])
         self.assertIn("semantic_conflict_resolution", queue["authority"]["automation_forbidden"])
-        self.assertEqual(queue["items"][2]["runtime_lane"]["commands"][0]["argv"][3], "--users")
-        self.assertIn("1000", queue["items"][2]["runtime_lane"]["commands"][0]["argv"])
+        capacity_argv = queue["items"][2]["runtime_lane"]["commands"][0]["argv"]
+        self.assertEqual(capacity_argv[2], "--users")
+        self.assertEqual(capacity_argv[3], "1000")
+        self.assertIn("--duration-seconds", capacity_argv)
+        self.assertIn("--failure-ratio-limit", capacity_argv)
 
     def test_fixture_is_rejected_without_fixture_mode(self) -> None:
         completed, _ = self.run_compiler(fixture_mode=False)
