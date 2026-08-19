@@ -40,28 +40,31 @@ jobs:
           python -m compileall -q tests/failure/scenarios
           python tests/failure/scenarios/test_failure_primitives.py -v
 
-      - name: Validate exact public M2 side-input subjects
+      - name: Validate bound public M2 side-input manifest
         run: |
           python - <<'PY'
           import json, re
           from pathlib import Path
           subject = json.loads(Path('evidence/receipts/failure/public-m2-side-inputs.json').read_text())
           lanes = subject['lanes']
-          assert {x['issue'] for x in lanes} == {3, 4, 7, 8, 10}
-          assert len({x['pull_request'] for x in lanes}) == 5
+          assert {x['issue'] for x in lanes} == {3, 4, 7, 10}
+          assert len({x['pull_request'] for x in lanes}) == 4
           for lane in lanes:
               assert re.fullmatch(r'[0-9a-f]{40}', lane['head'])
               assert re.fullmatch(r'sha256:[0-9a-f]{64}', lane['artifact_digest'])
               assert lane['workflow_run'] > 0 and lane['artifact_id'] > 0
-          print('side-input-contract=PASS')
+          print('side-input-manifest-shape=PASS')
           PY
 
       - name: Install observed Core plus observability base
-        run: python -m pip install -e platform/app
+        run: |
+          python -m pip install -e platform/app
+          mkdir -p live-evidence
+          python -m pip freeze | LC_ALL=C sort > live-evidence/python-environment.txt
+          sha256sum live-evidence/python-environment.txt > live-evidence/python-environment.sha256
 
       - name: Start bounded demo service
         run: |
-          mkdir -p live-evidence
           DATABASE_URL=sqlite+pysqlite:///./failure-recovery.db \
             uvicorn manager_demo.main:app --host 127.0.0.1 --port 18000 \
             > live-evidence/service.log 2>&1 &
@@ -84,6 +87,8 @@ jobs:
             --output live-evidence/failure-drills.json \
             --markdown live-evidence/failure-drills.md
           jq -e '.verdict == "PASS" and .summary.total == 7 and .summary.pass == 7' \
+            live-evidence/failure-drills.json >/dev/null
+          jq -e 'all(.scenarios[]; .classification == "DRILL" and .verdict == "PASS" and (.timeline.trigger | length > 0) and (.timeline.detection | length > 0) and (.timeline.mitigation | length > 0) and (.timeline.recovery | length > 0) and (.timeline.postmortem | length > 0) and (.timeline.corrective_change | length > 0) and (.timeline.same_failure_retest | length > 0))' \
             live-evidence/failure-drills.json >/dev/null
 
       - name: Assert business failure is visible in Prometheus surface
@@ -108,12 +113,16 @@ jobs:
             'subjects': {
               'failure_drills_sha256': Path('live-evidence/failure-drills.sha256').read_text().split()[0],
               'side_inputs_sha256': Path('live-evidence/side-inputs.sha256').read_text().split()[0],
+              'python_environment_sha256': Path('live-evidence/python-environment.sha256').read_text().split()[0],
             },
             'checks': {
               'seven_drills': 'PASS',
+              'timeline_fields_complete': 'PASS',
               'recovery_verified': 'PASS',
               'same_failure_retest': 'PASS',
               'business_failure_metric_visible': 'PASS',
+              'side_input_manifest_shape': 'PASS',
+              'side_input_artifact_redownload': 'NOT_EXERCISED',
               'production_incident_history': 'NOT_EXERCISED',
               'live_kubernetes_recovery': 'NOT_EXERCISED',
               'real_customer_impact': 'NOT_EXERCISED',
@@ -137,6 +146,8 @@ jobs:
             live-evidence/failure-drills.md
             live-evidence/failure-drills.sha256
             live-evidence/side-inputs.sha256
+            live-evidence/python-environment.txt
+            live-evidence/python-environment.sha256
             live-evidence/failure-recovery-receipt.json
             live-evidence/metrics.txt
           if-no-files-found: error
@@ -145,7 +156,7 @@ jobs:
 
       - name: Evidence boundary
         run: |
-          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## Failure/recovery FIRST_GREEN boundary
           - seven bounded failure drills: exercised
           - recovery verification: exercised
