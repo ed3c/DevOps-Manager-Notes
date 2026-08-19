@@ -64,16 +64,18 @@ PR #40 Supply/Fault
 
 These are task siblings. Their Git parents differ because each consumes a different unmerged implementation lane. No fake common Git parent or multi-parent convergence is created.
 
-## Exact contract subjects
+## Exact current contract subjects
 
 | PR | Lane | Head | Tree | Actions run | Contract ceiling | Potential ceiling after real local PASS |
 |---:|---|---|---|---:|---|---|
-| #55 | Argo CD / Rollouts controllers | `284dbf1d2e9a1759cab0a8cb21987f76112946b5` | `fff48ba347d9f9004af84f18008e64e33a186073` | `32265921102` | `GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY` | `LOCAL_ARGO_CONTROLLERS_READY_ONLY` |
+| #55 | Argo CD / Rollouts controllers + self-contained ephemeral kind owner | `8d976171f4aa2eba72bee360823b660f9bed99d4` | `fada58f36c83de296decb41dcd34531b9d73145a` | `32274548200` | `GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY` | `LOCAL_ARGO_CONTROLLERS_READY_ONLY` |
 | #56 | llama.cpp + exact model artifact | `63355992f382cf260c624e2c7c7c3733cce82c20` | `973f91c0354d43a679c558394ef9f2a6da58ac9a` | `32265971683` | `GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY` | `LOCAL_LLAMA_CPP_MODEL_INFERENCE_ONLY` |
 | #57 | synthetic 1,000 VU | `2240e8ee7ae9f151503d5c03d8043938dbbdce95` | `7965e4c544715d601de455d0839a9576649d8f73` | `32266078175` | `GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY` | `LOCAL_SYNTHETIC_1000_VU_ONLY` |
 | #58 | loopback registry image signing | `1b543fdfad73377fa6ba51e3f190b56ed60452fa` | `266d81dbb51b0d2422deafdb829b2ef8f1f163ff` | `32266026763` | `GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY` | `LOCAL_REGISTRY_STORED_IMAGE_SIGNATURE_ONLY` |
 
-All four contract workflows passed. They compile/test plan and negative-control contracts only; they do not perform physical runtime operations.
+All four current contract workflows passed. They compile/test plan and negative-control contracts only; they do not perform physical runtime operations.
+
+The earlier PR #55 evidence subject `284dbf1d...` / run `32265921102` remains historical contract evidence only. It is not relabeled as evidence for the hardened PR #55 current head.
 
 ## Shadow Architect hardening ledger
 
@@ -89,15 +91,31 @@ custom states/classes/fields + custom validator
 → portable assertion + selftest
 ```
 
-### Argo `LIFECYCLE / AUTHORITY / RESOURCE_DELTA`
+### Argo `LIFECYCLE / AUTHORITY / RESOURCE / EVIDENCE_DELTA`
+
+Initial M6 hardening already required:
 
 - explicit runner-owned `argocd` and `argo-rollouts` namespaces;
-- refuse namespace takeover;
-- apply/delete manifests with explicit namespace;
-- cleanup only after target context admission and only for runner-owned namespaces;
+- namespace takeover refusal;
+- explicit namespace apply/delete;
 - two manifest downloads, each capped at 20 MB and SHA-256 verified.
 
-The highest possible future receipt is controller readiness only. It cannot claim Application reconciliation or live canary analysis.
+A later M7 dependency review found a real lifecycle mismatch: the M5 live-kind runner correctly deletes its cluster during cleanup, so a later advanced Argo item could not legally assume that cluster still existed. PR #55 was hardened again rather than preserving the false dependency.
+
+The current self-contained Argo lane now:
+
+```text
+exact kind node image digest
+→ refuse pre-existing manager-demo-* cluster
+→ capture caller kubectl context
+→ create one bounded ephemeral kind cluster
+→ run exact Argo controller install contract
+→ require inner controller + cleanup PASS
+→ delete attempted cluster
+→ restore caller kubectl context
+```
+
+Highest possible future receipt remains controller readiness only. It cannot claim Argo CD Application reconciliation, live Rollouts canary analysis, production Kubernetes, production deployment or customer traffic.
 
 ### Model `RESOURCE / EVIDENCE_DELTA`
 
@@ -132,7 +150,8 @@ M4_REMOTE_REVIEWER_PASS
 → M5_LOCAL_REVIEWER_ACTIVE                    receipt ABSENT
 → M5_LIVE_KIND_BLOCKED_BY_PREDECESSOR         receipt ABSENT
 → M6_ADVANCED_RUNNER_CONTRACTS_READY          this milestone
-→ future canonical advanced queue epoch       NOT_COMPILED
+→ M7 advanced bundle/compiler                 contract work may start
+→ future canonical advanced queue epoch       requires predecessor receipts
 → Argo/model/1000-VU/signing physical receipts NOT_EXERCISED
 ```
 
