@@ -40,7 +40,9 @@ jobs:
             > /tmp/m5-plan.json
           jq -e '.evidence_ceiling_after_real_execution == "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY"' /tmp/m5-plan.json >/dev/null
           jq -e '.resource_budget.max_clusters_created == 1' /tmp/m5-plan.json >/dev/null
-          jq -e '.operations | any(contains("delete the created cluster"))' /tmp/m5-plan.json >/dev/null
+          jq -e '.resource_budget.handoff_timeout_seconds <= 900' /tmp/m5-plan.json >/dev/null
+          jq -e '.operations | any(contains("delete the attempted manager-demo-* cluster"))' /tmp/m5-plan.json >/dev/null
+          jq -e '.operations | any(contains("restore the caller kubectl context"))' /tmp/m5-plan.json >/dev/null
       - name: Evidence boundary
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
@@ -49,7 +51,7 @@ jobs:
           - plan-only safety tests: exercised
           - arbitrary cluster-name rejection: exercised
           - mutable kind-node image rejection: exercised
-          - resource/cleanup/evidence-ceiling contract: exercised
+          - resource/partial-create cleanup/context-restore contract: exercised
           - Docker daemon execution: **NOT_EXERCISED**
           - kind cluster creation: **NOT_EXERCISED**
           - Kubernetes deployment: **NOT_EXERCISED**
