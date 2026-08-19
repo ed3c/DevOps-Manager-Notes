@@ -2,9 +2,9 @@
   "schema_version": "agentic-tech-lead/local-handoff-queue/v1",
   "subject": {
     "repository": "ed3c/DevOps-Manager-Notes",
-    "commit": "06efd28361da2c0df4144929cfdffdf27388107a",
-    "tree": "c15d1c685bafc018561565c241c1dccfd8737a20",
-    "rollback_commit": "4637eca832f3696381089cefc58de254e5c1408e"
+    "commit": "a4ce65dbd66b32bdd2d313f03f8ac97b6bf01f10",
+    "tree": "10788c59fe1ed183960ff498d3333c10bd274085",
+    "rollback_commit": "f0e99dd354c5bbbb67cf6d898b647e7cc8582ede"
   },
   "authority": {
     "automation_forbidden": [
@@ -26,17 +26,17 @@
     ]
   },
   "current": {
-    "active_item": "FULL-MVP-LOCAL-001",
+    "active_item": "CORE-LOCAL-001",
     "state": "ACTIVE"
   },
   "items": [
     {
-      "id": "FULL-MVP-LOCAL-001",
+      "id": "CORE-LOCAL-001",
       "task_ref": "ed3c/DevOps-Manager-Notes#2",
       "state": "ACTIVE",
       "entry": {
         "predecessor": null,
-        "required_subject_commit": "06efd28361da2c0df4144929cfdffdf27388107a",
+        "required_subject_commit": "a4ce65dbd66b32bdd2d313f03f8ac97b6bf01f10",
         "required_capabilities": [
           "LOCAL_HOST",
           "repository checkout at exact commit",
@@ -58,7 +58,13 @@
             "environment_names": []
           }
         ],
-        "unresolved_operations": [],
+        "unresolved_operations": [
+          {
+            "operation_id": "CORE-LIVE-KIND-RUNNER",
+            "resolver_source": "DevOps issue #2 after prerequisite PASS and a bounded executable kind runner is committed",
+            "required_output": "CONCRETE_COMMAND_CONTRACT"
+          }
+        ],
         "live_evidence_required": true
       },
       "receipt": {
@@ -73,6 +79,7 @@
           "tool or Docker daemon reachability to Kubernetes deployment PASS",
           "optional tool absence to base prerequisite failure",
           "local prerequisite PASS to production infrastructure experience",
+          "GitHub Actions first-green to local Kubernetes PASS",
           "queue validation to queue execution"
         ]
       },
