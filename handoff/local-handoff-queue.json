@@ -2,9 +2,9 @@
   "schema_version": "agentic-tech-lead/local-handoff-queue/v1",
   "subject": {
     "repository": "ed3c/DevOps-Manager-Notes",
-    "commit": "e7e6f19afc446e322dbfcf885e50bed01800e480",
-    "tree": "4fbb35a6753b10424bea5845e8295bc4543f95a1",
-    "rollback_commit": "93c21152939b76f2f89de5997c6b9dcd296059c4"
+    "commit": "06efd28361da2c0df4144929cfdffdf27388107a",
+    "tree": "c15d1c685bafc018561565c241c1dccfd8737a20",
+    "rollback_commit": "4637eca832f3696381089cefc58de254e5c1408e"
   },
   "authority": {
     "automation_forbidden": [
@@ -26,17 +26,17 @@
     ]
   },
   "current": {
-    "active_item": "DEVOPS-LOCAL-001",
+    "active_item": "FULL-MVP-LOCAL-001",
     "state": "ACTIVE"
   },
   "items": [
     {
-      "id": "DEVOPS-LOCAL-001",
+      "id": "FULL-MVP-LOCAL-001",
       "task_ref": "ed3c/DevOps-Manager-Notes#2",
       "state": "ACTIVE",
       "entry": {
         "predecessor": null,
-        "required_subject_commit": "e7e6f19afc446e322dbfcf885e50bed01800e480",
+        "required_subject_commit": "06efd28361da2c0df4144929cfdffdf27388107a",
         "required_capabilities": [
           "LOCAL_HOST",
           "repository checkout at exact commit",
@@ -49,9 +49,9 @@
           {
             "argv": [
               "python3",
-              "scripts/handoff/check_local_capabilities.py",
+              "scripts/handoff/check_full_mvp_prerequisites.py",
               "--output",
-              "evidence/receipts/local-capabilities.json"
+              "evidence/receipts/base/full-mvp-prerequisites.json"
             ],
             "cwd": ".",
             "timeout_seconds": 120,
@@ -62,17 +62,17 @@
         "live_evidence_required": true
       },
       "receipt": {
-        "path": "evidence/receipts/local-capabilities.json",
-        "schema": "devops-manager/local-capabilities/v1",
+        "path": "evidence/receipts/base/full-mvp-prerequisites.json",
+        "schema": "devops-manager/full-mvp-local-prerequisites/v1",
         "required_states": [
           "PASS",
           "FAIL"
         ],
         "forbidden_promotions": [
-          "capability reachability to application correctness",
-          "docker daemon reachability to Kubernetes deployment PASS",
-          "local capability PASS to production infrastructure experience",
-          "optional git-town absence to base-runtime failure",
+          "local prerequisite reachability to application correctness",
+          "tool or Docker daemon reachability to Kubernetes deployment PASS",
+          "optional tool absence to base prerequisite failure",
+          "local prerequisite PASS to production infrastructure experience",
           "queue validation to queue execution"
         ]
       },
