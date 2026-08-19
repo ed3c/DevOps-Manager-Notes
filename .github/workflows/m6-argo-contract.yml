@@ -1,0 +1,66 @@
+name: M6 Argo control-plane runner contract
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/handoff/run_argo_control_plane.py'
+      - 'scripts/handoff/run_argo_control_plane_from_env.sh'
+      - 'tests/handoff/test_argo_control_plane_contract.py'
+      - '.github/workflows/m6-argo-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m6-argo-contract-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact workflow subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Compile Python and shell wrapper
+        run: |
+          python3 -m py_compile scripts/handoff/run_argo_control_plane.py
+          bash -n scripts/handoff/run_argo_control_plane_from_env.sh
+      - name: Run no-side-effect contract tests
+        run: python3 tests/handoff/test_argo_control_plane_contract.py -v
+      - name: Assert wrapper rejects missing identities
+        run: |
+          if env -u M6_ARGO_CLUSTER_CONTEXT -u M6_ARGO_TARGET_REVISION -u M6_ARGO_CD_MANIFEST_URL -u M6_ARGO_CD_MANIFEST_SHA256 -u M6_ARGO_ROLLOUTS_MANIFEST_URL -u M6_ARGO_ROLLOUTS_MANIFEST_SHA256 \
+            bash scripts/handoff/run_argo_control_plane_from_env.sh --plan-only >/tmp/m6-argo-missing.out 2>&1; then
+            echo 'wrapper unexpectedly accepted missing identities'
+            exit 1
+          fi
+          grep -q 'M6_ARGO_CLUSTER_CONTEXT' /tmp/m6-argo-missing.out
+      - name: Assert plan-only boundary
+        run: |
+          M6_ARGO_CLUSTER_CONTEXT='kind-manager-demo-m6' \
+          M6_ARGO_TARGET_REVISION='1111111111111111111111111111111111111111' \
+          M6_ARGO_CD_MANIFEST_URL='https://example.invalid/argocd.yaml' \
+          M6_ARGO_CD_MANIFEST_SHA256='2222222222222222222222222222222222222222222222222222222222222222' \
+          M6_ARGO_ROLLOUTS_MANIFEST_URL='https://example.invalid/rollouts.yaml' \
+          M6_ARGO_ROLLOUTS_MANIFEST_SHA256='3333333333333333333333333333333333333333333333333333333333333333' \
+            bash scripts/handoff/run_argo_control_plane_from_env.sh --plan-only > /tmp/m6-argo-plan.json
+          jq -e '.evidence_ceiling_after_real_execution == "LOCAL_ARGO_CONTROLLERS_READY_ONLY"' /tmp/m6-argo-plan.json >/dev/null
+          jq -e '.resource_budget.max_target_clusters == 1 and .resource_budget.max_manifest_downloads == 2' /tmp/m6-argo-plan.json >/dev/null
+          jq -e '.operations | any(contains("verify SHA-256"))' /tmp/m6-argo-plan.json >/dev/null
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M6 Argo control-plane runner boundary
+          - exact local kind context format gate: exercised
+          - exact manifest URL/SHA gates: exercised
+          - namespace takeover refusal contract: exercised
+          - cleanup/controller-readiness plan: exercised
+          - real Argo CD/Rollouts installation: **NOT_EXERCISED**
+          - Argo CD application reconciliation: **NOT_EXERCISED**
+          - live Rollouts canary analysis: **NOT_EXERCISED**
+          - contract evidence ceiling: `GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY`
+          EOF
