@@ -28,20 +28,23 @@ jobs:
         run: python3 -m py_compile scripts/handoff/run_local_capacity.py
       - name: Run no-side-effect contract tests
         run: python3 tests/handoff/test_local_capacity_runner_contract.py -v
-      - name: Assert 1000-VU plan boundary
+      - name: Assert hardened 1000-VU plan boundary
         run: |
           python3 scripts/handoff/run_local_capacity.py --plan-only > /tmp/m6-capacity-plan.json
           jq -e '.workload.users == 1000' /tmp/m6-capacity-plan.json >/dev/null
           jq -e '.workload.host | startswith("http://127.0.0.1:")' /tmp/m6-capacity-plan.json >/dev/null
-          jq -e '.resource_budget.max_users == 1000 and .resource_budget.max_duration_seconds <= 60 and .resource_budget.loopback_only == true' /tmp/m6-capacity-plan.json >/dev/null
+          jq -e '.resource_budget.max_users == 1000 and .resource_budget.max_spawn_rate_per_second <= 100 and .resource_budget.max_duration_seconds <= 60' /tmp/m6-capacity-plan.json >/dev/null
+          jq -e '.resource_budget.loopback_only == true and .resource_budget.persistent_service == false and .resource_budget.pip_cache == false' /tmp/m6-capacity-plan.json >/dev/null
+          jq -e '.operations | any(contains("refuse to take over an occupied loopback port"))' /tmp/m6-capacity-plan.json >/dev/null
           jq -e '.evidence_ceiling_after_real_execution == "LOCAL_SYNTHETIC_1000_VU_ONLY"' /tmp/m6-capacity-plan.json >/dev/null
       - name: Evidence boundary
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## M6 capacity runner contract boundary
           - 1,000 virtual-user workload contract: exercised
-          - loopback-only target restriction: exercised
+          - loopback-only/occupied-port refusal: exercised
           - spawn-rate/duration/port bounds: exercised
+          - temporary venv + no persistent pip cache contract: exercised
           - p95/failure-ratio acceptance contract: exercised
           - real 1,000-VU execution: **NOT_EXERCISED**
           - production traffic/adoption: **NOT_EXERCISED**
