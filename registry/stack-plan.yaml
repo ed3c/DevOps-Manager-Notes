@@ -1,0 +1,156 @@
+version: 1
+method_owner: ed3c/skills-shared/skills/git-town-stacked-pr-worker
+consumer: ed3c/DevOps-Manager-Notes
+policy:
+  branch_or_pr_must_exist_before_identity_is_recorded: true
+  true_child_requires_unmerged_artifact_consumption: true
+  path_disjoint_work_should_remain_sibling: true
+  external_process_dependencies_do_not_create_git_ancestry: true
+  one_convergence_owner: true
+  merge_release_promotion_human_owned: true
+atoms:
+  - id: C0-bootstrap-contract
+    atom: C
+    issues: []
+    pull_request: 6
+    state: PR_OPEN
+    stack_class: root
+    branch: bootstrap/devops-evidence-contract
+    base_branch: main
+    owns_paths:
+      - README.md
+      - AGENTS.md
+      - LICENSE
+      - roles/
+      - registry/
+      - docs/
+      - scripts/handoff/
+      - handoff/
+    provides_artifacts:
+      - devops-manager-system-contract-v1
+      - technology-candidate-registry-v1
+      - molecular-stack-plan-v1
+    blockers:
+      - HUMAN_ADMIT_MERGE
+
+  - id: E1-requirement-invariant-audit
+    atom: E
+    issues: [1]
+    pull_request: null
+    state: PLANNED
+    stack_class: child
+    parent: C0-bootstrap-contract
+    branch: null
+    base_branch: bootstrap/devops-evidence-contract
+    owns_paths:
+      - registry/evidence.yaml
+      - registry/gaps.yaml
+      - system-design/
+      - sre/
+    consumes_artifacts:
+      - devops-manager-system-contract-v1
+    provides_artifacts:
+      - exact-devops-invariant-audit-v1
+    blockers:
+      - EXACT_REPOSITORY_EVIDENCE_NOT_YET_BOUND
+
+  - id: K2-base-delivery
+    atom: K
+    issues: [2]
+    pull_request: null
+    state: PLANNED
+    stack_class: child
+    parent_completion: E1-requirement-invariant-audit
+    branch: null
+    base_branch: null
+    owns_paths:
+      - platform/app/
+      - platform/docker/
+      - platform/kubernetes/
+      - tests/unit/
+      - tests/integration/
+      - .github/workflows/
+    consumes_artifacts:
+      - exact-devops-invariant-audit-v1
+    provides_artifacts:
+      - base-service-contract-v1
+      - immutable-artifact-contract-v1
+      - local-k8s-delivery-contract-v1
+    blockers:
+      - LOCAL_RUNTIME_CAPABILITY_NOT_YET_EXERCISED
+
+  - id: A3-observability-load
+    atom: A
+    issues: [3]
+    pull_request: null
+    state: PLANNED
+    stack_class: sibling
+    parent_completion: K2-base-delivery
+    branch: null
+    base_branch: null
+    owns_paths:
+      - observability/
+      - tests/load/
+      - sre/sli-slo.md
+      - sre/error-budget.md
+      - sre/capacity-planning.md
+    consumes_artifacts:
+      - base-service-contract-v1
+    provides_artifacts:
+      - telemetry-slo-load-evidence-v1
+    blockers:
+      - COMPLETION_REQUIRES_K2
+
+  - id: E4-policy-security-license
+    atom: E
+    issues: [4]
+    pull_request: null
+    state: PLANNED
+    stack_class: sibling
+    parent_completion: K2-base-delivery
+    branch: null
+    base_branch: null
+    owns_paths:
+      - platform/policies/
+      - tests/failure/policy/
+      - registry/technology-candidates.yaml
+    consumes_artifacts:
+      - immutable-artifact-contract-v1
+    provides_artifacts:
+      - policy-security-license-evidence-v1
+    blockers:
+      - COMPLETION_REQUIRES_K2
+
+  - id: X5-failure-recovery-convergence
+    atom: X
+    issues: [5]
+    pull_request: null
+    state: PLANNED
+    stack_class: convergence
+    parent_completion:
+      - A3-observability-load
+      - E4-policy-security-license
+    branch: null
+    base_branch: null
+    owns_paths:
+      - tests/failure/
+      - incidents/
+      - runbooks/
+      - management/
+      - evidence/receipts/
+      - README.md
+      - docs/INDEX.md
+      - registry/stack-plan.yaml
+    consumes_artifacts:
+      - telemetry-slo-load-evidence-v1
+      - policy-security-license-evidence-v1
+      - base-service-contract-v1
+    provides_artifacts:
+      - manager-reliability-closure-v1
+    blockers:
+      - FAILURE_RUNTIME_NOT_YET_EXERCISED
+      - HUMAN_ADMIT_PUBLICATION
+notes:
+  - A3 and E4 are planned as siblings only after K2 freezes shared service/artifact interfaces.
+  - If an observed implementation consumes another sibling's unmerged bytes, reclassify the real relation as a child.
+  - X5 must not fabricate two Git parents; choose a stable admitted base and bind other prerequisites as exact verified side inputs.
