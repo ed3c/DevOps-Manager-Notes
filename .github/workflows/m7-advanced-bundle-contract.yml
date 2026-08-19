@@ -115,7 +115,8 @@ jobs:
 
       - name: Assert no physical runtime was exercised
         run: |
-          grep -q 'fixture_mode' <(python3 scripts/handoff/compile_m7_advanced_queue.py --help)
+          python3 scripts/handoff/compile_m7_advanced_queue.py --help | grep -q -- '--fixture-mode'
+          jq -e '.physical_runtime_executed == false and .evidence_kind == "FIXTURE"' /tmp/m7-compile-receipt.json >/dev/null
           if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_)' \
             scripts/handoff/compile_m7_advanced_queue.py tests/handoff/fixtures/m7; then
             echo 'secret-like material found in M7 contract surface'
