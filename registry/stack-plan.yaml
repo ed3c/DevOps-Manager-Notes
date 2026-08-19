@@ -242,17 +242,23 @@ atoms:
     atom: D
     issues: [9]
     pull_request: 45
-    state: PR_DRAFT_LOCAL_HANDOFF_READY
+    state: PR_DRAFT_LOCAL_HANDOFF_CONTRACT_GREEN
     stack_class: child
     git_parent: X9-full-demo-convergence
     branch: handoff/m4-local-runtime
     base_branch: feat/full-reviewer-convergence
-    head_commit: db791dc40e8c78ebd915096f74f0850facce120f
-    owns_paths: [handoff/local-handoff-queue.json]
+    head_commit: a697c74a11d5d6492eaddb44aabd1a331899ee32
+    owns_paths: [handoff/local-handoff-queue.json, .github/workflows/local-handoff-contract.yml]
     active_item: M4-LOCAL-REVIEWER-001
     command: bash scripts/demo/run_reviewer_demo.sh evidence/local-reviewer
     receipt: evidence/local-reviewer/reviewer-demo-receipt.json
-    evidence_ceiling: LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY
+    evidence_ceiling_after_execution: LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY
+    contract_validation:
+      workflow_name: M4 Local Handoff contract
+      workflow_run_id: 32257928774
+      verdict: PASS
+      evidence_ceiling: GITHUB_HOSTED_LOCAL_HANDOFF_CONTRACT_VALIDATION_ONLY
+      local_execution: NOT_EXERCISED
     next_item:
       id: M4-LIVE-SUBSTRATE-002
       state: BLOCKED_UNRESOLVED
@@ -264,7 +270,7 @@ notes:
   - PR #42 is a Git child of PR #36 while task semantics converge PR #38/#39/#40 through exact side inputs.
   - Demo Console PR #37 is intentionally not a #5 dependency; it joins at X9.
   - PR #44 is a Git child of PR #42. It proves PR #37 byte parity and re-downloads all six bound Actions artifacts before evidence admission.
-  - PR #45 is the Local Handoff child of PR #44. Queue existence is workflow state only; local execution needs a returned receipt.
+  - PR #45 is the Local Handoff child of PR #44. Its GitHub workflow proves queue shape only; local execution still requires a returned receipt.
   - Mutable current PR heads and historical artifact evidence heads are separate subjects.
   - A remote or local FIRST_GREEN never promotes to production, real-adoption, legal-clearance, real-incident or tenure evidence.
   - X5/X9 never fabricate multiple Git parents; one Git base is used and other prerequisites remain typed side inputs.
