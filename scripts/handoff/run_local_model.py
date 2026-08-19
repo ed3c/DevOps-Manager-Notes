@@ -4,7 +4,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -16,6 +15,8 @@ from urllib import request
 SCHEMA = "full-manager-mvp/local-model-receipt/v1"
 EVIDENCE_CEILING = "LOCAL_LLAMA_CPP_MODEL_INFERENCE_ONLY"
 LLAMA_REPO = "https://github.com/ggml-org/llama.cpp.git"
+DEFAULT_MAX_MODEL_BYTES = 1_500_000_000
+HARD_MAX_MODEL_BYTES = 2_000_000_000
 
 
 def sha256_file(path: Path) -> str:
@@ -77,7 +78,24 @@ def git_subject(repo_root: Path) -> dict[str, str]:
     return {"repository": "ed3c/DevOps-Manager-Notes", "commit": commit, "tree": tree}
 
 
-def plan(*, llama_commit: str, model_url: str, model_sha256: str, model_license_id: str, threads: int, max_tokens: int, timeout_seconds: int) -> dict:
+def download_limited(url: str, destination: Path, max_bytes: int) -> int:
+    total = 0
+    with request.urlopen(url, timeout=30) as response, destination.open("wb") as handle:
+        content_length = response.headers.get("Content-Length")
+        if content_length and int(content_length) > max_bytes:
+            raise RuntimeError(f"model Content-Length {content_length} exceeds max {max_bytes}")
+        while True:
+            chunk = response.read(1024 * 1024)
+            if not chunk:
+                break
+            total += len(chunk)
+            if total > max_bytes:
+                raise RuntimeError(f"model download exceeded max {max_bytes} bytes")
+            handle.write(chunk)
+    return total
+
+
+def plan(*, llama_commit: str, model_url: str, model_sha256: str, model_license_id: str, threads: int, max_tokens: int, timeout_seconds: int, max_model_bytes: int) -> dict:
     exact_sha40(llama_commit)
     https_url(model_url)
     exact_sha256(model_sha256)
@@ -85,6 +103,7 @@ def plan(*, llama_commit: str, model_url: str, model_sha256: str, model_license_
     bounded_int("threads", threads, 1, 8)
     bounded_int("max_tokens", max_tokens, 1, 128)
     bounded_int("timeout_seconds", timeout_seconds, 30, 300)
+    bounded_int("max_model_bytes", max_model_bytes, 1, HARD_MAX_MODEL_BYTES)
     return {
         "schema_version": "full-manager-mvp/local-model-plan/v1",
         "llama_repo": LLAMA_REPO,
@@ -96,18 +115,20 @@ def plan(*, llama_commit: str, model_url: str, model_sha256: str, model_license_
             "threads": threads,
             "max_tokens": max_tokens,
             "timeout_seconds": timeout_seconds,
+            "max_model_bytes": max_model_bytes,
             "max_model_downloads": 1,
             "max_source_clones": 1,
+            "build_parallelism": 2,
             "persistent_model_cache": False,
         },
         "operations": [
-            "clone llama.cpp into a temporary directory and detach at the exact commit",
-            "build only the llama-cli target with bounded parallelism",
-            "download one model artifact over HTTPS into temporary storage",
+            "clone llama.cpp into temporary storage and detach at the exact commit",
+            "build only llama-cli with parallelism capped at two",
+            "download one HTTPS model artifact with a hard byte ceiling",
             "verify the model SHA-256 before execution",
-            "run one bounded local inference with fixed prompt/token/thread limits",
+            "run one bounded inference with fixed prompt/token/thread limits",
             "persist only receipt metadata and a bounded output digest/tail",
-            "delete source/build/model temporary files in finally",
+            "delete source/build/model temporary bytes in finally",
         ],
         "forbidden_promotions": [
             "plan-only PASS to local inference PASS",
@@ -134,6 +155,7 @@ def main() -> int:
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--max-tokens", type=int, default=32)
     parser.add_argument("--timeout-seconds", type=int, default=180)
+    parser.add_argument("--max-model-bytes", type=int, default=DEFAULT_MAX_MODEL_BYTES)
     parser.add_argument("--output", default="evidence/local-model/local-model-receipt.json")
     parser.add_argument("--plan-only", action="store_true")
     args = parser.parse_args()
@@ -146,6 +168,7 @@ def main() -> int:
         threads=args.threads,
         max_tokens=args.max_tokens,
         timeout_seconds=args.timeout_seconds,
+        max_model_bytes=args.max_model_bytes,
     )
     if args.plan_only:
         print(json.dumps(execution_plan, indent=2, sort_keys=True))
@@ -165,6 +188,7 @@ def main() -> int:
         "evidence_ceiling": EVIDENCE_CEILING,
         "checks": {
             "llama_commit_checked_out": "NOT_EXERCISED",
+            "model_download_within_budget": "NOT_EXERCISED",
             "model_sha256_verified": "NOT_EXERCISED",
             "llama_cli_built": "NOT_EXERCISED",
             "local_inference_exit_zero": "NOT_EXERCISED",
@@ -183,7 +207,6 @@ def main() -> int:
                 raise RuntimeError(f"required local tool missing: {tool}")
         temp_root = Path(tempfile.mkdtemp(prefix="manager-demo-m6-model-"))
         source_dir = temp_root / "llama.cpp"
-        build_dir = source_dir / "build"
         model_path = temp_root / "model.gguf"
 
         run(["git", "clone", "--filter=blob:none", "--no-checkout", LLAMA_REPO, str(source_dir)], cwd=temp_root, timeout=90)
@@ -196,13 +219,13 @@ def main() -> int:
 
         run(["cmake", "-S", ".", "-B", "build", "-DLLAMA_CURL=OFF", "-DGGML_NATIVE=OFF"], cwd=source_dir, timeout=120)
         run(["cmake", "--build", "build", "--target", "llama-cli", "--parallel", "2"], cwd=source_dir, timeout=180)
-        llama_cli = build_dir / "bin" / "llama-cli"
+        llama_cli = source_dir / "build" / "bin" / "llama-cli"
         if not llama_cli.is_file():
             raise RuntimeError("llama-cli build artifact missing")
         receipt["checks"]["llama_cli_built"] = "PASS"
 
-        with request.urlopen(args.model_url, timeout=30) as response, model_path.open("wb") as handle:
-            shutil.copyfileobj(response, handle, length=1024 * 1024)
+        downloaded_bytes = download_limited(args.model_url, model_path, args.max_model_bytes)
+        receipt["checks"]["model_download_within_budget"] = "PASS"
         observed_model_sha = sha256_file(model_path)
         if observed_model_sha != exact_sha256(args.model_sha256):
             raise RuntimeError("model SHA-256 mismatch")
@@ -210,13 +233,7 @@ def main() -> int:
 
         prompt = "Reply with one short word confirming local inference readiness."
         completed = run(
-            [
-                str(llama_cli),
-                "-m", str(model_path),
-                "-p", prompt,
-                "-n", str(args.max_tokens),
-                "-t", str(args.threads),
-            ],
+            [str(llama_cli), "-m", str(model_path), "-p", prompt, "-n", str(args.max_tokens), "-t", str(args.threads)],
             cwd=source_dir,
             timeout=args.timeout_seconds,
         )
@@ -229,11 +246,12 @@ def main() -> int:
             "output_sha256": hashlib.sha256(output_text.encode("utf-8")).hexdigest(),
             "output_tail": output_text[-1000:],
             "model_sha256": observed_model_sha,
+            "model_bytes": downloaded_bytes,
             "llama_commit": observed_commit,
             "model_license_id": args.model_license_id,
         }
         receipt["state"] = "PASS"
-    except Exception as exc:  # preserve bounded failure receipt
+    except Exception as exc:
         receipt["error"] = f"{type(exc).__name__}: {exc}"
         receipt["state"] = "FAIL"
     finally:
