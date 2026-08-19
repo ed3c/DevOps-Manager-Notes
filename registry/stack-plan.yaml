@@ -27,7 +27,6 @@ atoms:
     stack_class: root
     branch: bootstrap/devops-evidence-contract
     base_branch: main
-    provides_artifacts: [devops-manager-system-contract-v1, technology-candidate-registry-v1]
     blockers: [HUMAN_ADMIT_MERGE]
 
   - id: C11-full-mvp-contract
@@ -39,7 +38,6 @@ atoms:
     parent: C0-bootstrap-contract
     branch: agent/full-manager-mvp-demo-stack
     base_branch: bootstrap/devops-evidence-contract
-    provides_artifacts: [full-manager-mvp-contract-v1, full-mvp-technology-selection-v1, full-mvp-worker-prompt-pack-v1]
     blockers: [TRANSITIVE_IMAGE_MODEL_LICENSE_AUDIT_REMAINS, HUMAN_ADMIT_MERGE]
 
   - id: E1-requirement-invariant-audit
@@ -52,7 +50,6 @@ atoms:
     branch: audit/devops-invariants-evidence
     base_branch: agent/full-manager-mvp-demo-stack
     head_commit: f0e99dd354c5bbbb67cf6d898b647e7cc8582ede
-    provides_artifacts: [exact-devops-invariant-audit-v1, full-mvp-invariant-contract-v1]
     blockers: [HUMAN_ADMIT_MERGE]
 
   - id: K2-base-delivery
@@ -65,7 +62,6 @@ atoms:
     branch: feat/core-platform-vertical-slice
     base_branch: audit/devops-invariants-evidence
     head_commit: a4ce65dbd66b32bdd2d313f03f8ac97b6bf01f10
-    owns_paths: [platform/app/, platform/docker/, platform/kubernetes/, platform/gitops/, tests/unit/, tests/integration/]
     remote_evidence:
       workflow_run_id: 32247635007
       artifact_id: 9363215699
@@ -83,7 +79,6 @@ atoms:
     branch: feat/observability-slo-load
     base_branch: feat/core-platform-vertical-slice
     head_commit: f52763b8b6df6c3ed5d9fc4117412e06129f2f17
-    owns_paths: [observability/, sre/, tests/load/, tests/integration/test_observability.py]
     observed_path_lease_delta: [platform/app/pyproject.toml, platform/app/src/manager_demo/main.py]
     remote_evidence:
       workflow_run_id: 32249524958
@@ -102,7 +97,6 @@ atoms:
     branch: feat/policy-security-license
     base_branch: feat/core-platform-vertical-slice
     head_commit: b0c9db1ed691ca8c32770ad666ca6708c6294c1f
-    owns_paths: [platform/policies/, tests/failure/policy/]
     remote_evidence:
       workflow_run_id: 32251169964
       artifact_id: 9364485321
@@ -120,7 +114,6 @@ atoms:
     branch: feat/llmops-progressive-delivery
     base_branch: feat/core-platform-vertical-slice
     head_commit: f8141534541b0e87f3065e5dd9d60f459539a3ba
-    owns_paths: [mlops/, platform/rollouts/]
     remote_evidence:
       workflow_run_id: 32250421421
       artifact_id: 9364219603
@@ -138,7 +131,6 @@ atoms:
     branch: feat/manager-demo-console
     base_branch: feat/core-platform-vertical-slice
     head_commit: 1081f471710158a5e76cc0e373504cbcd0a27940
-    owns_paths: [demo-console/]
     remote_evidence:
       workflow_run_id: 32251120563
       artifact_id: 9364438271
@@ -156,7 +148,6 @@ atoms:
     branch: feat/supply-chain-fault
     base_branch: feat/core-platform-vertical-slice
     head_commit: b03133142c987125eacf173131311bf12de370ed
-    owns_paths: [supply-chain/, tests/failure/network/]
     remote_evidence:
       workflow_run_id: 32251234101
       artifact_id: 9364488819
@@ -176,10 +167,6 @@ atoms:
     base_branch: feat/observability-slo-load
     current_pr_head: c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e
     evidence_head: e48711055572d83c872e72445cdf1389592ce85e
-    exact_side_inputs:
-      - {issue: 4, pull_request: 38, mode: exact_receipt_identity}
-      - {issue: 7, pull_request: 39, mode: exact_receipt_identity}
-      - {issue: 10, pull_request: 40, mode: exact_receipt_identity}
     remote_evidence:
       workflow_run_id: 32254018953
       artifact_id: 9365550423
@@ -200,15 +187,6 @@ atoms:
     base_branch: feat/failure-recovery-convergence
     head_commit: 55d18cdc556ca5d66c67406318ae25196c077fd2
     tree: a4ad37d9baf73a5239f79c516c67b0182420336a
-    exact_byte_inputs:
-      - {issue: 8, pull_request: 37, evidence_head: 1081f471710158a5e76cc0e373504cbcd0a27940, verification: git_diff_byte_parity}
-    exact_artifact_inputs:
-      - {issue: 3, pull_request: 36, artifact_id: 9363866816}
-      - {issue: 4, pull_request: 38, artifact_id: 9364485321}
-      - {issue: 7, pull_request: 39, artifact_id: 9364219603}
-      - {issue: 8, pull_request: 37, artifact_id: 9364438271}
-      - {issue: 10, pull_request: 40, artifact_id: 9364488819}
-      - {issue: 5, pull_request: 42, artifact_id: 9365550423, evidence_head: e48711055572d83c872e72445cdf1389592ce85e}
     remote_evidence:
       deterministic_reviewer:
         workflow_run_id: 32256802856
@@ -232,7 +210,6 @@ atoms:
     branch: handoff/m4-local-runtime
     base_branch: feat/full-reviewer-convergence
     head_commit: a697c74a11d5d6492eaddb44aabd1a331899ee32
-    provides_artifacts: [pre-canonical-local-handoff-contract]
     blockers: [SUPERSEDED_BY_PR_52_CANONICAL_QUEUE, HUMAN_ADMIT_MERGE]
 
   - id: K5-live-kind-runner
@@ -246,14 +223,12 @@ atoms:
     base_branch: handoff/m4-local-runtime
     head_commit: 20d2ccb0ed8c877309452eece7c755bb3411c4c1
     tree: 7d4b5d5aaba2d023803b152ce5ac7f23f274eba0
-    owns_paths: [scripts/handoff/run_live_kind_smoke.py, scripts/handoff/run_live_kind_from_env.sh, tests/handoff/test_live_kind_runner_contract.py]
     contract_validation:
       workflow_run_id: 32259961112
       verdict: PASS
       evidence_ceiling: GITHUB_HOSTED_LOCAL_RUNNER_CONTRACT_ONLY
     local_execution:
       state: NOT_EXERCISED
-      receipt: null
       evidence_ceiling_after_pass: LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY
     blockers: [LOCAL_EXECUTION_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
@@ -296,14 +271,8 @@ atoms:
     base_branch: feat/llmops-progressive-delivery
     head_commit: 284dbf1d2e9a1759cab0a8cb21987f76112946b5
     tree: fff48ba347d9f9004af84f18008e64e33a186073
-    owns_paths: [scripts/handoff/run_argo_control_plane.py, scripts/handoff/run_argo_control_plane_from_env.sh, tests/handoff/test_argo_control_plane_contract.py]
-    contract_validation:
-      workflow_run_id: 32265921102
-      verdict: PASS
-      evidence_ceiling: GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY
-    physical_execution:
-      state: NOT_EXERCISED
-      potential_evidence_ceiling: LOCAL_ARGO_CONTROLLERS_READY_ONLY
+    contract_validation: {workflow_run_id: 32265921102, verdict: PASS, evidence_ceiling: GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY}
+    physical_execution: {state: NOT_EXERCISED, potential_evidence_ceiling: LOCAL_ARGO_CONTROLLERS_READY_ONLY}
     blockers: [LOCAL_QUEUE_EPOCH_NOT_COMPILED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
   - id: A6-local-model-runner
@@ -318,14 +287,8 @@ atoms:
     base_branch: feat/llmops-progressive-delivery
     head_commit: 63355992f382cf260c624e2c7c7c3733cce82c20
     tree: 973f91c0354d43a679c558394ef9f2a6da58ac9a
-    owns_paths: [scripts/handoff/run_local_model.py, scripts/handoff/run_local_model_from_env.sh, tests/handoff/test_local_model_runner_contract.py]
-    contract_validation:
-      workflow_run_id: 32265971683
-      verdict: PASS
-      evidence_ceiling: GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY
-    physical_execution:
-      state: NOT_EXERCISED
-      potential_evidence_ceiling: LOCAL_LLAMA_CPP_MODEL_INFERENCE_ONLY
+    contract_validation: {workflow_run_id: 32265971683, verdict: PASS, evidence_ceiling: GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY}
+    physical_execution: {state: NOT_EXERCISED, potential_evidence_ceiling: LOCAL_LLAMA_CPP_MODEL_INFERENCE_ONLY}
     blockers: [EXACT_MODEL_ARTIFACT_NOT_ADMITTED, LOCAL_QUEUE_EPOCH_NOT_COMPILED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
   - id: E6-capacity-runner
@@ -340,14 +303,8 @@ atoms:
     base_branch: feat/observability-slo-load
     head_commit: 2240e8ee7ae9f151503d5c03d8043938dbbdce95
     tree: 7965e4c544715d601de455d0839a9576649d8f73
-    owns_paths: [scripts/handoff/run_local_capacity.py, tests/handoff/test_local_capacity_runner_contract.py]
-    contract_validation:
-      workflow_run_id: 32266078175
-      verdict: PASS
-      evidence_ceiling: GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY
-    physical_execution:
-      state: NOT_EXERCISED
-      potential_evidence_ceiling: LOCAL_SYNTHETIC_1000_VU_ONLY
+    contract_validation: {workflow_run_id: 32266078175, verdict: PASS, evidence_ceiling: GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY}
+    physical_execution: {state: NOT_EXERCISED, potential_evidence_ceiling: LOCAL_SYNTHETIC_1000_VU_ONLY}
     blockers: [LOCAL_QUEUE_EPOCH_NOT_COMPILED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
   - id: E6-registry-signing-runner
@@ -362,21 +319,15 @@ atoms:
     base_branch: feat/supply-chain-fault
     head_commit: 1b543fdfad73377fa6ba51e3f190b56ed60452fa
     tree: 266d81dbb51b0d2422deafdb829b2ef8f1f163ff
-    owns_paths: [scripts/handoff/run_local_registry_signing.py, scripts/handoff/run_local_registry_signing_from_env.sh, tests/handoff/test_local_registry_signing_contract.py]
-    contract_validation:
-      workflow_run_id: 32266026763
-      verdict: PASS
-      evidence_ceiling: GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY
-    physical_execution:
-      state: NOT_EXERCISED
-      potential_evidence_ceiling: LOCAL_REGISTRY_STORED_IMAGE_SIGNATURE_ONLY
+    contract_validation: {workflow_run_id: 32266026763, verdict: PASS, evidence_ceiling: GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY}
+    physical_execution: {state: NOT_EXERCISED, potential_evidence_ceiling: LOCAL_REGISTRY_STORED_IMAGE_SIGNATURE_ONLY}
     blockers: [EXACT_REGISTRY_AND_COSIGN_SUBJECTS_NOT_ADMITTED, LOCAL_QUEUE_EPOCH_NOT_COMPILED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
   - id: D6-m6-traceability-index
     atom: D
     issues: [54]
-    pull_request: null
-    state: BRANCH_CREATED_PR_NOT_YET_OPEN
+    pull_request: 59
+    state: PR_DRAFT_INDEX_FIRST_GREEN
     stack_class: documentation_convergence
     git_parent: null
     branch: docs/public-m6-runner-contract-index
@@ -387,9 +338,13 @@ atoms:
       - {pull_request: 56, mode: exact_contract_subject}
       - {pull_request: 57, mode: exact_contract_subject}
       - {pull_request: 58, mode: exact_contract_subject}
-    owns_paths: [README.md, AGENTS.md, docs/INDEX.md, docs/milestones/PUBLIC_M6_ADVANCED_RUNNER_CONTRACTS_READY.md, registry/public-m6-runner-contracts.json, registry/stack-plan.yaml]
+    evidence_head: c62f411c82f20169456441c0c7dd6e0388a25fa8
+    index_validation:
+      workflow_run_id: 32267711620
+      verdict: PASS
+      evidence_ceiling: GITHUB_HOSTED_M6_TRACEABILITY_INDEX_ONLY
     provides_artifacts: [m6-public-runner-contract-index-v1]
-    blockers: [PR_IDENTITY_PENDING, INDEX_CI_PENDING]
+    blockers: [HUMAN_ADMIT_MERGE]
 
 notes:
   - PR #12 → #13 → #14 are true children because each consumes prior unmerged contract bytes.
@@ -397,8 +352,9 @@ notes:
   - PR #42 has one real Git parent (#36) and task-converges #38/#39/#40 by exact side evidence.
   - PR #44 has one real Git parent (#42) and consumes exact PR #37 bytes plus M2/M3 artifacts.
   - PR #45 is an earlier Local Handoff bootstrap. Current canonical queue contract is PR #52.
-  - PR #52 was recompiled after Shadow `CONTRACT_DRIFT`; the portable assertion in `skills-shared@4ca9417...` is now a CI gate.
+  - PR #52 was recompiled after Shadow CONTRACT_DRIFT; the portable assertion in skills-shared@4ca9417... is now a CI gate.
   - PRs #55/#56/#57/#58 are one M6 task-sibling group but have different real Git parents according to the unmerged implementation bytes they consume.
+  - PR #59 is a docs/registry convergence surface; it binds execution subjects as side inputs and does not consume their unmerged implementation bytes.
   - M6 runner-contract PASS is not physical execution and does not skip the active M5 Local Handoff predecessor chain.
-  - A future advanced queue epoch may consume exact PR #55/#56/#57/#58 subjects only after the current local reviewer and live-kind receipts pass.
+  - A future advanced queue epoch may consume exact PR #55/#56/#57/#58 subjects only after current local reviewer and live-kind receipts pass.
   - No runner contract, local receipt or synthetic test promotes to production, real adoption, legal clearance, real incidents or tenure evidence.
