@@ -1,0 +1,80 @@
+name: Full MVP ML LLMOps lifecycle
+
+on:
+  pull_request:
+    paths:
+      - 'mlops/**'
+      - 'platform/rollouts/**'
+      - 'evidence/receipts/llmops/**'
+      - '.github/workflows/llmops-lifecycle.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: llmops-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  remote-first-green:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact workflow subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: mlops/pyproject.toml
+      - name: Install deterministic MLflow lane
+        run: python -m pip install -e 'mlops[dev]'
+      - name: State-machine tests
+        run: pytest -q mlops/tests
+      - name: Assert rollout manifests cannot be mistaken for runtime evidence
+        run: |
+          grep -q 'IMAGE_REF_MUST_BE_RENDERED_BY_EXACT_DIGEST' platform/rollouts/rollout.yaml
+          grep -q 'manager-demo-canary-analysis' platform/rollouts/analysis-template.yaml
+          grep -q 'state: NOT_EXERCISED' mlops/models/qwen2.5-0.5b-instruct-gguf.yaml
+      - name: Run exact-subject MLflow lifecycle and seeded canary rejection
+        run: |
+          mkdir -p live-evidence
+          python mlops/run_lifecycle.py \
+            --source-commit "$SOURCE_COMMIT" \
+            --workflow-commit "$GITHUB_WORKFLOW_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --workspace live-evidence/mlflow \
+            --output live-evidence/llmops-receipt.json
+          jq -e '.offline_eval.verdict == "PASS"' live-evidence/llmops-receipt.json >/dev/null
+          jq -e '.seeded_canary.verdict == "REJECTED"' live-evidence/llmops-receipt.json >/dev/null
+          jq -e '.checks.llama_cpp_runtime == "NOT_EXERCISED"' live-evidence/llmops-receipt.json >/dev/null
+          jq -e '.checks.argo_rollouts_runtime == "NOT_EXERCISED"' live-evidence/llmops-receipt.json >/dev/null
+      - name: Persist MLflow DB and exact receipt
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: full-manager-mvp-llmops-${{ github.run_id }}-${{ github.run_attempt }}
+          path: live-evidence
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## ML/LLMOps FIRST_GREEN boundary
+          - MLflow local tracking run: exercised
+          - model/prompt/config/dataset identity: exercised
+          - offline evaluation promotion gate: exercised
+          - offline-pass / canary-business-fail negative control: exercised
+          - rollback target: exercised as deterministic state-machine evidence
+          - llama.cpp + model artifact runtime: **NOT_EXERCISED**
+          - Argo Rollouts / Prometheus live canary: **NOT_EXERCISED**
+          - production traffic/adoption: **NOT_EXERCISED**
+          - artifact digest: \`${{ steps.upload.outputs.artifact-digest }}\`
+          EOF
