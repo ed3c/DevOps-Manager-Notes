@@ -47,20 +47,31 @@ jobs:
         run: |
           mkdir -p live-evidence
           python - <<'PY'
-          import json, os
+          import json, os, re
           from pathlib import Path
           from urllib import request
 
           manifest = json.loads(Path('evidence/receipts/convergence/public-inputs.json').read_text())
           entries = [manifest['git_base'], *manifest['byte_inputs'], *manifest['receipt_inputs']]
           expected = {}
+          evidence_bindings = []
           for item in entries:
               pr = item.get('pull_request')
-              head = item.get('head')
-              if pr and head:
-                  if pr in expected and expected[pr] != head:
-                      raise SystemExit(f'conflicting expected head for PR #{pr}')
-                  expected[pr] = head
+              current_head = item.get('current_head')
+              evidence_head = item.get('evidence_head')
+              if pr and current_head:
+                  if pr in expected and expected[pr] != current_head:
+                      raise SystemExit(f'conflicting expected current head for PR #{pr}')
+                  expected[pr] = current_head
+              if item.get('artifact_id'):
+                  if not evidence_head or not re.fullmatch(r'[0-9a-f]{40}', evidence_head):
+                      raise SystemExit(f'artifact-bearing PR #{pr} lacks exact evidence_head')
+                  evidence_bindings.append({
+                      'pull_request': pr,
+                      'evidence_head': evidence_head,
+                      'artifact_id': item['artifact_id'],
+                      'artifact_digest': item['artifact_digest'],
+                  })
 
           observed = {}
           for pr, expected_head in sorted(expected.items()):
@@ -75,14 +86,18 @@ jobs:
               with request.urlopen(req, timeout=10) as response:
                   payload = json.load(response)
               actual = payload['head']['sha']
-              observed[str(pr)] = {'expected': expected_head, 'observed': actual}
+              observed[str(pr)] = {'expected_current': expected_head, 'observed_current': actual}
               if actual != expected_head:
                   raise SystemExit(f'stale convergence input: PR #{pr} expected {expected_head} observed {actual}')
 
           Path('live-evidence/current-pr-heads.json').write_text(
               json.dumps(observed, indent=2, sort_keys=True) + '\n'
           )
-          print('pr-head-readback=PASS')
+          Path('live-evidence/evidence-head-bindings.json').write_text(
+              json.dumps(evidence_bindings, indent=2, sort_keys=True) + '\n'
+          )
+          print('pr-current-head-readback=PASS')
+          print('evidence-head-separation=PASS')
           PY
 
       - name: Run bounded one-command reviewer path
@@ -91,6 +106,7 @@ jobs:
       - name: Assert convergence evidence boundary
         run: |
           jq -e '.verdict == "PASS_BOUNDED"' live-evidence/reviewer-demo-receipt.json >/dev/null
+          jq -e '.checks.current_vs_evidence_head_separated == "PASS"' live-evidence/reviewer-demo-receipt.json >/dev/null
           jq -e '.checks.seven_failure_drills == "PASS"' live-evidence/reviewer-demo-receipt.json >/dev/null
           jq -e '.checks.live_kind_kubernetes == "NOT_EXERCISED"' live-evidence/reviewer-demo-receipt.json >/dev/null
           jq -e '.checks.local_qwen_llama_cpp == "NOT_EXERCISED"' live-evidence/reviewer-demo-receipt.json >/dev/null
@@ -115,7 +131,8 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## Full reviewer convergence FIRST_GREEN boundary
-          - exact prerequisite PR head readback: exercised
+          - prerequisite current-PR-head readback: exercised
+          - current PR heads are kept separate from artifact evidence heads
           - one-command deterministic reviewer path: exercised
           - Demo Console build + canonical public evidence render: exercised
           - seven bounded failure/recovery drills + same-failure re-test: exercised
