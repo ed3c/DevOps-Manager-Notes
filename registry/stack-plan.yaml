@@ -1,4 +1,4 @@
-version: 6
+version: 7
 method_owner: ed3c/skills-shared/skills/git-town-stacked-pr-worker
 consumer: ed3c/DevOps-Manager-Notes
 
@@ -13,6 +13,7 @@ policy:
   first_green_is_not_full_closure: true
   current_pr_head_is_not_artifact_evidence_head: true
   local_queue_existence_is_not_local_execution: true
+  runner_contract_pass_is_not_physical_runtime_pass: true
 
 atoms:
   - id: C0-bootstrap-contract
@@ -23,8 +24,7 @@ atoms:
     stack_class: root
     branch: bootstrap/devops-evidence-contract
     base_branch: main
-    owns_paths: [README.md, AGENTS.md, LICENSE, roles/, registry/, docs/, scripts/handoff/, handoff/]
-    provides_artifacts: [devops-manager-system-contract-v1, technology-candidate-registry-v1, molecular-stack-plan-v1]
+    provides_artifacts: [devops-manager-system-contract-v1, technology-candidate-registry-v1]
     blockers: [HUMAN_ADMIT_MERGE]
 
   - id: C11-full-mvp-contract
@@ -184,7 +184,7 @@ atoms:
       - {issue: 4, pull_request: 38, mode: exact_receipt_identity}
       - {issue: 7, pull_request: 39, mode: exact_receipt_identity}
       - {issue: 10, pull_request: 40, mode: exact_receipt_identity}
-    explicit_non_dependency: {issue: 8, pull_request: 37, reason: Demo Console is consumed by X9 not X5}
+    explicit_non_dependency: {issue: 8, pull_request: 37, reason: Demo Console joins X9 not X5}
     remote_evidence:
       workflow_run_id: 32254018953
       artifact_id: 9365550423
@@ -208,11 +208,7 @@ atoms:
     tree: a4ad37d9baf73a5239f79c516c67b0182420336a
     owns_paths: [demo-console/, scripts/demo/, evidence/receipts/convergence/, .github/workflows/full-reviewer-convergence.yml, .github/workflows/full-reviewer-demo.yml]
     exact_byte_inputs:
-      - issue: 8
-        pull_request: 37
-        evidence_head: 1081f471710158a5e76cc0e373504cbcd0a27940
-        paths: [demo-console/**]
-        verification: git_diff_byte_parity
+      - {issue: 8, pull_request: 37, evidence_head: 1081f471710158a5e76cc0e373504cbcd0a27940, verification: git_diff_byte_parity}
     exact_artifact_inputs:
       - {issue: 3, pull_request: 36, artifact_id: 9363866816, mode: actions_archive_sha256_reverification}
       - {issue: 4, pull_request: 38, artifact_id: 9364485321, mode: actions_archive_sha256_reverification}
@@ -220,17 +216,14 @@ atoms:
       - {issue: 8, pull_request: 37, artifact_id: 9364438271, mode: actions_archive_sha256_reverification}
       - {issue: 10, pull_request: 40, artifact_id: 9364488819, mode: actions_archive_sha256_reverification}
       - {issue: 5, pull_request: 42, artifact_id: 9365550423, evidence_head: e48711055572d83c872e72445cdf1389592ce85e, mode: actions_archive_sha256_reverification}
-    provides_artifacts: [full-manager-mvp-demo-evidence-v1, reviewer-one-command-path-v1, public-reviewer-bundle-v1, deterministic-reviewer-replay-v1]
     remote_evidence:
       deterministic_reviewer:
-        workflow_name: Full MVP reviewer convergence
         workflow_run_id: 32256802856
         artifact_id: 9366615717
         artifact_digest: sha256:e652cdf3ccb8de7a8655f9148bc6471a29bcaeaef2d55f6255bca2cb2b1e19d3
         artifact_size_bytes: 1394198
         evidence_ceiling: GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY
       artifact_reverification:
-        workflow_name: Full MVP public reviewer convergence
         workflow_run_id: 32256802554
         artifact_id: 9366596481
         artifact_digest: sha256:696f56be2fb637e386941eb313caa7c9448900ad0bad88b3a96119b95315596c
@@ -252,25 +245,85 @@ atoms:
     active_item: M4-LOCAL-REVIEWER-001
     command: bash scripts/demo/run_reviewer_demo.sh evidence/local-reviewer
     receipt: evidence/local-reviewer/reviewer-demo-receipt.json
+    local_execution: NOT_EXERCISED
     evidence_ceiling_after_execution: LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY
     contract_validation:
-      workflow_name: M4 Local Handoff contract
       workflow_run_id: 32257928774
       verdict: PASS
       evidence_ceiling: GITHUB_HOSTED_LOCAL_HANDOFF_CONTRACT_VALIDATION_ONLY
-      local_execution: NOT_EXERCISED
+    blockers: [LOCAL_EXECUTION_RECEIPT_PENDING, HUMAN_ADMIT_MERGE]
+
+  - id: K5-live-kind-runner
+    atom: K
+    issues: [47, 49, 50]
+    pull_request: 51
+    state: PR_DRAFT_RUNNER_CONTRACT_GREEN
+    stack_class: child
+    git_parent: D9-local-reviewer-handoff
+    branch: handoff/m5-live-kind-runner
+    base_branch: handoff/m4-local-runtime
+    head_commit: 20d2ccb0ed8c877309452eece7c755bb3411c4c1
+    tree: 7d4b5d5aaba2d023803b152ce5ac7f23f274eba0
+    owns_paths: [scripts/handoff/run_live_kind_smoke.py, scripts/handoff/run_live_kind_from_env.sh, tests/handoff/test_live_kind_runner_contract.py, .github/workflows/live-kind-runner-contract.yml, scripts/handoff/README.md]
+    provides_artifacts: [bounded-live-kind-runner-v1, local-kind-receipt-schema-v1]
+    contract_validation:
+      workflow_run_id: 32259961112
+      verdict: PASS
+      evidence_ceiling: GITHUB_HOSTED_LOCAL_RUNNER_CONTRACT_ONLY
+    local_execution:
+      state: NOT_EXERCISED
+      receipt: null
+      evidence_ceiling_after_pass: LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY
+    shadow_corrections:
+      - restore caller kubectl context
+      - cleanup partial kind-create attempts
+      - require exact M5_KIND_NODE_IMAGE digest identity
+      - align 900-second outer handoff budget with bounded operation timeouts
+      - retain failed intermediate contract run as non-admitted evidence
+    blockers: [LOCAL_EXECUTION_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
+
+  - id: D5-live-kind-queue-compiler
+    atom: D
+    issues: [48]
+    pull_request: 52
+    state: PR_DRAFT_QUEUE_CONTRACT_GREEN
+    stack_class: child
+    git_parent: K5-live-kind-runner
+    branch: handoff/m5-live-kind-queue
+    base_branch: handoff/m5-live-kind-runner
+    head_commit: 660d4deea81712f3d6ab5288ae09288b2e15cc27
+    owns_paths: [handoff/local-handoff-queue.json, .github/workflows/local-handoff-contract.yml]
+    contract_validation:
+      workflow_run_id: 32260403160
+      verdict: PASS
+      evidence_ceiling: GITHUB_HOSTED_LOCAL_HANDOFF_CONTRACT_VALIDATION_ONLY
+    queue_state:
+      current_active_item: M4-LOCAL-REVIEWER-001
+      next_concrete_item: M4-LIVE-SUBSTRATE-002
+      live_kind_item_state: WAITING_PREDECESSOR
+      live_kind_runner_commit: 20d2ccb0ed8c877309452eece7c755bb3411c4c1
+      live_kind_runner_tree: 7d4b5d5aaba2d023803b152ce5ac7f23f274eba0
+      required_environment_names: [M5_KIND_NODE_IMAGE]
+      receipt: evidence/local-kind/local-kind-receipt.json
+      receipt_state: ABSENT
+      evidence_ceiling_after_pass: LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY
     next_item:
-      id: M4-LIVE-SUBSTRATE-002
+      id: M5-ARGO-MODEL-CAPACITY-003
       state: BLOCKED_UNRESOLVED
-    blockers: [LOCAL_EXECUTION_RECEIPT_PENDING, LIVE_SUBSTRATE_RUNNERS_NOT_COMPILED, HUMAN_ADMIT_MERGE]
+      commands: []
+    blockers: [M4_LOCAL_REVIEWER_RECEIPT_PENDING, LOCAL_KIND_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
 notes:
   - PR #12 → #13 → #14 are true children because each consumes prior unmerged contract bytes.
   - PRs #36/#38/#39/#37/#40 are sibling leaves based on frozen PR #14 Core.
   - PR #42 is a Git child of PR #36 while task semantics converge PR #38/#39/#40 through exact side inputs.
   - Demo Console PR #37 is intentionally not a #5 dependency; it joins at X9.
-  - PR #44 is a Git child of PR #42. It proves PR #37 byte parity and re-downloads all six bound Actions artifacts before evidence admission.
-  - PR #45 is the Local Handoff child of PR #44. Its GitHub workflow proves queue shape only; local execution still requires a returned receipt.
-  - Mutable current PR heads and historical artifact evidence heads are separate subjects.
-  - A remote or local FIRST_GREEN never promotes to production, real-adoption, legal-clearance, real-incident or tenure evidence.
+  - PR #44 is a Git child of PR #42 and consumes exact PR #37 bytes plus six exact Actions artifacts.
+  - PR #45 is the M4 Local Handoff child of PR #44. Its queue validation is not local execution.
+  - PR #51 is a true child of PR #45 because it consumes the current Local Handoff contract and creates the bounded live-kind runner.
+  - PR #52 is a true child of PR #51 because it binds that runner subject into the queue.
+  - M4-LOCAL-REVIEWER-001 remains ACTIVE; M4-LIVE-SUBSTRATE-002 is WAITING_PREDECESSOR and must not run before the predecessor receipt passes.
+  - M5-ARGO-MODEL-CAPACITY-003 remains BLOCKED_UNRESOLVED with no command until concrete runners, exact artifacts, resource budgets and cleanup exist.
+  - Mutable PR heads and historical artifact evidence heads are separate subjects.
+  - Remote/contract/local FIRST_GREEN never promotes to production, real adoption, legal clearance, real incident or tenure evidence.
   - X5/X9 never fabricate multiple Git parents; one Git base is used and other prerequisites remain typed side inputs.
