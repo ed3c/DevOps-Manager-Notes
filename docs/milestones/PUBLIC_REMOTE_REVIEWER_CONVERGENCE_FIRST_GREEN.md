@@ -2,188 +2,233 @@
 
 Status: `PASS_BOUNDED`
 
-This milestone records the first hardened public reviewer convergence for issue #9. It combines two orthogonal GitHub-hosted checks on PR #44 without promoting either result beyond its evidence ceiling:
+This milestone records the hardened public reviewer convergence for issue #9. It combines the admitted M2 lane receipts, the M3 failure/recovery receipt, and the exact Demo Console byte input into bounded reviewer artifacts without promoting any local/substrate or production claim.
 
-1. **Artifact convergence** re-downloads exact M2/M3 GitHub Actions artifacts, verifies archive SHA-256 identities, admits required public-safe paths, and assembles one bounded reviewer bundle.
-2. **Deterministic replay** rebuilds the public Demo Console, replays the bounded backend/failure path, validates current prerequisite PR heads, and preserves all `NOT_EXERCISED` substrate states.
-
-Neither lane proves production runtime, real users, production incidents, or management tenure.
-
-## Exact convergence subject
+## Exact execution subject
 
 ```text
-PR:             #44
-branch:         feat/full-reviewer-convergence
-base:           feat/failure-recovery-convergence / PR #42
-source head:    4ce77c5e0e4ece8379badea5c3fa477a3a463d62
+PR:               #44
+branch:           feat/full-reviewer-convergence
+Git parent:       PR #42 / feat/failure-recovery-convergence
+source head:      55d18cdc556ca5d66c67406318ae25196c077fd2
+source tree:      a4ad37d9baf73a5239f79c516c67b0182420336a
+Demo Console:     PR #37 evidence head 1081f471710158a5e76cc0e373504cbcd0a27940
 ```
 
-### Primary artifact-convergence receipt
+PR #44 remains draft/open. Merge, release and publication admission remain Human-owned.
+
+## Hardened remote receipts
+
+### Deterministic one-command reviewer lane
 
 ```text
-workflow:       Full MVP public reviewer convergence
-Actions run:    32256405012
-artifact:       9366445128
-artifact digest sha256:6acd3395bd198e46bd3c31da6a901371a5c2cfaf1552fbc3ee2bf77c53ddfdde
-artifact size:  2,841,522 bytes
-ceiling:        GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY
+workflow:         Full MVP reviewer convergence
+run:              32256802856
+artifact:         9366615717
+artifact digest:  sha256:e652cdf3ccb8de7a8655f9148bc6471a29bcaeaef2d55f6255bca2cb2b1e19d3
+artifact size:    1,394,198 bytes
+verdict:          PASS_BOUNDED
+evidence ceiling: GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY
 ```
 
-This run re-downloaded six exact GitHub Actions artifacts for observability, policy/security, ML/LLMOps, Demo Console, supply-chain/fault, and failure/recovery. Each downloaded ZIP was hashed and compared with the recorded GitHub artifact digest before named files were admitted into the reviewer bundle.
-
-### Secondary deterministic-replay receipt
+Exercised:
 
 ```text
-workflow:       Full MVP reviewer convergence
-Actions run:    32256405010
-artifact:       9366471049
-artifact digest sha256:a6b17169bd1fe53122e27b934365fd8add7530e841541ce443637c5265758eef
-artifact size:  1,394,199 bytes
-ceiling:        GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY
+exact Demo Console byte parity against PR #37 evidence head
+current prerequisite PR-head readback
+current-head vs historical-evidence-head separation
+Python/Node bounded deterministic reviewer bootstrap
+Demo Console typecheck/build/public evidence guard
+seven DRILL failure/recovery scenarios
+complete incident timelines
+business PASS + FAIL Prometheus visibility
+same-failure re-test
+no paid model/provider API dependency
 ```
 
-This run rebuilt the Demo Console, re-ran the seven bounded failure/recovery drills, asserted both business PASS and FAIL Prometheus evidence, validated prerequisite current PR heads, and persisted the residual evidence boundary.
-
-## Observed convergence DAG
-
-```text
-M2 remote lane receipts
-  PR #36 observability
-  PR #38 policy/security
-  PR #39 ML/LLMOps
-  PR #40 supply-chain/fault
-       \
-        + PR #42 M3 failure/recovery
-        + PR #37 Demo Console
-                ↓
-        PR #44 X9 reviewer convergence
-          ├─ artifact re-download / digest verification
-          └─ deterministic replay / current-head readback
-                ↓
-        M4 PASS_BOUNDED reviewer packet
-```
-
-PR #44 has one Git base, PR #42. Demo Console bytes are an explicit exact side input from PR #37; other lane evidence is consumed through exact artifact subjects. Multi-input task convergence does not fabricate multi-parent Git ancestry.
-
-## Reviewer bundle
-
-The primary artifact contains a bounded packet with:
-
-```text
-reviewer-bundle/
-├── README.md
-├── reviewer-index.json
-├── reviewer-index.sha256
-├── bundle-bytes.txt
-├── serve.py
-├── console/
-└── evidence/
-    ├── observability/
-    ├── policy-security/
-    ├── llmops/
-    ├── demo-console/
-    ├── supply-chain/
-    └── failure-recovery/
-```
-
-After downloading that artifact, the local viewing path is deliberately bounded:
+The repository entrypoint is:
 
 ```bash
-python3 serve.py
+bash scripts/demo/run_reviewer_demo.sh <output-directory>
 ```
 
-It serves only the static reviewer console at `127.0.0.1:4173` and performs no production action.
-
-The repository also contains a deterministic developer replay entrypoint:
-
-```bash
-bash scripts/demo/run_reviewer_demo.sh reviewer-demo-output
-```
-
-That path requires local Python/Node/npm, installs only the demo dependencies, rebuilds the console, replays the bounded incident drills, and emits a local reviewer receipt. It is not a production-runtime proof.
-
-## BEFORE_PUBLIC_DEMO Shadow review
-
-### `EVIDENCE_DELTA` — current PR head versus evidence head
-
-Failure/recovery PR #42 advanced after its successful evidence run through a temporary no-op marker and revert. Therefore the current PR head and the artifact evidence head are not the same subject.
-
-The hardened convergence keeps them separate:
+### Exact Actions artifact re-download lane
 
 ```text
-PR #42 current head:   c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e
-M3 evidence head:      e48711055572d83c872e72445cdf1389592ce85e
-M3 evidence artifact:  9365550423
+workflow:         Full MVP public reviewer convergence
+run:              32256802554
+artifact:         9366596481
+artifact digest:  sha256:696f56be2fb637e386941eb313caa7c9448900ad0bad88b3a96119b95315596c
+artifact size:    2,841,522 bytes
+verdict:          PASS_BOUNDED
+evidence ceiling: GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY
 ```
 
-A newer PR head does not silently re-label an older artifact as evidence for the newer head.
+This lane independently re-downloaded and verified the published GitHub Actions artifact archive digests for:
 
-### `EVIDENCE_DELTA` — artifact existence versus artifact readback
+```text
+#36 observability / load
+#38 policy / security / license
+#39 ML / LLMOps
+#37 Demo Console
+#40 supply chain / bounded fault
+#42 failure / recovery
+```
 
-M2/M3 previously bound artifact IDs/digests. M4 primary convergence upgrades this by re-downloading the six exact artifacts and verifying the downloaded archive SHA-256 values before admission.
+Only named public-safe paths were admitted into the bundle. The persisted packet contains a static evidence console, exact lane evidence, reviewer index, explicit residual gaps and a local static viewer.
 
-This closes the earlier `SIDE_INPUT_ARTIFACT_REDOWNLOAD_NOT_EXERCISED` gap **for the six M4 input artifacts only**. It does not prove registry-stored image signatures, production deployment artifacts, or future artifact availability after retention expiry.
+## #9 state machine
 
-### `OWNERSHIP_DELTA` — duplicate convergence surfaces
+```text
+M2_RECEIPTS_BOUND
++ M3_FAILURE_RECEIPT_BOUND
++ DEMO_CONSOLE_BYTE_SUBJECT_BOUND
+→ PR_CURRENT_HEADS_READ_BACK
+→ ARTIFACT_EVIDENCE_HEADS_SEPARATED
+→ DEMO_CONSOLE_BYTES_VERIFIED
+→ ACTIONS_ARTIFACTS_REDOWNLOADED
+→ ARTIFACT_DIGESTS_VERIFIED
+→ REQUIRED_PATHS_ADMITTED
+→ DETERMINISTIC_REVIEWER_PATH_EXECUTED
+→ FAILURE_DRILLS_REVERIFIED
+→ PUBLIC_BOUNDARY_CHECKED
+→ REVIEWER_PACKET_PERSISTED
+→ REMOTE_REVIEWER_FIRST_GREEN
 
-Two convergence workflows exist on PR #44. They are retained only because their evidence obligations are different:
+stale current head / digest mismatch / byte mismatch /
+missing required path / secret-like public material
+→ CONVERGENCE_BLOCKED
+```
+
+## Observed molecular Stack
+
+```text
+PR #14 Core
+├─ PR #36 Observability
+├─ PR #38 Policy/Security
+├─ PR #39 ML/LLMOps
+├─ PR #37 Demo Console
+└─ PR #40 Supply/Fault
+
+PR #36
+└─ PR #42 Failure/Recovery          TRUE_CHILD + CONVERGENCE
+     ↑ exact evidence identities #38/#39/#40
+
+PR #42
+└─ PR #44 Reviewer Convergence      TRUE_CHILD + CONVERGENCE
+     ↑ exact Demo Console bytes #37
+     ↑ exact M2/M3 Actions artifacts
+     └─ PR #45 Local Handoff Queue  TRUE_CHILD / LOCAL_HANDOFF
+```
+
+PR #44 has one Git parent, PR #42. Other task prerequisites are explicit byte/evidence side inputs rather than fabricated Git parents.
+
+## Shadow Architect hardening
+
+### `EVIDENCE_DELTA` — mutable PR head vs historical evidence subject
+
+An earlier #9 workflow correctly failed because PR #42 had advanced through no-net-diff marker/revert commits after the successful M3 evidence run. Comparing a mutable current PR head directly to a historical evidence head would either block valid routing or encourage evidence laundering.
+
+The contract now separates:
+
+```text
+current_head  = current mutable PR routing subject
+evidence_head = exact commit that produced the admitted artifact
+```
+
+For PR #42:
+
+```text
+current PR head: c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e
+M3 evidence head: e48711055572d83c872e72445cdf1389592ce85e
+M3 artifact:      9365550423
+```
+
+A newer PR head never relabels an older artifact as evidence for the newer head.
+
+### `DAG / EVIDENCE_DELTA` — Demo Console byte consumption
+
+#9 consumes Demo Console bytes, not merely a claim that #37 exists. The hardened workflow fetches the exact PR #37 evidence head and requires:
+
+```text
+git diff --exit-code 1081f471710158a5e76cc0e373504cbcd0a27940 -- demo-console
+```
+
+before convergence can pass.
+
+### `EVIDENCE_DELTA` — artifact readback
+
+M3 left `side_input_artifact_redownload` as `NOT_EXERCISED`. M4 closes that specific gap for the six bound M2/M3 Actions artifacts by downloading each archive again and checking its SHA-256 digest before admitting required paths.
+
+This does not prove future artifact availability after retention expiry, registry-stored image signatures, or production deployment artifacts.
+
+### `OWNERSHIP_DELTA` — two convergence workflows
+
+Two #9 workflows are retained because their proof obligations remain different:
 
 ```text
 full-reviewer-convergence.yml
-→ prior-artifact re-download + digest verification + static reviewer bundle
+→ prior-artifact re-download + digest verification + bounded static packet
 
 full-reviewer-demo.yml
-→ deterministic fresh replay + current PR-head readback + console rebuild
+→ fresh deterministic replay + current-head readback + exact Demo Console byte parity
 ```
 
-Neither workflow may promote the other's ceiling. If later maintenance makes the obligations identical, they should be collapsed into one owner rather than allowed to drift.
+If those obligations later become identical, one owner should replace both rather than allowing drift.
 
 ### `RESOURCE_DELTA`
 
-The reviewer bundle is explicitly capped below 5 MB and the observed primary artifact is 2,841,522 bytes. Public secret-pattern checks run before persistence.
-
-## What M4 actually proves
+Both persisted reviewer artifacts remain below the 5 MB public evidence budget:
 
 ```text
-exact M2/M3 artifact re-download                     PASS
-artifact archive SHA-256 verification                PASS
-required public evidence path admission              PASS
-bounded static reviewer bundle                       PASS
-Demo Console public evidence rendering               PASS
-seven DRILL failure/recovery records preserved       PASS
-deterministic failure/recovery replay                PASS
-business PASS + FAIL telemetry in replay             PASS
-current prerequisite PR-head readback                PASS
-no paid model/provider API required                  PASS
+one-command reviewer artifact: 1,394,198 bytes
+artifact-reverified bundle:     2,841,522 bytes
 ```
 
-## Residual proof boundary
+No L3 blocker remains for the **remote reviewer convergence checkpoint**.
+
+## Local Handoff boundary
+
+PR #45 binds the hardened M4 source into the Tech Lead Local Handoff Execution Queue.
+
+ACTIVE local reviewer command:
+
+```bash
+bash scripts/demo/run_reviewer_demo.sh evidence/local-reviewer
+```
+
+Receipt:
 
 ```text
-live kind/Kubernetes deployment                      NOT_EXERCISED
-real Argo CD reconciliation                           NOT_EXERCISED
-live Argo Rollouts + Prometheus canary               NOT_EXERCISED
-local Qwen / llama.cpp runtime                       NOT_EXERCISED
-1,000-VU capacity and recovery                       NOT_EXERCISED
-registry-stored image signing                        NOT_EXERCISED
-production user/adoption evidence                    OUTSIDE_REPOSITORY_PROOF
-production incident history                          NOT_EXERCISED
-real people-management tenure                        OUTSIDE_REPOSITORY_PROOF
-merge/release/visibility/production authority        HUMAN_ONLY
+evidence/local-reviewer/reviewer-demo-receipt.json
 ```
 
-`M4 PASS_BOUNDED` is therefore **reviewer-demo-ready at the remote public evidence ceiling**, not production-ready.
-
-## Next legal frontier
+Evidence ceiling:
 
 ```text
-M4 public reviewer packet
-        +
-Local Handoff receipts for live kind/model/Argo paths when available
-        ↓
-optional higher-substrate evidence admission
-        +
-Product-Manager-Notes interview/evidence convergence
+LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY
 ```
 
-The public MVP now has a recruiter/reviewer path even before those local-substrate residuals are admitted, but every missing runtime layer must remain visibly `NOT_EXERCISED`.
+The next live-substrate item remains `BLOCKED_UNRESOLVED` until concrete committed runners, exact artifacts, budgets and cleanup contracts exist. No speculative kind/Argo/model/1,000-VU command is presented as executed evidence.
+
+## Residual proof obligations
+
+```text
+live kind/Kubernetes                         NOT_EXERCISED
+real Argo CD reconciliation                  NOT_EXERCISED
+live Argo Rollouts + Prometheus canary       NOT_EXERCISED
+local Qwen / llama.cpp inference             NOT_EXERCISED
+1,000-VU capacity and recovery               NOT_EXERCISED
+registry-stored image signature              NOT_EXERCISED
+production users / adoption                  OUTSIDE_REPOSITORY_PROOF
+production incident history                  OUTSIDE_REPOSITORY_PROOF
+real people-management tenure                OUTSIDE_REPOSITORY_PROOF
+```
+
+`M4 PASS_BOUNDED` means **reviewer-demo-ready at the remote public evidence ceiling**, not production-ready.
+
+## Stage boundary
+
+Remote #9 reviewer convergence is stage-complete at its declared ceiling. The next engineering frontier is the typed Local Handoff/live-substrate program plus Product-side interview/public-portfolio projection from exact admitted M4 subjects.
+
+Merge, release, repository visibility/permission changes, production promotion/rollback and real-experience claims remain Human-owned.
