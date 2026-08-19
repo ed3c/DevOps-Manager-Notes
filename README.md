@@ -1,8 +1,26 @@
 # DevOps Manager Notes
 
-Public executable evidence plane for the **Full Manager MVP Demo**: one Internal AI Platform demo that covers the technical requirements of both the Technical Product Manager and DevOps Manager target roles.
+Public executable evidence plane for the **Full Manager MVP Demo**: one Internal AI Platform demo that covers the technical requirements of the Technical Product Manager and DevOps Manager target roles through explicit, bounded evidence.
 
-`Product-Manager-Notes` is the private management/routing center. `skills-shared` owns reusable Tech Lead, Shadow Architect and Git Town methods. This repository owns public-safe implementation, CI/runtime evidence, failure/recovery exercises and exact receipts.
+`Product-Manager-Notes` is the public-safe management/routing center. `skills-shared` owns reusable Tech Lead, Shadow Architect and Git Town methods. This repository owns public-safe implementation, CI/runtime evidence, failure/recovery exercises, the recruiter-facing Demo Console and exact receipts.
+
+## Current milestone
+
+```text
+M2 PUBLIC_REMOTE_FANOUT_FIRST_GREEN = PASS_BOUNDED
+```
+
+Exact milestone index:
+
+- `docs/milestones/PUBLIC_REMOTE_FANOUT_FIRST_GREEN.md`
+- `registry/public-m2-first-green.json`
+- `registry/stack-plan.yaml`
+
+What is already exercised remotely: Core Python/PostgreSQL/container path, observability/load smoke, policy/security gates, deterministic MLflow lifecycle, Demo Console build, SBOM/signature mismatch control and bounded Toxiproxy fault drill.
+
+What remains outside this milestone: live kind/Kubernetes, real Argo reconciliation, 1,000-VU capacity run, local Qwen/llama.cpp, live Argo Rollouts/Prometheus canary, full #5 failure/recovery convergence, #9 one-command reviewer convergence, real users/incidents/production/management tenure.
+
+`FIRST_GREEN` is a checkpoint, never terminal closure.
 
 ## Read first
 
@@ -11,27 +29,46 @@ README.md
 → AGENTS.md
 → docs/INDEX.md
 → docs/architecture/FULL_MVP_DEMO.md
+→ docs/milestones/PUBLIC_REMOTE_FANOUT_FIRST_GREEN.md
 → registry/mvp-demo-stack.yaml
 → registry/stack-plan.yaml
+→ registry/public-m2-first-green.json
 → prompts/README.md
-→ exact issue / PR / commit / Local Handoff subject
-→ nearest implementation/test/receipt
+→ exact issue / PR / commit / Local Handoff / receipt
 ```
+
+## Authority boundary
+
+```text
+skills-shared
+  reusable Tech Lead / Shadow Architect / Git Town methods
+       ↓ method dependency
+Product-Manager-Notes
+  public-safe source / requirement / product decision / routing graph
+       ↓ public-safe evidence request
+DevOps-Manager-Notes
+  executable app / CI / ML lifecycle / SLO / policy / fault / UI / receipts
+       ↓ exact evidence subjects
+Product-Manager-Notes
+  competency closure / interview narrative
+```
+
+GitHub repository metadata is the visibility source of truth. Both Manager repositories are currently observed as public. Public reachability does not promote evidence and never authorizes committing credentials, customer/user private data, employer/client confidential material, private source bodies or restricted redistribution material. Repository visibility and permission changes remain Human-owned.
 
 ## Eight-stage execution program
 
-| Stage | Transition | Main result | Parallelism |
-|---|---|---|---|
-| P0 Subject / authority | `REQUEST_BOUND → SUBJECT_ADMITTED` | exact repo/branch/commit/issue, authority and evidence ceiling | serial |
-| P1 Source / evidence | `SUBJECT_ADMITTED → CONTEXT_ADMITTED` | job/article/PDF/repo/technology evidence and gaps | parallel source workers |
-| P2 Problem closure / System Design | `CONTEXT_ADMITTED → SYSTEM_CONTRACT_EXTRACTED` | invariants, state machines, failure matrix, product/system contract | Product + DevOps design lanes |
-| P3 Technology / ADR | `SYSTEM_CONTRACT_EXTRACTED → ARCHITECTURE_ADMITTED` | commercially usable stack, rejected alternatives, license boundaries | candidate families in parallel |
-| P4 Tech Lead DAG / Stack | `ARCHITECTURE_ADMITTED → WORKERS_ADMITTED` | start/completion DAG, leases, molecular Stack, Worker packets | bounded compilation |
-| P5 Implementation fan-out | `WORKERS_ADMITTED → FIRST_GREEN` | core plus path-disjoint terminal leaves | #3/#4/#7/#8/#10 after #2 |
-| P6 Runtime / failure proof | `FIRST_GREEN → REVERIFIED` | load/fault/canary/rollback/postmortem/same-failure re-test receipts | selected runtime probes |
-| P7 Convergence / export / handoff | `REVERIFIED → DEMO_EVIDENCE_READY` | one-command reviewer path, indexes, public evidence packet, Local Handoff residuals | one convergence owner |
+| Stage | Transition | Output |
+|---|---|---|
+| P0 Subject / authority | `REQUEST_BOUND → SUBJECT_ADMITTED` | exact repo/branch/commit/issue, authority, evidence ceiling |
+| P1 Source / evidence | `SUBJECT_ADMITTED → CONTEXT_ADMITTED` | source/claim/evidence/gap graph |
+| P2 Problem closure / System Design | `CONTEXT_ADMITTED → SYSTEM_CONTRACT_EXTRACTED` | invariants, state machines, SLO/failure contract |
+| P3 Technology / ADR | `SYSTEM_CONTRACT_EXTRACTED → ARCHITECTURE_ADMITTED` | selected/rejected stack and license/ops boundaries |
+| P4 Tech Lead DAG / Stack | `ARCHITECTURE_ADMITTED → WORKERS_ADMITTED` | real dependency DAG, path leases, molecular PR plan |
+| P5 Implementation | `WORKERS_ADMITTED → FIRST_GREEN` | code/tests/CI/receipt per bounded lane |
+| P6 Runtime / failure proof | `FIRST_GREEN → REVERIFIED` | load/fault/rollback/postmortem/same-failure re-test |
+| P7 Convergence / export / handoff | `REVERIFIED → DEMO_EVIDENCE_READY` | reviewer path, public evidence packet, Local Handoff residuals |
 
-`FIRST_GREEN` is a mandatory Shadow Architect checkpoint, not completion.
+M2 is a P5/P6 remote checkpoint. It does not skip Local Handoff or #5/#9 convergence.
 
 ## End-to-end state machine
 
@@ -43,12 +80,12 @@ SOURCE_BOUND
 → ARTIFACT_SIGNED
 → MODEL_CONFIG_REGISTERED
 → OFFLINE_EVAL_RUNNING
-    ├── EVAL_REJECTED
-    └── PROMOTION_ELIGIBLE
+    ├─ EVAL_REJECTED
+    └─ PROMOTION_ELIGIBLE
 → GITOPS_DESIRED_STATE_BOUND
 → CANARY_RUNNING
-    ├── CANARY_REJECTED → ROLLBACK_RUNNING
-    └── PROMOTED
+    ├─ CANARY_REJECTED → ROLLBACK_RUNNING
+    └─ PROMOTED
 → OBSERVED
 → LOAD_OR_FAULT_PROBE_RUNNING
 → HEALTHY | DEGRADED
@@ -61,16 +98,17 @@ SOURCE_BOUND
 → DEMO_EVIDENCE_READY
 ```
 
-Illegal promotion examples:
+Illegal promotions:
 
 ```text
-CI_GREEN        → BUSINESS_CORRECT                 forbidden
-LOCAL_K8S_PASS  → PRODUCTION_INFRA_EXPERIENCE      forbidden
-1000_VU_PASS    → 1000_REAL_USERS                  forbidden
-DRILL_COMPLETE  → PRODUCTION_INCIDENT_HISTORY      forbidden
-MODEL_LICENSE   → ALL_TRANSITIVES_CLEARED          forbidden
-UI_GREEN        → BACKEND_EVIDENCE_PASS            forbidden
-ISSUE_CLOSED    → RUNTIME_CLOSED                   forbidden
+CI_GREEN               → BUSINESS_CORRECT              forbidden
+REMOTE_FIRST_GREEN     → PRODUCTION_RUNTIME            forbidden
+LOCAL_K8S_PASS         → PRODUCTION_INFRA_EXPERIENCE   forbidden
+1000_VU_PASS           → 1000_REAL_USERS               forbidden
+DRILL_COMPLETE         → PRODUCTION_INCIDENT_HISTORY   forbidden
+LICENSE_METADATA_PASS  → BLANKET_LEGAL_CLEARANCE       forbidden
+UI_GREEN               → BACKEND_EVIDENCE_PASS         forbidden
+ISSUE_CLOSED           → RUNTIME_CLOSED                forbidden
 ```
 
 ## Repository topology
@@ -82,29 +120,20 @@ DevOps-Manager-Notes/
 ├── LICENSE
 ├── docs/
 │   ├── INDEX.md
-│   └── architecture/
-│       ├── DELIVERY_RELIABILITY_LAB.md
-│       └── FULL_MVP_DEMO.md
-├── roles/devops-manager/
-│   └── job-contract.yaml
+│   ├── architecture/
+│   │   ├── DELIVERY_RELIABILITY_LAB.md
+│   │   └── FULL_MVP_DEMO.md
+│   ├── evidence-audit/
+│   └── milestones/
+│       └── PUBLIC_REMOTE_FANOUT_FIRST_GREEN.md
 ├── registry/
 │   ├── evidence.yaml
 │   ├── gaps.yaml
 │   ├── technology-candidates.yaml
 │   ├── mvp-demo-stack.yaml
-│   └── stack-plan.yaml
-├── prompts/
-│   ├── README.md
-│   ├── issue-2-core-platform.md
-│   ├── issue-3-observability-load.md
-│   ├── issue-4-policy-security.md
-│   ├── issue-7-llmops-progressive-delivery.md
-│   ├── issue-8-demo-console.md
-│   ├── issue-10-supply-chain-fault.md
-│   ├── issue-5-failure-recovery.md
-│   └── issue-9-final-convergence.md
+│   ├── stack-plan.yaml
+│   └── public-m2-first-green.json
 ├── system-design/
-├── sre/
 ├── platform/
 │   ├── app/
 │   ├── docker/
@@ -113,14 +142,9 @@ DevOps-Manager-Notes/
 │   ├── rollouts/
 │   └── policies/
 ├── mlops/
-│   ├── eval/
-│   ├── registry/
-│   ├── prompts/
-│   ├── models/
-│   └── adapters/
 ├── demo-console/
-│   └── src/
 ├── observability/
+├── sre/
 ├── supply-chain/
 ├── tests/
 │   ├── unit/
@@ -131,225 +155,193 @@ DevOps-Manager-Notes/
 ├── incidents/
 ├── runbooks/
 ├── management/
+├── prompts/
 ├── scripts/
 │   ├── demo/
 │   └── handoff/
 ├── handoff/
 │   └── local-handoff-queue.json
 ├── evidence/receipts/
-│   ├── base/
-│   ├── observability/
-│   ├── security/
-│   ├── llmops/
-│   ├── supply-chain/
-│   ├── failure/
-│   └── convergence/
 └── .github/workflows/
 ```
 
-Directories are created only when their first real artifact lands. Path presence is not capability proof.
+Directories are created only with real artifacts. Path presence is not capability proof.
 
 ## Directory → State Machine → DAG ownership
 
-| Surface | State responsibility | Owner issue | Output / evidence ceiling |
+| Surface | State responsibility | Current owner | Evidence ceiling |
 |---|---|---:|---|
-| `registry/mvp-demo-stack.yaml` | technology candidate → selected/rejected → remaining proof | #11 / PR #12 | design/source verification only |
-| `system-design/` | requirement → invariant/SLO/failure contract | #1 | design/static reasoning |
-| `platform/app/` | request/business state → deterministic oracle | #2 | L2 before integration |
-| `platform/docker/` | source → immutable container digest | #2 | L2-L3 |
-| `platform/kubernetes/` + `platform/gitops/` | desired → observed deployment / reconciliation | #2 | named local substrate only |
-| `observability/` + `sre/` | request → trace/metrics/SLI/SLO/load evidence | #3 | named environment / synthetic workload |
-| `platform/policies/` | artifact/deployment → admit/reject | #4 | policy/security lane only |
-| `mlops/` + `platform/rollouts/` | model/prompt/config → eval → canary → rollback | #7 | exact local/model/canary lane |
-| `demo-console/` | typed evidence API → reviewer UI | #8 | presentation only; cannot promote evidence |
-| `supply-chain/` | exact artifact → SBOM/scan/signature/fault tooling | #10 | exact artifact/fault lane |
-| `incidents/` + `runbooks/` + `management/` | failure → decision → recovery → corrective action | #5 | DRILL unless real production event |
-| `registry/stack-plan.yaml` | issue → atom → branch relation → lease | Tech Lead | planning/publication only |
-| `prompts/` | frozen contract → zero-context Worker packet | Tech Lead | instruction only |
-| `handoff/local-handoff-queue.json` | remote boundary → local command → receipt | #2 then later runtime owners | queue shape until executed |
-| `evidence/receipts/` | exact subject/env/workload → verdict | lane owners | exact named evidence lane |
-| `scripts/demo/` + final indexes | admitted receipts → reviewer path | #9 | convergence only |
+| `system-design/` | requirement → invariant/failure contract | #1 / PR #13 | design/static |
+| `platform/app/`, `docker/`, `kubernetes/`, `gitops/` | request → artifact → desired deployment | #2 / PR #14 | GitHub-hosted deterministic/container; live K8s separate |
+| `observability/`, `sre/`, `tests/load/` | execution → trace/SLI/SLO/load | #3 / PR #36 | remote telemetry + synthetic smoke only |
+| `platform/policies/` | candidate → admit/reject | #4 / PR #38 | policy/security/license metadata only |
+| `mlops/`, `platform/rollouts/` | model/prompt/config → eval → canary/rollback contract | #7 / PR #39 | deterministic MLflow lifecycle only |
+| `demo-console/` | canonical public evidence → reviewer UI | #8 / PR #37 | frontend build/render only |
+| `supply-chain/`, network failure tests | artifact → SBOM/signature/fault drill | #10 / PR #40 | same-run signing + bounded drill only |
+| `incidents/`, `runbooks/`, `management/` | failure → decision → recovery → corrective action | #5 | NOT_IMPLEMENTED |
+| `scripts/demo/`, convergence receipts | admitted evidence → reviewer path | #9 | NOT_IMPLEMENTED |
+| `handoff/local-handoff-queue.json` | remote boundary → local command → receipt | #2 then runtime lanes | queue contract until executed |
 
 ## Full data flow
 
 ```mermaid
 flowchart TD
-    S[Job / Article / PDF / Repo / Technology Source] --> P[Product-Manager-Notes Source + Requirement Graph]
-    P --> C[Full MVP Contract / Tech ADR]
-    C --> TL[Tech Lead DAG + Stack + Worker Prompts]
-    TL --> K2[#2 Core Platform]
-    K2 --> A3[#3 OTel / Prometheus / Jaeger / Locust]
-    K2 --> E4[#4 OPA / Trivy]
-    K2 --> A7[#7 MLflow / llama.cpp / Argo Rollouts]
-    K2 --> A8[#8 React Demo Console]
-    K2 --> E10[#10 Syft / Cosign / Toxiproxy]
-    A3 --> X5[#5 Failure / Recovery]
-    E4 --> X5
-    A7 --> X5
-    E10 --> X5
-    X5 --> X9[#9 Full Demo Convergence]
-    A8 --> X9
-    X9 --> EV[Exact Evidence Packet]
+    S[Job / Article / PDF / Repo / Tech Candidate] --> P[Product Requirement Graph]
+    P --> TL[Tech Lead Contract + DAG + Stack]
+    TL --> K2[PR #14 Core]
+    K2 --> O[PR #36 Observability / Load]
+    K2 --> SEC[PR #38 Policy / Security]
+    K2 --> ML[PR #39 ML / LLMOps]
+    K2 --> UI[PR #37 Demo Console]
+    K2 --> SUP[PR #40 Supply Chain / Fault]
+    O --> X5[#5 Failure / Recovery]
+    SEC --> X5
+    ML --> X5
+    SUP --> X5
+    X5 --> X9[#9 Full Demo]
+    UI --> X9
+    X9 --> EV[Exact Public Evidence Packet]
     EV --> P
-    P --> GS[Google Sheet Dashboard Mirror]
-    P --> GD[Google Doc Narrative Mirror]
-    SH[Shadow Architect MONITOR] -. material delta .-> K2
-    SH -.-> A3
-    SH -.-> E4
-    SH -.-> A7
-    SH -.-> E10
-    SH -.-> X5
-    LH[Local Handoff Queue] --> K2
-    LH --> A7
+    SH[Shadow Architect MONITOR] -. material deltas .-> K2
+    SH -.-> O
+    SH -.-> SEC
+    SH -.-> ML
+    SH -.-> UI
+    SH -.-> SUP
+    LH[Local Handoff] --> K2
+    LH --> ML
     LH --> X5
 ```
 
-## Start-readiness DAG
+## Observed molecular Git Town Stack
+
+Canonical machine plan: `registry/stack-plan.yaml`.
 
 ```text
-PR #6 bootstrap contract
-  └─ PR #12 / #11 Full MVP technology + architecture contract
-       └─ #1 invariant/evidence audit
-            └─ #2 core platform contract
-                 ├─ #3 observability/load
-                 ├─ #4 policy/security/license
-                 ├─ #7 ML/LLMOps/progressive delivery
-                 ├─ #8 Demo Console
-                 └─ #10 supply-chain/fault tooling
-
-#5 failure-scenario design may start after #2 exposes failure surfaces.
-#9 convergence design may start before all leaves close, but cannot complete early.
+C0   PR #6   bootstrap                                        ROOT
+└─ C11 PR #12 Full MVP technology/architecture                TRUE_CHILD
+   └─ E1 PR #13 evidence audit + invariant freeze             TRUE_CHILD
+      └─ K2 PR #14 Core remote FIRST_GREEN                    TRUE_CHILD
+         ├─ A3  PR #36 #3 observability/load                  SIBLING
+         ├─ E4  PR #38 #4 policy/security/license             SIBLING
+         ├─ A7  PR #39 #7 ML/LLMOps                           SIBLING
+         ├─ A8  PR #37 #8 Demo Console                        SIBLING
+         └─ E10 PR #40 #10 supply-chain/fault                 SIBLING
+                 └──── exact verified side-inputs ─────┐
+                                                       ▼
+                       X5 #5 failure/recovery           CONVERGENCE
+                                                       │
+                                           + A8 receipt│
+                                                       ▼
+                       X9 #9 final reviewer demo        CONVERGENCE
 ```
 
-## Completion-readiness DAG
+A multi-input convergence never invents multiple Git parents. One convergence owner chooses a stable admitted base and consumes the remaining prerequisites through exact receipt subjects.
 
-```text
-#11 / PR #12 technology contract
-→ #1 exact invariant/evidence audit
-→ #2 exact base delivery receipt
-→ (#3 AND #4 AND #7 AND #10 exact lane receipts)
-→ #5 failure/rollback/postmortem/same-failure receipt
-→ (#5 AND #8 exact receipts)
-→ #9 Full Manager MVP convergence receipt
-```
+## M2 exact remote receipts
 
-## Molecular Git Town Stack
+| PR | Lane | Run | Artifact digest | Status |
+|---:|---|---:|---|---|
+| #36 | observability/load | `32249524958` | `sha256:de464ff881638a42f9bf536ff7ba6e255d1e419647ce1522002fdbaac4201430` | `PASS_BOUNDED` |
+| #38 | policy/security | `32251169964` | `sha256:68ac7b4ce0b7bfc2535c54b1960d3b56152fd4947bf031c56c00eb5f7f5f7b4b` | `PASS_BOUNDED` |
+| #39 | ML/LLMOps | `32250421421` | `sha256:ba3a173b4d64935449836b09881d7e490cf3873de7218af66b293bc17c5d4e27` | `PASS_BOUNDED` |
+| #37 | Demo Console | `32251120563` | `sha256:544a3c968918814c03e24144b373393735a5e25f6825052d26e08b45ff284a0a` | `PASS_BOUNDED` |
+| #40 | supply-chain/fault | `32251234101` | `sha256:74b1664bdd836d4bf94cf4e089e5549d6917dd48aafef0b5e6d82bf6df493eda` | `PASS_BOUNDED` |
 
-`registry/stack-plan.yaml` is canonical. Planned structure:
+Exact head SHAs, artifact IDs and residual states are in `registry/public-m2-first-green.json`.
 
-```text
-C0   PR #6    bootstrap DevOps contract                  ROOT
-└─ C11 PR #12  Full MVP technology/architecture          TRUE_CHILD
-   └─ E1  #1   invariant/evidence audit                  TRUE_CHILD while parent bytes unmerged
-      └─ K2 #2 core app/CI/container/K8s                 TRUE_CHILD
-         ├─ A3  #3 observability/load                    SIBLING
-         ├─ E4  #4 policy/security/license               SIBLING
-         ├─ A7  #7 ML/LLMOps/progressive delivery        SIBLING
-         ├─ A8  #8 Demo Console                          SIBLING
-         └─ E10 #10 SBOM/signing/fault tooling           SIBLING
-              └──── verified side-input receipts ───┐
-                                                   ▼
-         X5  #5 failure/recovery/postmortem          CONVERGENCE
-              └────────────┬─────────────────────────┘
-                           ▼
-         X9  #9 final reviewer demo                  CONVERGENCE
-```
+## Shadow Architect M2 review
 
-A sibling becomes a true child only if it actually consumes another sibling's **unmerged bytes/contracts**. Multi-input convergence does not fabricate multiple Git parents.
+Material deltas that changed the implementation:
 
-## Separate ChatGPT Worker sessions
+- `OWNERSHIP_DELTA`: #3 needed the minimal shared Core app telemetry integration; recorded as an explicit lease delta rather than pretending full path disjointness.
+- `RESOURCE_DELTA`: #8 public build shrank from ~8.47 MB to 1,358,050 bytes by removing source maps and adding a build-size gate.
+- `SUPPLY_CHAIN_DELTA`: #8 setup-node changed from a moving tag to the exact action SHA observed at runtime.
+- `SUPPLY_CHAIN_DELTA`: #4 OPA and Trivy container tags were replaced by exact observed image digests.
+- `RESOURCE_DELTA`: #10 first artifact was ~191 MB; hardened run persists 1,057,880 bytes while explicitly lowering later independent-reverification claims.
+- `SUPPLY_CHAIN_DELTA`: #10 Toxiproxy tag was replaced by the exact observed image digest.
+- `AUTHORITY_DELTA` / `EVIDENCE_DELTA`: observed public visibility overrides stale prose; visibility itself is never mutated by the Worker.
 
-After #2 freezes the typed service/artifact contracts, Tech Lead can open separate zero-context sessions using `prompts/`:
-
-| Session | Issue | Path lease | May run in parallel? |
-|---|---:|---|---|
-| Core | #2 | app/docker/k8s/gitops/base tests/workflows | no; establishes shared contract |
-| Observability | #3 | observability/sre/load receipts | yes |
-| Policy/Security | #4 | policies/security receipts | yes |
-| ML/LLMOps | #7 | mlops/rollouts/llmops receipts | yes |
-| Demo Console | #8 | demo-console/UI tests | yes |
-| Supply chain/fault | #10 | supply-chain/fault-tool receipts | yes |
-| Failure convergence | #5 | incidents/runbooks/management/failure receipts | after prerequisite receipts |
-| Final convergence | #9 | README/index/demo orchestrator/convergence receipt | one owner only |
-
-Every session receives an exact subject, start/completion dependencies, allowed/read-only/forbidden paths, consumed/provided artifacts, evidence ceiling, Shadow watch list and Local Handoff boundary.
+No L3 blocker remains for this **remote milestone**. Remaining local/substrate and convergence obligations stay explicit.
 
 ## Selected MVP stack
 
-The complete machine-readable inventory is `registry/mvp-demo-stack.yaml`. Required deterministic path includes:
+The machine inventory is `registry/mvp-demo-stack.yaml`. Main deterministic path:
 
 ```text
 Python / FastAPI / Pydantic
 PostgreSQL / SQLAlchemy / Alembic
 React / Vite / TanStack Query / Apache ECharts
-MLflow / llama.cpp / pinned permissive small model artifact
-Docker CLI / Moby / Colima-or-Rancher-Desktop
-kind / Kubernetes / Argo CD / Argo Rollouts
-OpenTelemetry Collector / Prometheus / Jaeger
+MLflow / llama.cpp + separately pinned model artifact
+Docker CLI / Moby / kind / Kubernetes
+Argo CD / Argo Rollouts
+OpenTelemetry / Prometheus / Jaeger
 OPA / Trivy / Syft / Cosign
 Locust / Toxiproxy / pytest
 GitHub Actions
 ```
 
-The default distribution policy prefers MIT, Apache-2.0, BSD and PostgreSQL-style permissive terms. Top-level licensing never recursively clears transitive packages, container images, plugins, model weights, downloaded binaries, GitHub Actions or SaaS terms. vLLM/KServe remain future production-shaped adapters, not core-demo blockers.
+Default distribution prefers permissive license families. Top-level repository licenses never recursively clear transitive packages, container images, plugins, model weights, downloaded binaries, Actions or SaaS terms.
 
-## Repository integrations
-
-```text
-skills-shared
-  agentic-tech-lead-orchestration
-  spatial-loop-systems-engineering
-  git-town-stacked-pr-worker
-       ↓ reusable method only
-DevOps-Manager-Notes
-       ↓ trigger-selected support
-runtime-env               secret-free local/provider runtime contract
-truth-verify-loop         mutable/high-risk external claim verification
-openwiki-source-anchoring exact source/path/quote verification for generated docs
-skill-resume-site         P7 public portfolio projection only after evidence admission
-```
-
-Support repositories never own this consumer's issue/branch/runtime state and cannot widen evidence or merge authority.
-
-## Google / GitHub boundary
-
-GitHub is canonical for requirements routed here, issues, PRs, commits, Stack state and evidence receipts. The Product control plane mirrors approved state to the existing Google Sheet dashboard and Google Doc narrative index. A Google URL proves reachability only and never promotes evidence.
-
-## Automation boundary
-
-Automation is expected for source/claim routing, task compilation, code generation, tests, CI, SBOM/scans/policy checks, receipt aggregation, dashboard sync and repeatable local probes. The following remain outside unattended Worker authority:
+## Evidence ladder
 
 ```text
-semantic conflict resolution
-force push / merge / release
-repository visibility or permission widening
-production promotion / production rollback admission
-credential or provider enrollment decisions
-claims of real users, real incidents, production tenure or people-management tenure
+L0 SOURCE_CLAIM
+L1 STATIC_REASONING
+L2 DETERMINISTIC_TEST
+L3 LOCAL_INTEGRATION
+L4 REAL_SUBSTRATE
+L5 ADVERSARIAL_OR_CHAOS
+L6 PRODUCTION_OBSERVATION
 ```
+
+Evidence states:
+
+```text
+PASS
+FAIL
+ABSENT
+NOT_IMPLEMENTED
+NOT_EXERCISED
+SKIPPED_BY_POLICY
+HUMAN_ADMIT_REQUIRED
+```
+
+Lower evidence never self-promotes.
 
 ## Local Handoff Execution Queue
 
-Physical Docker/kind/Kubernetes/model/fault claims require a real admitted host. `handoff/local-handoff-queue.json` contains only concrete, bounded commands already present in the exact execution subject. Future runtime items are compiled only after their executable runner exists; placeholders do not become commands.
+Physical Docker/kind/Kubernetes/model/fault claims that cannot be exercised in the current lane require the typed queue in `handoff/local-handoff-queue.json`.
 
-Queue shape validation is not execution. A local PASS receipt remains bounded to its exact evidence ceiling.
-
-## Current Shadow Architect closure
+Every ACTIVE item binds:
 
 ```text
-bootstrap contract                PASS_AS_DESIGN        PR #6
-Full MVP technology contract      PASS_AS_DESIGN        PR #12 / #11
-exact invariant/evidence audit    NOT_EXERCISED          #1
-core platform                     NOT_IMPLEMENTED        #2
-observability/load                NOT_IMPLEMENTED        #3
-policy/security                   NOT_IMPLEMENTED        #4
-ML/LLMOps/progressive delivery    NOT_IMPLEMENTED        #7
-Demo Console                      NOT_IMPLEMENTED        #8
-supply-chain/fault tooling        NOT_IMPLEMENTED        #10
-failure/recovery                  NOT_IMPLEMENTED        #5
-full reviewer convergence         NOT_IMPLEMENTED        #9
-local capability execution        NOT_EXERCISED          Local Handoff
-production/management tenure      OUTSIDE_REPO_PROOF     Human evidence only
+exact commit + tree
+required capability
+bounded argv / cwd / timeout
+sanitized durable receipt
+required PASS exit
+cleanup obligation
+next executable item only when its runner exists
 ```
 
-The next legal frontier is #1, followed by #2. After #2 freezes shared interfaces, #3/#4/#7/#8/#10 are the primary parallel Worker fan-out.
+Queue validity is not execution. Local PASS is not production tenure.
+
+## Next legal frontier
+
+```text
+Local Handoff receipts where required
+        +
+#5 failure/recovery convergence
+        ↓
+detection
+→ incident decision
+→ mitigation / rollback / recovery
+→ postmortem
+→ corrective change
+→ same-failure re-test
+        ↓
+#9 reviewer convergence
+```
+
+Merge/release/force-push, semantic conflict resolution, visibility/permission changes, production promotion/rollback and claims of real users/incidents/production/people-management tenure remain Human-owned.
