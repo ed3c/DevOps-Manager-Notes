@@ -1,0 +1,67 @@
+{
+  "schema_version": "full-manager-mvp/public-m4-reviewer-convergence/v1",
+  "milestone": "PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN",
+  "status": "PASS_BOUNDED",
+  "pull_request": 44,
+  "branch": "feat/full-reviewer-convergence",
+  "source_head": "4ce77c5e0e4ece8379badea5c3fa477a3a463d62",
+  "primary": {
+    "workflow": "Full MVP public reviewer convergence",
+    "workflow_run": 32256405012,
+    "artifact_id": 9366445128,
+    "artifact_digest": "sha256:6acd3395bd198e46bd3c31da6a901371a5c2cfaf1552fbc3ee2bf77c53ddfdde",
+    "artifact_size_bytes": 2841522,
+    "checks": {
+      "artifact_redownload": "PASS",
+      "artifact_digest_verification": "PASS",
+      "required_path_verification": "PASS",
+      "reviewer_bundle": "PASS",
+      "public_boundary": "PASS"
+    },
+    "evidence_ceiling": "GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY"
+  },
+  "secondary": {
+    "workflow": "Full MVP reviewer convergence",
+    "workflow_run": 32256405010,
+    "artifact_id": 9366471049,
+    "artifact_digest": "sha256:a6b17169bd1fe53122e27b934365fd8add7530e841541ce443637c5265758eef",
+    "artifact_size_bytes": 1394199,
+    "checks": {
+      "current_pr_head_readback": "PASS",
+      "current_vs_evidence_head_separation": "PASS",
+      "demo_console_rebuild": "PASS",
+      "seven_failure_drill_replay": "PASS",
+      "business_pass_fail_metrics": "PASS"
+    },
+    "evidence_ceiling": "GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY"
+  },
+  "inputs": {
+    "observability_pr": 36,
+    "policy_security_pr": 38,
+    "llmops_pr": 39,
+    "demo_console_pr": 37,
+    "supply_chain_pr": 40,
+    "failure_recovery_pr": 42
+  },
+  "subject_separation": {
+    "failure_recovery_current_pr_head": "c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e",
+    "failure_recovery_evidence_head": "e48711055572d83c872e72445cdf1389592ce85e",
+    "failure_recovery_evidence_artifact": 9365550423
+  },
+  "residuals": {
+    "live_kind_kubernetes": "NOT_EXERCISED",
+    "real_argo_cd_reconciliation": "NOT_EXERCISED",
+    "live_argo_rollouts_prometheus_canary": "NOT_EXERCISED",
+    "local_qwen_llama_cpp": "NOT_EXERCISED",
+    "load_1000_vu_capacity_recovery": "NOT_EXERCISED",
+    "registry_stored_image_signing": "NOT_EXERCISED",
+    "production_users_adoption": "OUTSIDE_REPOSITORY_PROOF",
+    "production_incident_history": "NOT_EXERCISED",
+    "people_management_tenure": "OUTSIDE_REPOSITORY_PROOF"
+  },
+  "authority": {
+    "merge_release_visibility_permissions": "HUMAN_ONLY",
+    "production_promotion_rollback": "HUMAN_ONLY",
+    "real_experience_claims": "HUMAN_ADMIT_REQUIRED"
+  }
+}
