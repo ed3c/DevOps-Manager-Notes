@@ -1,15 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "full-manager-mvp/base-receipt/v1",
+  "$id": "full-manager-mvp/base-receipt/v2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "git_commit", "checks", "verdict", "evidence_ceiling"],
+  "required": ["schema_version", "source_commit", "workflow_commit", "workflow_run_id", "checks", "verdict", "evidence_ceiling"],
   "properties": {
-    "schema_version": {"const": "full-manager-mvp/base-receipt/v1"},
-    "git_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
-    "container_digest": {"type": ["string", "null"]},
+    "schema_version": {"const": "full-manager-mvp/base-receipt/v2"},
+    "source_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "workflow_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "workflow_run_id": {"type": "string", "minLength": 1},
+    "runner_os": {"type": "string"},
+    "runner_arch": {"type": "string"},
+    "runner_image_os": {"type": "string"},
+    "runner_image_version": {"type": "string"},
+    "container_image_id": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"},
     "checks": {"type": "object", "additionalProperties": {"enum": ["PASS", "FAIL", "NOT_EXERCISED"]}},
     "verdict": {"enum": ["PASS", "FAIL"]},
-    "evidence_ceiling": {"type": "string", "minLength": 1}
+    "evidence_ceiling": {"type": "string", "minLength": 1},
+    "notes": {"type": "array", "items": {"type": "string"}}
   }
 }
