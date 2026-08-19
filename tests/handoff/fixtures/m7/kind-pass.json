@@ -1,0 +1,22 @@
+{
+  "schema_version": "full-manager-mvp/local-kind-substrate-receipt/v1",
+  "evidence_kind": "FIXTURE",
+  "verdict": "PASS",
+  "subject": {
+    "repository": "ed3c/DevOps-Manager-Notes",
+    "commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
+    "tree": "5ff3349c1eb5c7976263c2e89347a353ccbc1072"
+  },
+  "evidence_ceiling": "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY",
+  "checks": {
+    "local_kind_cluster_created": "PASS",
+    "oci_digest_bound": "PASS",
+    "deployment_ready": "PASS",
+    "business_oracle_pass": "PASS",
+    "business_oracle_forced_fail_visible": "PASS",
+    "pod_image_ids_captured": "PASS",
+    "cleanup": "PASS",
+    "kubectl_context_restored": "PASS"
+  },
+  "fixture_notice": "NON-LIVE TEST FIXTURE. This file cannot authorize runtime state advancement."
+}
