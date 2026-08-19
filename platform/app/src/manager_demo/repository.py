@@ -4,6 +4,7 @@ import hashlib
 import json
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .contracts import CandidateCreate, CandidateState, CandidateView
@@ -20,28 +21,31 @@ def _payload_hash(payload: CandidateCreate) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
-def register_candidate(session: Session, payload: CandidateCreate) -> CandidateView:
-    existing = session.scalar(
-        select(CandidateRecord).where(
-            CandidateRecord.idempotency_key == payload.idempotency_key
-        )
+def _view(record: CandidateRecord) -> CandidateView:
+    return CandidateView(
+        id=record.id,
+        idempotency_key=record.idempotency_key,
+        git_commit=record.git_commit,
+        model_version=record.model_version,
+        prompt_version=record.prompt_version,
+        config_version=record.config_version,
+        state=CandidateState(record.state),
     )
-    digest = _payload_hash(payload)
 
+
+def _validate_replay(record: CandidateRecord, digest: str) -> CandidateView:
+    if record.payload_hash != digest:
+        raise IdempotencyConflict("idempotency key already exists with a different payload")
+    return _view(record)
+
+
+def register_candidate(session: Session, payload: CandidateCreate) -> CandidateView:
+    digest = _payload_hash(payload)
+    existing = session.scalar(
+        select(CandidateRecord).where(CandidateRecord.idempotency_key == payload.idempotency_key)
+    )
     if existing is not None:
-        if existing.payload_hash != digest:
-            raise IdempotencyConflict(
-                "idempotency key already exists with a different payload"
-            )
-        return CandidateView(
-            id=existing.id,
-            idempotency_key=existing.idempotency_key,
-            git_commit=existing.git_commit,
-            model_version=existing.model_version,
-            prompt_version=existing.prompt_version,
-            config_version=existing.config_version,
-            state=CandidateState(existing.state),
-        )
+        return _validate_replay(existing, digest)
 
     record = CandidateRecord(
         idempotency_key=payload.idempotency_key,
@@ -53,15 +57,18 @@ def register_candidate(session: Session, payload: CandidateCreate) -> CandidateV
         state=CandidateState.REGISTERED.value,
     )
     session.add(record)
-    session.commit()
-    session.refresh(record)
+    try:
+        session.commit()
+    except IntegrityError:
+        # Another writer may have won the unique-key race. Re-read and admit only
+        # an exact replay; any payload mismatch remains a conflict.
+        session.rollback()
+        winner = session.scalar(
+            select(CandidateRecord).where(CandidateRecord.idempotency_key == payload.idempotency_key)
+        )
+        if winner is None:
+            raise
+        return _validate_replay(winner, digest)
 
-    return CandidateView(
-        id=record.id,
-        idempotency_key=record.idempotency_key,
-        git_commit=record.git_commit,
-        model_version=record.model_version,
-        prompt_version=record.prompt_version,
-        config_version=record.config_version,
-        state=CandidateState(record.state),
-    )
+    session.refresh(record)
+    return _view(record)
