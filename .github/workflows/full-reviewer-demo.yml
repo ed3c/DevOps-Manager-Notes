@@ -43,6 +43,12 @@ jobs:
         with:
           node-version: '22.22.0'
 
+      - name: Verify exact Demo Console byte input
+        run: |
+          git fetch --no-tags --depth=1 origin 1081f471710158a5e76cc0e373504cbcd0a27940
+          git diff --exit-code 1081f471710158a5e76cc0e373504cbcd0a27940 -- demo-console
+          echo 'demo-console-byte-parity=PASS'
+
       - name: Re-fetch exact prerequisite PR heads
         run: |
           mkdir -p live-evidence
@@ -131,6 +137,7 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## Full reviewer convergence FIRST_GREEN boundary
+          - exact Demo Console byte parity against PR #37 evidence head: exercised
           - prerequisite current-PR-head readback: exercised
           - current PR heads are kept separate from artifact evidence heads
           - one-command deterministic reviewer path: exercised
