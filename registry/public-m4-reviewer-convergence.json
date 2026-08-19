@@ -1,39 +1,46 @@
 {
-  "schema_version": "full-manager-mvp/public-m4-reviewer-convergence/v1",
+  "schema_version": "full-manager-mvp/public-m4-reviewer-convergence/v2",
   "milestone": "PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN",
   "status": "PASS_BOUNDED",
   "pull_request": 44,
   "branch": "feat/full-reviewer-convergence",
-  "source_head": "4ce77c5e0e4ece8379badea5c3fa477a3a463d62",
-  "primary": {
+  "source_head": "55d18cdc556ca5d66c67406318ae25196c077fd2",
+  "source_tree": "a4ad37d9baf73a5239f79c516c67b0182420336a",
+  "deterministic_reviewer": {
+    "workflow": "Full MVP reviewer convergence",
+    "workflow_run": 32256802856,
+    "artifact_id": 9366615717,
+    "artifact_digest": "sha256:e652cdf3ccb8de7a8655f9148bc6471a29bcaeaef2d55f6255bca2cb2b1e19d3",
+    "artifact_size_bytes": 1394198,
+    "checks": {
+      "demo_console_exact_byte_parity": "PASS",
+      "current_pr_head_readback": "PASS",
+      "current_vs_evidence_head_separation": "PASS",
+      "one_command_reviewer_path": "PASS",
+      "demo_console_build": "PASS",
+      "seven_failure_drill_replay": "PASS",
+      "complete_incident_timelines": "PASS",
+      "same_failure_retest": "PASS",
+      "business_pass_fail_metrics": "PASS",
+      "paid_api_required": "NO"
+    },
+    "evidence_ceiling": "GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY"
+  },
+  "artifact_reverification": {
     "workflow": "Full MVP public reviewer convergence",
-    "workflow_run": 32256405012,
-    "artifact_id": 9366445128,
-    "artifact_digest": "sha256:6acd3395bd198e46bd3c31da6a901371a5c2cfaf1552fbc3ee2bf77c53ddfdde",
+    "workflow_run": 32256802554,
+    "artifact_id": 9366596481,
+    "artifact_digest": "sha256:696f56be2fb637e386941eb313caa7c9448900ad0bad88b3a96119b95315596c",
     "artifact_size_bytes": 2841522,
     "checks": {
       "artifact_redownload": "PASS",
       "artifact_digest_verification": "PASS",
       "required_path_verification": "PASS",
       "reviewer_bundle": "PASS",
-      "public_boundary": "PASS"
+      "public_boundary": "PASS",
+      "resource_budget_lt_5mb": "PASS"
     },
     "evidence_ceiling": "GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY"
-  },
-  "secondary": {
-    "workflow": "Full MVP reviewer convergence",
-    "workflow_run": 32256405010,
-    "artifact_id": 9366471049,
-    "artifact_digest": "sha256:a6b17169bd1fe53122e27b934365fd8add7530e841541ce443637c5265758eef",
-    "artifact_size_bytes": 1394199,
-    "checks": {
-      "current_pr_head_readback": "PASS",
-      "current_vs_evidence_head_separation": "PASS",
-      "demo_console_rebuild": "PASS",
-      "seven_failure_drill_replay": "PASS",
-      "business_pass_fail_metrics": "PASS"
-    },
-    "evidence_ceiling": "GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY"
   },
   "inputs": {
     "observability_pr": 36,
@@ -43,10 +50,26 @@
     "supply_chain_pr": 40,
     "failure_recovery_pr": 42
   },
+  "demo_console_byte_subject": {
+    "pull_request": 37,
+    "evidence_head": "1081f471710158a5e76cc0e373504cbcd0a27940",
+    "verification": "GIT_DIFF_BYTE_PARITY_PASS"
+  },
   "subject_separation": {
     "failure_recovery_current_pr_head": "c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e",
     "failure_recovery_evidence_head": "e48711055572d83c872e72445cdf1389592ce85e",
-    "failure_recovery_evidence_artifact": 9365550423
+    "failure_recovery_evidence_artifact": 9365550423,
+    "rule": "CURRENT_PR_HEAD_IS_NOT_ARTIFACT_EVIDENCE_HEAD"
+  },
+  "local_handoff": {
+    "pull_request": 45,
+    "branch": "handoff/m4-local-runtime",
+    "active_item": "M4-LOCAL-REVIEWER-001",
+    "command": "bash scripts/demo/run_reviewer_demo.sh evidence/local-reviewer",
+    "receipt": "evidence/local-reviewer/reviewer-demo-receipt.json",
+    "evidence_ceiling": "LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY",
+    "next_live_substrate_item": "M4-LIVE-SUBSTRATE-002",
+    "next_live_substrate_state": "BLOCKED_UNRESOLVED"
   },
   "residuals": {
     "live_kind_kubernetes": "NOT_EXERCISED",
@@ -56,7 +79,7 @@
     "load_1000_vu_capacity_recovery": "NOT_EXERCISED",
     "registry_stored_image_signing": "NOT_EXERCISED",
     "production_users_adoption": "OUTSIDE_REPOSITORY_PROOF",
-    "production_incident_history": "NOT_EXERCISED",
+    "production_incident_history": "OUTSIDE_REPOSITORY_PROOF",
     "people_management_tenure": "OUTSIDE_REPOSITORY_PROOF"
   },
   "authority": {
