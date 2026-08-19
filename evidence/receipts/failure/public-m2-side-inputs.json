@@ -34,15 +34,6 @@
       "evidence_ceiling": "GITHUB_HOSTED_DETERMINISTIC_MLFLOW_LIFECYCLE_ONLY"
     },
     {
-      "issue": 8,
-      "pull_request": 37,
-      "head": "1081f471710158a5e76cc0e373504cbcd0a27940",
-      "workflow_run": 32251120563,
-      "artifact_id": 9364438271,
-      "artifact_digest": "sha256:544a3c968918814c03e24144b373393735a5e25f6825052d26e08b45ff284a0a",
-      "evidence_ceiling": "FRONTEND_BUILD_AND_CANONICAL_PUBLIC_EVIDENCE_RENDER_ONLY"
-    },
-    {
       "issue": 10,
       "pull_request": 40,
       "head": "b03133142c987125eacf173131311bf12de370ed",
