@@ -1,0 +1,143 @@
+{
+  "schema_version": "full-manager-mvp/public-m6-runner-contracts/v1",
+  "milestone": "PUBLIC_ADVANCED_RUNNER_CONTRACTS_READY",
+  "verdict": "PASS_BOUNDED",
+  "verified_date": "2026-08-19",
+  "method": {
+    "repository": "ed3c/skills-shared",
+    "commit": "4ca9417b1da5ff32f1d4d3e7af64a15908749024",
+    "local_handoff_schema": "agentic-tech-lead/local-handoff-queue/v1",
+    "portable_assertion": "skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py"
+  },
+  "canonical_local_handoff": {
+    "pull_request": 52,
+    "current_head": "f7a3937d7d0979e3adfaf1ebc4adc0532450d925",
+    "current_tree": "ff9febf611b4a88d424e0ee95e4667eba6a11bf3",
+    "workflow_run": 32263239722,
+    "contract_state": "PASS",
+    "evidence_ceiling": "GITHUB_HOSTED_CANONICAL_LOCAL_HANDOFF_CONTRACT_ONLY",
+    "execution_epoch": {
+      "commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
+      "tree": "5ff3349c1eb5c7976263c2e89347a353ccbc1072",
+      "rollback_commit": "660d4deea81712f3d6ab5288ae09288b2e15cc27"
+    },
+    "runtime_state": "NOT_EXERCISED"
+  },
+  "runner_contracts": [
+    {
+      "id": "A6-argo-control-plane",
+      "issue": 54,
+      "pull_request": 55,
+      "git_parent_pull_request": 39,
+      "branch": "handoff/m6-argo-runtime",
+      "head": "284dbf1d2e9a1759cab0a8cb21987f76112946b5",
+      "tree": "fff48ba347d9f9004af84f18008e64e33a186073",
+      "workflow_run": 32265921102,
+      "contract_state": "PASS",
+      "contract_evidence_ceiling": "GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY",
+      "potential_runtime_evidence_ceiling": "LOCAL_ARGO_CONTROLLERS_READY_ONLY",
+      "runtime_state": "NOT_EXERCISED",
+      "owned_paths": [
+        "scripts/handoff/run_argo_control_plane.py",
+        "scripts/handoff/run_argo_control_plane_from_env.sh",
+        "tests/handoff/test_argo_control_plane_contract.py",
+        ".github/workflows/m6-argo-contract.yml"
+      ]
+    },
+    {
+      "id": "A6-local-model",
+      "issue": 54,
+      "pull_request": 56,
+      "git_parent_pull_request": 39,
+      "branch": "handoff/m6-local-model",
+      "head": "63355992f382cf260c624e2c7c7c3733cce82c20",
+      "tree": "973f91c0354d43a679c558394ef9f2a6da58ac9a",
+      "workflow_run": 32265971683,
+      "contract_state": "PASS",
+      "contract_evidence_ceiling": "GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY",
+      "potential_runtime_evidence_ceiling": "LOCAL_LLAMA_CPP_MODEL_INFERENCE_ONLY",
+      "runtime_state": "NOT_EXERCISED",
+      "owned_paths": [
+        "scripts/handoff/run_local_model.py",
+        "scripts/handoff/run_local_model_from_env.sh",
+        "tests/handoff/test_local_model_runner_contract.py",
+        ".github/workflows/m6-local-model-contract.yml"
+      ]
+    },
+    {
+      "id": "E6-capacity",
+      "issue": 54,
+      "pull_request": 57,
+      "git_parent_pull_request": 36,
+      "branch": "handoff/m6-capacity",
+      "head": "2240e8ee7ae9f151503d5c03d8043938dbbdce95",
+      "tree": "7965e4c544715d601de455d0839a9576649d8f73",
+      "workflow_run": 32266078175,
+      "contract_state": "PASS",
+      "contract_evidence_ceiling": "GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY",
+      "potential_runtime_evidence_ceiling": "LOCAL_SYNTHETIC_1000_VU_ONLY",
+      "runtime_state": "NOT_EXERCISED",
+      "owned_paths": [
+        "scripts/handoff/run_local_capacity.py",
+        "tests/handoff/test_local_capacity_runner_contract.py",
+        ".github/workflows/m6-capacity-contract.yml"
+      ]
+    },
+    {
+      "id": "E6-registry-signing",
+      "issue": 54,
+      "pull_request": 58,
+      "git_parent_pull_request": 40,
+      "branch": "handoff/m6-registry-signing",
+      "head": "1b543fdfad73377fa6ba51e3f190b56ed60452fa",
+      "tree": "266d81dbb51b0d2422deafdb829b2ef8f1f163ff",
+      "workflow_run": 32266026763,
+      "contract_state": "PASS",
+      "contract_evidence_ceiling": "GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY",
+      "potential_runtime_evidence_ceiling": "LOCAL_REGISTRY_STORED_IMAGE_SIGNATURE_ONLY",
+      "runtime_state": "NOT_EXERCISED",
+      "owned_paths": [
+        "scripts/handoff/run_local_registry_signing.py",
+        "scripts/handoff/run_local_registry_signing_from_env.sh",
+        "tests/handoff/test_local_registry_signing_contract.py",
+        ".github/workflows/m6-registry-signing-contract.yml"
+      ]
+    }
+  ],
+  "task_dag": {
+    "task_sibling_group": [55, 56, 57, 58],
+    "git_parent_by_pr": {
+      "55": 39,
+      "56": 39,
+      "57": 36,
+      "58": 40
+    },
+    "note": "Task siblings do not imply a shared Git parent. No multi-parent Git ancestry is fabricated."
+  },
+  "local_queue_frontier": {
+    "active": "M5-LOCAL-REVIEWER-001",
+    "blocked_by_predecessor": [
+      "M5-LIVE-KIND-002",
+      "M6-ADVANCED-SUBSTRATE-003"
+    ],
+    "physical_receipts_admitted": 0
+  },
+  "residuals": {
+    "local_deterministic_reviewer": "NOT_EXERCISED",
+    "local_kind_kubernetes": "NOT_EXERCISED",
+    "argo_controllers": "NOT_EXERCISED",
+    "argo_cd_application_reconciliation": "NOT_EXERCISED",
+    "live_argo_rollouts_canary": "NOT_EXERCISED",
+    "local_qwen_llama_cpp": "NOT_EXERCISED",
+    "load_1000_vu": "NOT_EXERCISED",
+    "registry_stored_image_signing": "NOT_EXERCISED",
+    "production_users_incidents": "OUTSIDE_CURRENT_PROOF",
+    "people_management_tenure": "OUTSIDE_REPOSITORY_PROOF"
+  },
+  "authority": {
+    "merge_release_visibility_permissions": "HUMAN_ONLY",
+    "production_promotion_rollback": "HUMAN_ONLY",
+    "provider_or_credential_enrollment": "HUMAN_ONLY",
+    "real_experience_claims": "HUMAN_ONLY"
+  }
+}
