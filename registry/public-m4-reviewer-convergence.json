@@ -64,10 +64,18 @@
   "local_handoff": {
     "pull_request": 45,
     "branch": "handoff/m4-local-runtime",
+    "head": "a697c74a11d5d6492eaddb44aabd1a331899ee32",
     "active_item": "M4-LOCAL-REVIEWER-001",
     "command": "bash scripts/demo/run_reviewer_demo.sh evidence/local-reviewer",
     "receipt": "evidence/local-reviewer/reviewer-demo-receipt.json",
-    "evidence_ceiling": "LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY",
+    "evidence_ceiling_after_execution": "LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY",
+    "contract_validation": {
+      "workflow": "M4 Local Handoff contract",
+      "workflow_run": 32257928774,
+      "verdict": "PASS",
+      "evidence_ceiling": "GITHUB_HOSTED_LOCAL_HANDOFF_CONTRACT_VALIDATION_ONLY",
+      "local_execution": "NOT_EXERCISED"
+    },
     "next_live_substrate_item": "M4-LIVE-SUBSTRATE-002",
     "next_live_substrate_state": "BLOCKED_UNRESOLVED"
   },
