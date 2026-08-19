@@ -18,6 +18,8 @@ jobs:
     timeout-minutes: 12
     env:
       SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      OPA_IMAGE: openpolicyagent/opa:1.16.2-static@sha256:bf5d926c9c5163cd43e56de43f47165d12c1e6a91911d0a20648f8e3ab085a61
+      TRIVY_IMAGE: aquasec/trivy:0.72.0@sha256:cffe3f5161a47a6823fbd23d985795b3ed72a4c806da4c4df16266c02accdd6f
     steps:
       - name: Checkout exact workflow subject
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -32,6 +34,8 @@ jobs:
           python -m pip install -e platform/app
           python -m pip install pip-licenses==5.5.5
           mkdir -p live-evidence
+          python -m pip freeze --all > live-evidence/python-environment.txt
+          sha256sum live-evidence/python-environment.txt > live-evidence/python-environment.sha256
       - name: Inventory installed direct runtime licenses
         run: |
           pip-licenses --format=json --packages fastapi pydantic SQLAlchemy alembic psycopg psycopg-binary uvicorn > live-evidence/python-licenses.json
@@ -45,19 +49,19 @@ jobs:
           grep -q '"verdict": "FAIL"' live-evidence/forbidden-license-negative.json
       - name: Prove OPA admits bounded deployment
         run: |
-          docker run --rm -v "$PWD:/workspace:ro" openpolicyagent/opa:1.16.2-static \
+          docker run --rm -v "$PWD:/workspace:ro" "$OPA_IMAGE" \
             eval --format=json --data /workspace/platform/policies/deployment.rego \
             --input /workspace/tests/failure/policy/admitted-deployment.json \
             'data.manager.admission.allow' > live-evidence/opa-admitted.json
           jq -e '.result[0].expressions[0].value == true' live-evidence/opa-admitted.json >/dev/null
       - name: Prove OPA rejects unsafe deployment
         run: |
-          docker run --rm -v "$PWD:/workspace:ro" openpolicyagent/opa:1.16.2-static \
+          docker run --rm -v "$PWD:/workspace:ro" "$OPA_IMAGE" \
             eval --format=json --data /workspace/platform/policies/deployment.rego \
             --input /workspace/tests/failure/policy/rejected-deployment.json \
             'data.manager.admission.allow' > live-evidence/opa-rejected.json
           jq -e '.result[0].expressions[0].value == false' live-evidence/opa-rejected.json >/dev/null
-          docker run --rm -v "$PWD:/workspace:ro" openpolicyagent/opa:1.16.2-static \
+          docker run --rm -v "$PWD:/workspace:ro" "$OPA_IMAGE" \
             eval --format=json --data /workspace/platform/policies/deployment.rego \
             --input /workspace/tests/failure/policy/rejected-deployment.json \
             'data.manager.admission.violations' > live-evidence/opa-violations.json
@@ -66,11 +70,11 @@ jobs:
         run: docker build -f platform/docker/Dockerfile -t full-manager-mvp:${SOURCE_COMMIT} platform/app
       - name: Trivy CRITICAL vulnerability gate
         run: |
-          mkdir -p live-evidence/trivy-cache
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v "$PWD/live-evidence:/reports" \
-            aquasec/trivy:0.72.0 image \
+            "$TRIVY_IMAGE" image \
+            --skip-version-check \
             --scanners vuln --ignore-unfixed --severity CRITICAL --exit-code 1 \
             --format json --output /reports/trivy-vuln.json \
             full-manager-mvp:${SOURCE_COMMIT}
@@ -81,11 +85,14 @@ jobs:
           import json, os
           from pathlib import Path
           license_receipt = json.loads(Path('live-evidence/license-policy.json').read_text())
+          environment_sha = Path('live-evidence/python-environment.sha256').read_text().split()[0]
           receipt = {
             'schema_version': 'full-manager-mvp/policy-security-receipt/v1',
             'source_commit': os.environ['SOURCE_COMMIT'],
             'workflow_commit': os.environ['GITHUB_WORKFLOW_SHA'],
             'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+            'tool_subjects': {'opa_image': os.environ['OPA_IMAGE'], 'trivy_image': os.environ['TRIVY_IMAGE']},
+            'python_environment_sha256': environment_sha,
             'checks': {
               'opa_positive': 'PASS', 'opa_negative': 'PASS',
               'license_inventory': license_receipt['verdict'],
@@ -112,9 +119,10 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<EOF
           ## Policy/security FIRST_GREEN boundary
-          - OPA admit/reject controls: exercised
+          - OPA admit/reject controls: exercised against digest-pinned image
           - dependency license inventory + planted forbidden license: exercised
-          - Trivy CRITICAL vulnerability gate: exercised
+          - Trivy CRITICAL vulnerability gate: exercised against digest-pinned scanner image
+          - exact Python environment digest: recorded
           - blanket legal/commercial clearance: **NOT CLAIMED**
           - artifact digest: \`${{ steps.upload.outputs.artifact-digest }}\`
           EOF
