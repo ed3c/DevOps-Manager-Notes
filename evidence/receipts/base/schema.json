@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "full-manager-mvp/base-receipt/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "git_commit", "checks", "verdict", "evidence_ceiling"],
+  "properties": {
+    "schema_version": {"const": "full-manager-mvp/base-receipt/v1"},
+    "git_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "container_digest": {"type": ["string", "null"]},
+    "checks": {"type": "object", "additionalProperties": {"enum": ["PASS", "FAIL", "NOT_EXERCISED"]}},
+    "verdict": {"enum": ["PASS", "FAIL"]},
+    "evidence_ceiling": {"type": "string", "minLength": 1}
+  }
+}
