@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/handoff/run_live_kind_smoke.py'
+      - 'scripts/handoff/run_live_kind_from_env.sh'
       - 'tests/handoff/test_live_kind_runner_contract.py'
       - '.github/workflows/live-kind-runner-contract.yml'
   workflow_dispatch:
@@ -28,16 +29,23 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12'
-      - name: Compile runner
-        run: python -m py_compile scripts/handoff/run_live_kind_smoke.py
+      - name: Compile runner and shell wrapper
+        run: |
+          python -m py_compile scripts/handoff/run_live_kind_smoke.py
+          bash -n scripts/handoff/run_live_kind_from_env.sh
       - name: Run no-side-effect safety tests
         run: python tests/handoff/test_live_kind_runner_contract.py -v
+      - name: Assert queue wrapper rejects missing artifact identity
+        run: |
+          if env -u M5_KIND_NODE_IMAGE bash scripts/handoff/run_live_kind_from_env.sh --plan-only >/tmp/wrapper.out 2>&1; then
+            echo 'wrapper unexpectedly accepted missing M5_KIND_NODE_IMAGE'
+            exit 1
+          fi
+          grep -q 'M5_KIND_NODE_IMAGE' /tmp/wrapper.out
       - name: Assert plan-only evidence ceiling
         run: |
-          python scripts/handoff/run_live_kind_smoke.py \
-            --plan-only \
-            --kind-node-image 'kindest/node:v-test@sha256:1111111111111111111111111111111111111111111111111111111111111111' \
-            > /tmp/m5-plan.json
+          M5_KIND_NODE_IMAGE='kindest/node:v-test@sha256:1111111111111111111111111111111111111111111111111111111111111111' \
+            bash scripts/handoff/run_live_kind_from_env.sh --plan-only > /tmp/m5-plan.json
           jq -e '.evidence_ceiling_after_real_execution == "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY"' /tmp/m5-plan.json >/dev/null
           jq -e '.resource_budget.max_clusters_created == 1' /tmp/m5-plan.json >/dev/null
           jq -e '.resource_budget.handoff_timeout_seconds <= 900' /tmp/m5-plan.json >/dev/null
@@ -47,10 +55,10 @@ jobs:
         run: |
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## M5 live-kind runner contract boundary
-          - Python runner compile: exercised
+          - Python runner compile + shell wrapper syntax: exercised
           - plan-only safety tests: exercised
           - arbitrary cluster-name rejection: exercised
-          - mutable kind-node image rejection: exercised
+          - mutable/missing kind-node image rejection: exercised
           - resource/partial-create cleanup/context-restore contract: exercised
           - Docker daemon execution: **NOT_EXERCISED**
           - kind cluster creation: **NOT_EXERCISED**
