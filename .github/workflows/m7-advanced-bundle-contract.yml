@@ -1,0 +1,137 @@
+name: M7 advanced execution bundle contract
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/handoff/compile_m7_advanced_queue.py'
+      - 'scripts/handoff/run_argo_control_plane.py'
+      - 'scripts/handoff/run_argo_control_plane_from_env.sh'
+      - 'scripts/handoff/run_argo_ephemeral_kind.py'
+      - 'scripts/handoff/run_argo_ephemeral_kind_from_env.sh'
+      - 'scripts/handoff/run_local_model.py'
+      - 'scripts/handoff/run_local_model_from_env.sh'
+      - 'scripts/handoff/run_local_capacity.py'
+      - 'scripts/handoff/run_local_registry_signing.py'
+      - 'scripts/handoff/run_local_registry_signing_from_env.sh'
+      - 'tests/handoff/test_compile_m7_advanced_queue.py'
+      - 'tests/handoff/fixtures/m7/**'
+      - '.github/workflows/m7-advanced-bundle-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m7-advanced-bundle-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      SKILLS_SHARED_COMMIT: 4ca9417b1da5ff32f1d4d3e7af64a15908749024
+      ARGO_HEAD: 8d976171f4aa2eba72bee360823b660f9bed99d4
+      MODEL_HEAD: 63355992f382cf260c624e2c7c7c3733cce82c20
+      CAPACITY_HEAD: 2240e8ee7ae9f151503d5c03d8043938dbbdce95
+      SIGNING_HEAD: 1b543fdfad73377fa6ba51e3f190b56ed60452fa
+    steps:
+      - name: Checkout exact bundle subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_COMMIT }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout exact canonical Tech Lead method
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ed3c/skills-shared
+          ref: ${{ env.SKILLS_SHARED_COMMIT }}
+          path: _skills-shared
+          persist-credentials: false
+
+      - name: Verify exact imported runner byte parity
+        run: |
+          set -euo pipefail
+          compare_path() {
+            local sha="$1"
+            local path="$2"
+            git cat-file -e "${sha}:${path}"
+            git show "${sha}:${path}" > /tmp/expected
+            cmp --silent /tmp/expected "$path" || {
+              echo "byte parity failed: ${sha}:${path}"
+              exit 1
+            }
+          }
+          compare_path "$ARGO_HEAD" scripts/handoff/run_argo_control_plane.py
+          compare_path "$ARGO_HEAD" scripts/handoff/run_argo_control_plane_from_env.sh
+          compare_path "$ARGO_HEAD" scripts/handoff/run_argo_ephemeral_kind.py
+          compare_path "$ARGO_HEAD" scripts/handoff/run_argo_ephemeral_kind_from_env.sh
+          compare_path "$MODEL_HEAD" scripts/handoff/run_local_model.py
+          compare_path "$MODEL_HEAD" scripts/handoff/run_local_model_from_env.sh
+          compare_path "$CAPACITY_HEAD" scripts/handoff/run_local_capacity.py
+          compare_path "$SIGNING_HEAD" scripts/handoff/run_local_registry_signing.py
+          compare_path "$SIGNING_HEAD" scripts/handoff/run_local_registry_signing_from_env.sh
+          echo 'runner-byte-parity=PASS'
+
+      - name: Compile converged runners and queue compiler
+        run: |
+          python3 -m py_compile \
+            scripts/handoff/compile_m7_advanced_queue.py \
+            scripts/handoff/run_argo_control_plane.py \
+            scripts/handoff/run_argo_ephemeral_kind.py \
+            scripts/handoff/run_local_model.py \
+            scripts/handoff/run_local_capacity.py \
+            scripts/handoff/run_local_registry_signing.py
+          bash -n scripts/handoff/run_argo_control_plane_from_env.sh
+          bash -n scripts/handoff/run_argo_ephemeral_kind_from_env.sh
+          bash -n scripts/handoff/run_local_model_from_env.sh
+          bash -n scripts/handoff/run_local_registry_signing_from_env.sh
+
+      - name: Run receipt admission negative controls
+        run: python3 tests/handoff/test_compile_m7_advanced_queue.py -v
+
+      - name: Compile fixture queue
+        run: |
+          python3 scripts/handoff/compile_m7_advanced_queue.py \
+            --fixture-mode \
+            --reviewer-receipt tests/handoff/fixtures/m7/reviewer-pass.json \
+            --kind-receipt tests/handoff/fixtures/m7/kind-pass.json \
+            --output /tmp/m7-advanced-queue.json \
+            --compile-receipt /tmp/m7-compile-receipt.json
+          jq -e '.evidence_kind == "FIXTURE" and .physical_runtime_executed == false and .evidence_ceiling == "FIXTURE_COMPILER_CONTRACT_ONLY"' /tmp/m7-compile-receipt.json >/dev/null
+          jq -e '.current.active_item == "M7-ARGO-CONTROLLERS-001"' /tmp/m7-advanced-queue.json >/dev/null
+          jq -e '[.items[].state] == ["ACTIVE","BLOCKED_BY_PREDECESSOR","BLOCKED_BY_PREDECESSOR","BLOCKED_BY_PREDECESSOR"]' /tmp/m7-advanced-queue.json >/dev/null
+
+      - name: Run portable canonical queue assertion and selftest
+        run: |
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue /tmp/m7-advanced-queue.json
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue /tmp/m7-advanced-queue.json \
+            --selftest
+
+      - name: Assert no physical runtime was exercised
+        run: |
+          grep -q 'fixture_mode' <(python3 scripts/handoff/compile_m7_advanced_queue.py --help)
+          if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_)' \
+            scripts/handoff/compile_m7_advanced_queue.py tests/handoff/fixtures/m7; then
+            echo 'secret-like material found in M7 contract surface'
+            exit 1
+          fi
+
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M7 advanced execution bundle contract boundary
+          - exact runner byte parity #55/#56/#57/#58: exercised
+          - predecessor receipt admission/negative controls: exercised with explicit fixtures only
+          - canonical queue compilation: exercised in fixture mode only
+          - portable queue assertion + negative-control selftest: exercised
+          - local reviewer execution: **NOT_EXERCISED**
+          - local kind/Kubernetes execution: **NOT_EXERCISED**
+          - Argo/model/1,000-VU/registry-signing execution: **NOT_EXERCISED**
+          - evidence ceiling: `GITHUB_HOSTED_M7_ADVANCED_BUNDLE_AND_QUEUE_COMPILER_ONLY`
+          EOF
