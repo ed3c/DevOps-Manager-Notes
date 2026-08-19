@@ -1,0 +1,59 @@
+name: M4 Local Handoff contract
+
+on:
+  pull_request:
+    paths:
+      - 'handoff/local-handoff-queue.json'
+      - '.github/workflows/local-handoff-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact workflow subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate queue shape and evidence ceiling
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          q = json.loads(Path('handoff/local-handoff-queue.json').read_text())
+          assert q['schema_version'] == 'agentic-tech-lead/local-handoff-queue/v1'
+          assert q['subject']['commit'] == '55d18cdc556ca5d66c67406318ae25196c077fd2'
+          assert q['subject']['tree'] == 'a4ad37d9baf73a5239f79c516c67b0182420336a'
+          assert q['current'] == {'active_item': 'M4-LOCAL-REVIEWER-001', 'state': 'ACTIVE'}
+          items = {item['id']: item for item in q['items']}
+          local = items['M4-LOCAL-REVIEWER-001']
+          assert local['state'] == 'ACTIVE'
+          assert local['runtime_lane']['commands'][0]['argv'] == [
+              'bash', 'scripts/demo/run_reviewer_demo.sh', 'evidence/local-reviewer'
+          ]
+          assert local['receipt']['evidence_ceiling'] == 'LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY'
+          assert local['exit']['required_verdict'] == 'PASS_BOUNDED'
+          substrate = items['M4-LIVE-SUBSTRATE-002']
+          assert substrate['state'] == 'BLOCKED_UNRESOLVED'
+          assert substrate['runtime_lane']['commands'] == []
+          assert substrate['receipt']['evidence_ceiling'] == 'NOT_EXERCISED_UNTIL_CONCRETE_RUNNER_EXISTS'
+          assert 'merge' in q['authority']['automation_forbidden']
+          print('local-handoff-contract=PASS')
+          PY
+
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Local Handoff contract boundary
+          - exact M4 source binding: exercised
+          - active deterministic local reviewer command: validated only, **NOT EXECUTED**
+          - live-substrate item: `BLOCKED_UNRESOLVED`
+          - local reviewer receipt: **NOT_EXERCISED** until a local host returns it
+          - evidence ceiling: `GITHUB_HOSTED_LOCAL_HANDOFF_CONTRACT_VALIDATION_ONLY`
+          EOF
