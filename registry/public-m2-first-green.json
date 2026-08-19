@@ -1,0 +1,85 @@
+{
+  "schema_version": "full-manager-mvp/public-remote-fanout-first-green/v1",
+  "status": "PASS_BOUNDED",
+  "core_subject": {
+    "pull_request": 14,
+    "source_commit": "a4ce65dbd66b32bdd2d313f03f8ac97b6bf01f10"
+  },
+  "lanes": [
+    {
+      "issue": 3,
+      "pull_request": 36,
+      "branch": "feat/observability-slo-load",
+      "head_commit": "f52763b8b6df6c3ed5d9fc4117412e06129f2f17",
+      "workflow_run_id": 32249524958,
+      "artifact_id": 9363866816,
+      "artifact_digest": "sha256:de464ff881638a42f9bf536ff7ba6e255d1e419647ce1522002fdbaac4201430",
+      "verdict": "PASS",
+      "evidence_ceiling": "GITHUB_HOSTED_OBSERVABILITY_AND_SYNTHETIC_LOAD_SMOKE_ONLY",
+      "residuals": ["1000_VU_NOT_EXERCISED", "PRODUCTION_TRAFFIC_NOT_EXERCISED", "REAL_ADOPTION_NOT_EXERCISED"]
+    },
+    {
+      "issue": 4,
+      "pull_request": 38,
+      "branch": "feat/policy-security-license",
+      "head_commit": "b0c9db1ed691ca8c32770ad666ca6708c6294c1f",
+      "workflow_run_id": 32251169964,
+      "artifact_id": 9364485321,
+      "artifact_digest": "sha256:68ac7b4ce0b7bfc2535c54b1960d3b56152fd4947bf031c56c00eb5f7f5f7b4b",
+      "verdict": "PASS",
+      "evidence_ceiling": "GITHUB_HOSTED_POLICY_SECURITY_AND_LICENSE_METADATA_ONLY_NOT_LEGAL_CLEARANCE",
+      "residuals": ["BLANKET_LEGAL_CLEARANCE_NOT_CLAIMED", "TRANSITIVE_COMMERCIAL_CLEARANCE_NOT_EXERCISED"]
+    },
+    {
+      "issue": 7,
+      "pull_request": 39,
+      "branch": "feat/llmops-progressive-delivery",
+      "head_commit": "f8141534541b0e87f3065e5dd9d60f459539a3ba",
+      "workflow_run_id": 32250421421,
+      "artifact_id": 9364219603,
+      "artifact_digest": "sha256:ba3a173b4d64935449836b09881d7e490cf3873de7218af66b293bc17c5d4e27",
+      "verdict": "PASS",
+      "evidence_ceiling": "GITHUB_HOSTED_DETERMINISTIC_MLFLOW_LIFECYCLE_ONLY",
+      "residuals": ["MODEL_ARTIFACT_NOT_EXERCISED", "LLAMA_CPP_NOT_EXERCISED", "LIVE_ARGO_ROLLOUTS_NOT_EXERCISED", "PRODUCTION_MODEL_TRAFFIC_NOT_EXERCISED"]
+    },
+    {
+      "issue": 8,
+      "pull_request": 37,
+      "branch": "feat/manager-demo-console",
+      "head_commit": "1081f471710158a5e76cc0e373504cbcd0a27940",
+      "workflow_run_id": 32251120563,
+      "artifact_id": 9364438271,
+      "artifact_digest": "sha256:544a3c968918814c03e24144b373393735a5e25f6825052d26e08b45ff284a0a",
+      "artifact_size_bytes": 1358050,
+      "verdict": "PASS",
+      "evidence_ceiling": "FRONTEND_BUILD_AND_CANONICAL_PUBLIC_EVIDENCE_RENDER_ONLY",
+      "residuals": ["UI_CANNOT_PROMOTE_BACKEND_EVIDENCE"]
+    },
+    {
+      "issue": 10,
+      "pull_request": 40,
+      "branch": "feat/supply-chain-fault",
+      "head_commit": "b03133142c987125eacf173131311bf12de370ed",
+      "workflow_run_id": 32251234101,
+      "artifact_id": 9364488819,
+      "artifact_digest": "sha256:74b1664bdd836d4bf94cf4e089e5549d6917dd48aafef0b5e6d82bf6df493eda",
+      "artifact_size_bytes": 1057880,
+      "verdict": "PASS",
+      "evidence_ceiling": "GITHUB_HOSTED_SBOM_SAME_RUN_BLOB_SIGNING_AND_BOUNDED_FAULT_DRILL_ONLY",
+      "residuals": ["LATER_INDEPENDENT_BLOB_REVERIFICATION_NOT_EXERCISED", "REGISTRY_IMAGE_SIGNATURE_NOT_EXERCISED", "PRODUCTION_INCIDENT_NOT_EXERCISED"]
+    }
+  ],
+  "next_gate": {
+    "issue": 5,
+    "state": "NOT_IMPLEMENTED",
+    "then_issue": 9
+  },
+  "forbidden_promotions": [
+    "REMOTE_FIRST_GREEN_TO_PRODUCTION_RUNTIME",
+    "SYNTHETIC_LOAD_TO_REAL_ADOPTION",
+    "FAULT_DRILL_TO_PRODUCTION_INCIDENT_HISTORY",
+    "MLFLOW_DETERMINISTIC_LIFECYCLE_TO_PRODUCTION_MODEL_TRAFFIC",
+    "FRONTEND_BUILD_TO_BACKEND_EVIDENCE_PASS",
+    "LICENSE_METADATA_TO_BLANKET_LEGAL_CLEARANCE"
+  ]
+}
