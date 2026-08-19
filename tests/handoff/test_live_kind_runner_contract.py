@@ -36,7 +36,11 @@ class LiveKindRunnerContractTests(unittest.TestCase):
         self.assertEqual(plan["schema_version"], "full-manager-mvp/local-kind-plan/v1")
         self.assertEqual(plan["resource_budget"]["max_clusters_created"], 1)
         self.assertEqual(plan["resource_budget"]["deployment_replicas"], 2)
-        self.assertLessEqual(plan["resource_budget"]["max_runtime_seconds"], 600)
+        self.assertLessEqual(plan["resource_budget"]["handoff_timeout_seconds"], 900)
+        self.assertTrue(plan["resource_budget"]["individual_operation_timeouts_are_bounded"])
+        operations = "\n".join(plan["operations"])
+        self.assertIn("restore the caller kubectl context", operations)
+        self.assertIn("delete the attempted manager-demo-* cluster", operations)
         self.assertEqual(
             plan["evidence_ceiling_after_real_execution"],
             "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY",
