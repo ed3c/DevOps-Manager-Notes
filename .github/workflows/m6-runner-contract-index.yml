@@ -1,0 +1,160 @@
+name: M6 advanced runner contract index
+
+on:
+  pull_request:
+    paths:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'docs/INDEX.md'
+      - 'docs/milestones/PUBLIC_M6_ADVANCED_RUNNER_CONTRACTS_READY.md'
+      - 'registry/public-m6-runner-contracts.json'
+      - 'registry/stack-plan.yaml'
+      - '.github/workflows/m6-runner-contract-index.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: m6-runner-contract-index-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      GITHUB_TOKEN: ${{ github.token }}
+      SKILLS_SHARED_COMMIT: 4ca9417b1da5ff32f1d4d3e7af64a15908749024
+      CANONICAL_QUEUE_HEAD: f7a3937d7d0979e3adfaf1ebc4adc0532450d925
+    steps:
+      - name: Checkout exact index subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_COMMIT }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Checkout exact canonical Tech Lead method
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ed3c/skills-shared
+          ref: ${{ env.SKILLS_SHARED_COMMIT }}
+          path: _skills-shared
+          persist-credentials: false
+
+      - name: Validate M6 machine index
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          x = json.loads(Path('registry/public-m6-runner-contracts.json').read_text())
+          assert x['schema_version'] == 'full-manager-mvp/public-m6-runner-contracts/v1'
+          assert x['milestone'] == 'PUBLIC_ADVANCED_RUNNER_CONTRACTS_READY'
+          assert x['verdict'] == 'PASS_BOUNDED'
+          assert x['method']['commit'] == '4ca9417b1da5ff32f1d4d3e7af64a15908749024'
+          q = x['canonical_local_handoff']
+          assert q['pull_request'] == 52
+          assert q['current_head'] == 'f7a3937d7d0979e3adfaf1ebc4adc0532450d925'
+          assert q['workflow_run'] == 32263239722
+          assert q['runtime_state'] == 'NOT_EXERCISED'
+          expected = {
+              55: ('284dbf1d2e9a1759cab0a8cb21987f76112946b5', 32265921102, 'GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY'),
+              56: ('63355992f382cf260c624e2c7c7c3733cce82c20', 32265971683, 'GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY'),
+              57: ('2240e8ee7ae9f151503d5c03d8043938dbbdce95', 32266078175, 'GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY'),
+              58: ('1b543fdfad73377fa6ba51e3f190b56ed60452fa', 32266026763, 'GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY'),
+          }
+          lanes = {lane['pull_request']: lane for lane in x['runner_contracts']}
+          assert set(lanes) == set(expected)
+          for pr, (head, run, ceiling) in expected.items():
+              lane = lanes[pr]
+              assert lane['head'] == head
+              assert lane['workflow_run'] == run
+              assert lane['contract_state'] == 'PASS'
+              assert lane['contract_evidence_ceiling'] == ceiling
+              assert lane['runtime_state'] == 'NOT_EXERCISED'
+          assert x['local_queue_frontier']['physical_receipts_admitted'] == 0
+          assert all(value in {'NOT_EXERCISED', 'OUTSIDE_CURRENT_PROOF', 'OUTSIDE_REPOSITORY_PROOF'} for value in x['residuals'].values())
+          print('m6-machine-index=PASS')
+          PY
+
+      - name: Re-read mutable PR heads
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from urllib import request
+
+          x = json.loads(Path('registry/public-m6-runner-contracts.json').read_text())
+          expected = {52: x['canonical_local_handoff']['current_head']}
+          expected.update({lane['pull_request']: lane['head'] for lane in x['runner_contracts']})
+          observed = {}
+          for pr, expected_head in sorted(expected.items()):
+              req = request.Request(
+                  f'https://api.github.com/repos/ed3c/DevOps-Manager-Notes/pulls/{pr}',
+                  headers={
+                      'Authorization': f'Bearer {os.environ["GITHUB_TOKEN"]}',
+                      'Accept': 'application/vnd.github+json',
+                      'X-GitHub-Api-Version': '2022-11-28',
+                  },
+              )
+              with request.urlopen(req, timeout=10) as response:
+                  payload = json.load(response)
+              actual = payload['head']['sha']
+              observed[str(pr)] = {'expected': expected_head, 'observed': actual}
+              if actual != expected_head:
+                  raise SystemExit(f'stale M6 input PR #{pr}: expected {expected_head}, observed {actual}')
+          Path('/tmp/m6-current-heads.json').write_text(json.dumps(observed, indent=2, sort_keys=True) + '\n')
+          print('m6-current-head-readback=PASS')
+          PY
+
+      - name: Re-fetch and assert canonical PR52 queue
+        run: |
+          git fetch --no-tags --depth=1 origin "$CANONICAL_QUEUE_HEAD"
+          git show "$CANONICAL_QUEUE_HEAD:handoff/local-handoff-queue.json" > /tmp/canonical-local-handoff-queue.json
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue /tmp/canonical-local-handoff-queue.json
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue /tmp/canonical-local-handoff-queue.json \
+            --selftest
+
+      - name: Validate README AGENTS Stack and milestone routing
+        run: |
+          grep -q 'M6 PUBLIC_ADVANCED_RUNNER_CONTRACTS_READY' README.md
+          grep -q 'PR #55 Argo control-plane contract' README.md
+          grep -q 'PR #56 local model contract' README.md
+          grep -q 'PR #57 1,000-VU capacity contract' README.md
+          grep -q 'PR #58 registry-signing contract' README.md
+          grep -q 'Canonical Local Handoff law' AGENTS.md
+          grep -q 'M6 runner contracts' AGENTS.md
+          grep -q 'version: 8' registry/stack-plan.yaml
+          grep -q 'pull_request: 55' registry/stack-plan.yaml
+          grep -q 'pull_request: 56' registry/stack-plan.yaml
+          grep -q 'pull_request: 57' registry/stack-plan.yaml
+          grep -q 'pull_request: 58' registry/stack-plan.yaml
+          grep -q 'M6 — PUBLIC_ADVANCED_RUNNER_CONTRACTS_READY' docs/milestones/PUBLIC_M6_ADVANCED_RUNNER_CONTRACTS_READY.md
+          if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_)' README.md AGENTS.md docs/milestones/PUBLIC_M6_ADVANCED_RUNNER_CONTRACTS_READY.md registry/public-m6-runner-contracts.json; then
+            echo 'secret-like material found in M6 public index'
+            exit 1
+          fi
+
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M6 advanced runner-contract index boundary
+          - exact PR #52/#55/#56/#57/#58 current-head readback: exercised
+          - canonical PR #52 queue re-fetch + portable assertion/selftest: exercised
+          - M6 README/AGENTS/Stack/machine-index consistency: exercised
+          - physical local reviewer execution: **NOT_EXERCISED**
+          - physical kind/Kubernetes execution: **NOT_EXERCISED**
+          - physical Argo/model/1000-VU/signing execution: **NOT_EXERCISED**
+          - evidence ceiling: `GITHUB_HOSTED_M6_TRACEABILITY_INDEX_ONLY`
+          EOF
