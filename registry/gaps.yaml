@@ -1,0 +1,22 @@
+version: 1
+gaps:
+  - id: DEVOPS-GAP-001
+    requirement: DEVOPS-REQ-001
+    state: ABSENT
+    description: GitHub can demonstrate operating models and incident leadership drills but cannot prove years of engineering-management employment or real team-development history.
+  - id: DEVOPS-GAP-002
+    requirement: DEVOPS-REQ-002
+    state: NOT_IMPLEMENTED
+    description: executable CI/CD → deploy → observe → fail → recover → verify vertical slice is not yet closed.
+  - id: DEVOPS-GAP-003
+    requirement: DEVOPS-REQ-003
+    state: NOT_IMPLEMENTED
+    description: Python/Go, Git, Docker and Kubernetes proof must be bound to executable artifacts and exact evidence receipts.
+  - id: DEVOPS-GAP-004
+    requirement: DEVOPS-REQ-004
+    state: NOT_EXERCISED
+    description: leadership, ownership and data-driven decision artifacts need incident-command, prioritization and operating-model exercises.
+  - id: DEVOPS-GAP-005
+    requirement: CROSS-ROLE-SCALE
+    state: NOT_EXERCISED
+    description: reproducible 1000-virtual-user capacity evidence has not been produced; real adoption remains out of scope.
