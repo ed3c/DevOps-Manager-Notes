@@ -40,7 +40,7 @@ def wait_live(url: str, timeout_seconds: float = 10.0) -> None:
 
 
 def validate_manifest(manifest: dict) -> None:
-    if manifest.get("schema_version") != "full-manager-mvp/reviewer-inputs/v1":
+    if manifest.get("schema_version") != "full-manager-mvp/reviewer-inputs/v2":
         raise ValueError("unexpected reviewer input schema")
     if manifest.get("issue") != 9:
         raise ValueError("convergence manifest must target issue #9")
@@ -54,9 +54,13 @@ def validate_manifest(manifest: dict) -> None:
         raise ValueError("Demo Console #8 must be the only unmerged byte side input")
 
     for item in [manifest["git_base"], *byte_inputs, *receipt_inputs]:
-        head = item.get("head")
-        if head and not re.fullmatch(r"[0-9a-f]{40}", head):
-            raise ValueError(f"invalid git head: {head}")
+        current_head = item.get("current_head")
+        evidence_head = item.get("evidence_head")
+        for label, head in (("current_head", current_head), ("evidence_head", evidence_head)):
+            if head and not re.fullmatch(r"[0-9a-f]{40}", head):
+                raise ValueError(f"invalid {label}: {head}")
+        if item.get("artifact_id") and not evidence_head:
+            raise ValueError("artifact-bearing input must bind an evidence_head")
         digest = item.get("artifact_digest")
         if digest and not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
             raise ValueError(f"invalid artifact digest: {digest}")
@@ -193,6 +197,7 @@ def main() -> int:
             "failure_drills_sha256": sha256_file(failure_json),
             "checks": {
                 "exact_input_manifest_shape": "PASS",
+                "current_vs_evidence_head_separated": "PASS",
                 "demo_console_build_present": "PASS",
                 "ui_evidence_promotion_guard": "PASS",
                 "seven_failure_drills": "PASS",
