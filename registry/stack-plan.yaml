@@ -1,4 +1,4 @@
-version: 4
+version: 5
 method_owner: ed3c/skills-shared/skills/git-town-stacked-pr-worker
 consumer: ed3c/DevOps-Manager-Notes
 policy:
@@ -10,6 +10,7 @@ policy:
   merge_release_promotion_human_owned: true
   start_readiness_is_not_completion_readiness: true
   first_green_is_not_full_closure: true
+  current_pr_head_is_not_artifact_evidence_head: true
 
 atoms:
   - id: C0-bootstrap-contract
@@ -84,9 +85,7 @@ atoms:
     base_branch: feat/core-platform-vertical-slice
     head_commit: f52763b8b6df6c3ed5d9fc4117412e06129f2f17
     owns_paths: [observability/, sre/sli-slo.md, sre/error-budget.md, sre/capacity-planning.md, tests/load/, tests/integration/test_observability.py, evidence/receipts/observability/, .github/workflows/observability-load.yml]
-    observed_path_lease_delta:
-      - platform/app/pyproject.toml
-      - platform/app/src/manager_demo/main.py
+    observed_path_lease_delta: [platform/app/pyproject.toml, platform/app/src/manager_demo/main.py]
     lease_delta_reason: minimum shared Core mutation needed to wire telemetry; no sibling consumes these unmerged bytes
     consumes_artifacts: [typed-base-service-contract-v1, business-oracle-contract-v1, evidence-envelope-contract-v1]
     provides_artifacts: [telemetry-slo-load-smoke-evidence-v1]
@@ -190,17 +189,15 @@ atoms:
     parent_completion: [A3-observability-load, E4-policy-security-license, A7-llmops-progressive-delivery, E10-supply-chain-fault]
     branch: feat/failure-recovery-convergence
     base_branch: feat/observability-slo-load
-    head_commit: e48711055572d83c872e72445cdf1389592ce85e
+    current_pr_head: c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e
+    evidence_head: e48711055572d83c872e72445cdf1389592ce85e
     owns_paths: [tests/failure/scenarios/, incidents/, runbooks/, management/, evidence/receipts/failure/, .github/workflows/failure-recovery.yml]
     consumes_artifacts: [typed-base-service-contract-v1, telemetry-slo-load-smoke-evidence-v1, policy-security-license-metadata-evidence-v1, mlflow-deterministic-lifecycle-evidence-v1, canary-rejection-rollback-state-evidence-v1, sbom-same-run-signature-evidence-v1, bounded-fault-drill-evidence-v1]
     exact_side_inputs:
       - {issue: 4, pull_request: 38, mode: exact_receipt_identity}
       - {issue: 7, pull_request: 39, mode: exact_receipt_identity}
       - {issue: 10, pull_request: 40, mode: exact_receipt_identity}
-    explicit_non_dependency:
-      issue: 8
-      pull_request: 37
-      reason: Demo Console is consumed by X9, not X5
+    explicit_non_dependency: {issue: 8, pull_request: 37, reason: Demo Console is consumed by X9 not X5}
     provides_artifacts: [manager-reliability-closure-v2, same-failure-retest-evidence-v1, public-failure-drill-receipt-v1]
     remote_evidence:
       workflow_run_id: 32254018953
@@ -209,28 +206,68 @@ atoms:
       artifact_size_bytes: 25773
       scenario_count: 7
       evidence_ceiling: GITHUB_HOSTED_DETERMINISTIC_AND_LOCAL_PROCESS_FAILURE_DRILLS_ONLY
-    blockers: [SIDE_INPUT_ARTIFACT_REDOWNLOAD_NOT_EXERCISED, LIVE_KUBERNETES_RECOVERY_NOT_EXERCISED, PRODUCTION_INCIDENT_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
+    blockers: [LIVE_KUBERNETES_RECOVERY_NOT_EXERCISED, PRODUCTION_INCIDENT_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
 
   - id: X9-full-demo-convergence
     atom: X
     issues: [9]
-    pull_request: null
-    state: PLANNED
+    pull_request: 44
+    state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: convergence
+    git_parent: X5-failure-recovery-convergence
     parent_completion: [X5-failure-recovery-convergence, A8-demo-console]
-    branch: null
-    base_branch: null
-    owns_paths: [README.md, docs/INDEX.md, docs/architecture/FULL_MVP_DEMO.md, registry/stack-plan.yaml, scripts/demo/, evidence/receipts/convergence/]
+    branch: feat/full-reviewer-convergence
+    base_branch: feat/failure-recovery-convergence
+    head_commit: 4ce77c5e0e4ece8379badea5c3fa477a3a463d62
+    owns_paths:
+      - scripts/demo/
+      - evidence/receipts/convergence/
+      - .github/workflows/full-reviewer-convergence.yml
+      - .github/workflows/full-reviewer-demo.yml
+    observed_consumed_byte_paths:
+      source_pull_request: 37
+      source_head: 1081f471710158a5e76cc0e373504cbcd0a27940
+      paths: [demo-console/**]
+    exact_side_inputs:
+      - {issue: 3, pull_request: 36, mode: exact_actions_artifact}
+      - {issue: 4, pull_request: 38, mode: exact_actions_artifact}
+      - {issue: 7, pull_request: 39, mode: exact_actions_artifact}
+      - {issue: 8, pull_request: 37, mode: exact_actions_artifact_and_byte_input}
+      - {issue: 10, pull_request: 40, mode: exact_actions_artifact}
+      - {issue: 5, pull_request: 42, mode: exact_actions_artifact}
     consumes_artifacts: [manager-reliability-closure-v2, same-failure-retest-evidence-v1, manager-demo-console-build-v1, exact-public-lane-receipts]
-    provides_artifacts: [full-manager-mvp-demo-evidence-v1, reviewer-one-command-path-v1]
-    blockers: [FULL_RUNTIME_RECEIPTS_NOT_YET_ADMITTED, HUMAN_ADMIT_PUBLICATION]
+    provides_artifacts: [full-manager-mvp-demo-evidence-v1, reviewer-one-command-path-v1, public-reviewer-bundle-v1, deterministic-reviewer-replay-v1]
+    remote_evidence:
+      primary:
+        workflow_name: Full MVP public reviewer convergence
+        workflow_run_id: 32256405012
+        artifact_id: 9366445128
+        artifact_digest: sha256:6acd3395bd198e46bd3c31da6a901371a5c2cfaf1552fbc3ee2bf77c53ddfdde
+        artifact_size_bytes: 2841522
+        evidence_ceiling: GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY
+      secondary:
+        workflow_name: Full MVP reviewer convergence
+        workflow_run_id: 32256405010
+        artifact_id: 9366471049
+        artifact_digest: sha256:a6b17169bd1fe53122e27b934365fd8add7530e841541ce443637c5265758eef
+        artifact_size_bytes: 1394199
+        evidence_ceiling: GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY
+    blockers:
+      - LIVE_KIND_KUBERNETES_NOT_EXERCISED
+      - REAL_ARGO_CD_RECONCILIATION_NOT_EXERCISED
+      - LIVE_ARGO_ROLLOUTS_NOT_EXERCISED
+      - LOCAL_QWEN_LLAMA_CPP_NOT_EXERCISED
+      - 1000_VU_CAPACITY_RECOVERY_NOT_EXERCISED
+      - HUMAN_ADMIT_MERGE_PUBLICATION
 
 notes:
-  - PR #12 is a true child of PR #6; PR #13 is a true child of PR #12; PR #14 is a true child of PR #13 because each consumes the prior unmerged contract bytes.
+  - PR #12 is a true child of PR #6; PR #13 is a true child of PR #12; PR #14 is a true child of PR #13 because each consumes prior unmerged contract bytes.
   - PRs #36/#38/#39/#37/#40 are observed siblings based on PR #14 Core. None consumes another sibling's unmerged bytes.
-  - #3 has an explicit minimal shared-Core path lease delta for telemetry integration; convergence must reconcile it rather than pretending full path disjointness.
-  - PR #42 is Git-ancestry child of PR #36 because it executes against telemetry-enabled unmerged Core bytes, while task semantics remain multi-input convergence using #38/#39/#40 as exact side-input identities.
-  - Demo Console PR #37 is intentionally not a #5 dependency; it joins #42 only at X9 final reviewer convergence.
-  - A remote FIRST_GREEN receipt is lane-bounded and does not satisfy Local Handoff, production, real-adoption, legal-clearance, or real-incident claims.
-  - X5/X9 must not fabricate multiple Git parents. One Git base is chosen; other prerequisites remain exact verified side inputs.
-  - No branch/PR identity is recorded before it exists. Planned nodes retain null Git identities.
+  - PR #42 is Git-ancestry child of PR #36 while task semantics converge #38/#39/#40 as exact side inputs.
+  - Demo Console PR #37 is intentionally not a #5 dependency; it joins at X9.
+  - PR #44 is Git-ancestry child of PR #42 and consumes PR #37 exact byte input plus six exact Actions artifact subjects.
+  - M4 primary convergence re-downloads and verifies the six M2/M3 artifact archives before admission; this closes the earlier side-input artifact-redownload gap only for those six subjects.
+  - M4 secondary convergence independently replays the deterministic console/failure path and reads current prerequisite PR heads.
+  - Current PR heads and artifact evidence heads are separate subjects; a newer PR head never relabels an older artifact.
+  - A remote FIRST_GREEN receipt does not satisfy Local Handoff, production, real-adoption, legal-clearance or real-incident claims.
+  - X5/X9 never fabricate multiple Git parents; one Git base is chosen and other prerequisites remain exact verified side inputs.
