@@ -1,4 +1,4 @@
-version: 2
+version: 3
 method_owner: ed3c/skills-shared/skills/git-town-stacked-pr-worker
 consumer: ed3c/DevOps-Manager-Notes
 policy:
@@ -9,6 +9,7 @@ policy:
   one_convergence_owner_per_shared_surface: true
   merge_release_promotion_human_owned: true
   start_readiness_is_not_completion_readiness: true
+  first_green_is_not_full_closure: true
 
 atoms:
   - id: C0-bootstrap-contract
@@ -27,20 +28,12 @@ atoms:
     atom: C
     issues: [11]
     pull_request: 12
-    state: PR_DRAFT
+    state: PR_DRAFT_DESIGN_COMPLETE
     stack_class: child
     parent: C0-bootstrap-contract
     branch: agent/full-manager-mvp-demo-stack
     base_branch: bootstrap/devops-evidence-contract
-    owns_paths:
-      - docs/architecture/FULL_MVP_DEMO.md
-      - registry/mvp-demo-stack.yaml
-      - README.md
-      - AGENTS.md
-      - registry/stack-plan.yaml
-      - prompts/
-      - scripts/handoff/check_full_mvp_prerequisites.py
-      - handoff/local-handoff-queue.json
+    owns_paths: [docs/architecture/FULL_MVP_DEMO.md, registry/mvp-demo-stack.yaml, README.md, AGENTS.md, registry/stack-plan.yaml, prompts/, scripts/handoff/check_full_mvp_prerequisites.py, handoff/local-handoff-queue.json]
     consumes_artifacts: [devops-manager-system-contract-v1]
     provides_artifacts: [full-manager-mvp-contract-v1, full-mvp-technology-selection-v1, full-mvp-worker-prompt-pack-v1, full-mvp-local-prerequisite-probe-v1]
     blockers: [TRANSITIVE_IMAGE_MODEL_LICENSE_AUDIT_REMAINS, HUMAN_ADMIT_MERGE]
@@ -54,14 +47,8 @@ atoms:
     parent: C11-full-mvp-contract
     branch: audit/devops-invariants-evidence
     base_branch: agent/full-manager-mvp-demo-stack
-    head_commit: bcbdf39328eb696a82aae68018cd002f9cc63976
-    owns_paths:
-      - registry/evidence.yaml
-      - registry/gaps.yaml
-      - registry/stack-plan.yaml
-      - docs/evidence-audit/
-      - system-design/
-      - sre/availability-model.md
+    head_commit: f0e99dd354c5bbbb67cf6d898b647e7cc8582ede
+    owns_paths: [registry/evidence.yaml, registry/gaps.yaml, registry/stack-plan.yaml, docs/evidence-audit/, system-design/, sre/availability-model.md]
     consumes_artifacts: [devops-manager-system-contract-v1, full-manager-mvp-contract-v1]
     provides_artifacts: [exact-devops-invariant-audit-v1, full-mvp-invariant-contract-v1]
     blockers: [HUMAN_ADMIT_MERGE]
@@ -69,95 +56,129 @@ atoms:
   - id: K2-base-delivery
     atom: K
     issues: [2]
-    pull_request: null
-    state: PLANNED
+    pull_request: 14
+    state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: child
-    parent_completion: E1-requirement-invariant-audit
-    branch: null
-    base_branch: null
-    owns_paths:
-      - platform/app/
-      - platform/docker/
-      - platform/kubernetes/
-      - platform/gitops/
-      - tests/unit/
-      - tests/integration/
-      - evidence/receipts/base/
-      - .github/workflows/
+    parent: E1-requirement-invariant-audit
+    branch: feat/core-platform-vertical-slice
+    base_branch: audit/devops-invariants-evidence
+    head_commit: a4ce65dbd66b32bdd2d313f03f8ac97b6bf01f10
+    owns_paths: [platform/app/, platform/docker/, platform/kubernetes/, platform/gitops/, tests/unit/, tests/integration/, evidence/receipts/base/, .github/workflows/core-platform.yml]
     consumes_artifacts: [exact-devops-invariant-audit-v1, full-mvp-invariant-contract-v1, full-mvp-technology-selection-v1]
-    provides_artifacts: [typed-base-service-contract-v1, business-oracle-contract-v1, immutable-artifact-contract-v1, local-k8s-delivery-contract-v1, evidence-envelope-contract-v1]
-    blockers: [LOCAL_RUNTIME_CAPABILITY_NOT_YET_EXERCISED, COMPLETION_REQUIRES_E1_ADMITTED]
+    provides_artifacts: [typed-base-service-contract-v1, business-oracle-contract-v1, immutable-artifact-contract-v1, local-k8s-delivery-contract-v1, evidence-envelope-contract-v1, github-hosted-core-first-green-v1]
+    remote_evidence:
+      workflow_run_id: 32247635007
+      artifact_id: 9363215699
+      artifact_digest: sha256:7c8f4b61df762aab1a06108fd02c7b1a3d26e676d8ed52653bc36b217aa5ac6e
+      evidence_ceiling: GITHUB_HOSTED_DETERMINISTIC_AND_CONTAINER_INTEGRATION_ONLY
+    blockers: [LOCAL_KIND_KUBERNETES_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
 
   - id: A3-observability-load
     atom: A
     issues: [3]
-    pull_request: null
-    state: PLANNED
+    pull_request: 36
+    state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
     parent_completion: K2-base-delivery
-    branch: null
-    base_branch: null
-    owns_paths: [observability/, sre/sli-slo.md, sre/error-budget.md, sre/capacity-planning.md, tests/load/, evidence/receipts/observability/]
-    consumes_artifacts: [typed-base-service-contract-v1, evidence-envelope-contract-v1]
-    provides_artifacts: [telemetry-slo-load-evidence-v1]
-    blockers: [COMPLETION_REQUIRES_K2]
+    branch: feat/observability-slo-load
+    base_branch: feat/core-platform-vertical-slice
+    head_commit: f52763b8b6df6c3ed5d9fc4117412e06129f2f17
+    owns_paths: [observability/, sre/sli-slo.md, sre/error-budget.md, sre/capacity-planning.md, tests/load/, tests/integration/test_observability.py, evidence/receipts/observability/, .github/workflows/observability-load.yml]
+    observed_path_lease_delta:
+      - platform/app/pyproject.toml
+      - platform/app/src/manager_demo/main.py
+    lease_delta_reason: minimum shared Core mutation needed to wire telemetry; no sibling consumes these unmerged bytes
+    consumes_artifacts: [typed-base-service-contract-v1, business-oracle-contract-v1, evidence-envelope-contract-v1]
+    provides_artifacts: [telemetry-slo-load-smoke-evidence-v1]
+    remote_evidence:
+      workflow_run_id: 32249524958
+      artifact_id: 9363866816
+      artifact_digest: sha256:de464ff881638a42f9bf536ff7ba6e255d1e419647ce1522002fdbaac4201430
+      evidence_ceiling: GITHUB_HOSTED_OBSERVABILITY_AND_SYNTHETIC_LOAD_SMOKE_ONLY
+    blockers: [1000_VU_NOT_EXERCISED, LIVE_SUBSTRATE_CAPACITY_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
 
   - id: E4-policy-security-license
     atom: E
     issues: [4]
-    pull_request: null
-    state: PLANNED
+    pull_request: 38
+    state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
     parent_completion: K2-base-delivery
-    branch: null
-    base_branch: null
-    owns_paths: [platform/policies/, tests/failure/policy/, evidence/receipts/security/]
+    branch: feat/policy-security-license
+    base_branch: feat/core-platform-vertical-slice
+    head_commit: b0c9db1ed691ca8c32770ad666ca6708c6294c1f
+    owns_paths: [platform/policies/, tests/failure/policy/, evidence/receipts/security/, .github/workflows/policy-security.yml]
     read_only_paths: [registry/mvp-demo-stack.yaml, registry/technology-candidates.yaml]
     consumes_artifacts: [immutable-artifact-contract-v1, evidence-envelope-contract-v1]
-    provides_artifacts: [policy-security-license-evidence-v1]
-    blockers: [COMPLETION_REQUIRES_K2]
+    provides_artifacts: [policy-security-license-metadata-evidence-v1]
+    remote_evidence:
+      workflow_run_id: 32251169964
+      artifact_id: 9364485321
+      artifact_digest: sha256:68ac7b4ce0b7bfc2535c54b1960d3b56152fd4947bf031c56c00eb5f7f5f7b4b
+      evidence_ceiling: GITHUB_HOSTED_POLICY_SECURITY_AND_LICENSE_METADATA_ONLY_NOT_LEGAL_CLEARANCE
+    blockers: [BLANKET_LEGAL_CLEARANCE_NOT_CLAIMED, TRANSITIVE_COMMERCIAL_CLEARANCE_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
 
   - id: A7-llmops-progressive-delivery
     atom: A
     issues: [7]
-    pull_request: null
-    state: PLANNED
+    pull_request: 39
+    state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
     parent_completion: K2-base-delivery
-    branch: null
-    base_branch: null
-    owns_paths: [mlops/, platform/rollouts/, evidence/receipts/llmops/]
+    branch: feat/llmops-progressive-delivery
+    base_branch: feat/core-platform-vertical-slice
+    head_commit: f8141534541b0e87f3065e5dd9d60f459539a3ba
+    owns_paths: [mlops/, platform/rollouts/, evidence/receipts/llmops/, .github/workflows/llmops-lifecycle.yml]
     consumes_artifacts: [typed-base-service-contract-v1, business-oracle-contract-v1, immutable-artifact-contract-v1, evidence-envelope-contract-v1]
-    provides_artifacts: [model-prompt-config-lifecycle-contract-v1, mlflow-eval-evidence-v1, canary-rollback-evidence-v1]
-    blockers: [COMPLETION_REQUIRES_K2, MODEL_ARTIFACT_DIGEST_AND_LICENSE_NOT_YET_BOUND, LOCAL_MODEL_RUNTIME_NOT_YET_EXERCISED]
+    provides_artifacts: [model-prompt-config-lifecycle-contract-v1, mlflow-deterministic-lifecycle-evidence-v1, canary-rejection-rollback-state-evidence-v1]
+    remote_evidence:
+      workflow_run_id: 32250421421
+      artifact_id: 9364219603
+      artifact_digest: sha256:ba3a173b4d64935449836b09881d7e490cf3873de7218af66b293bc17c5d4e27
+      evidence_ceiling: GITHUB_HOSTED_DETERMINISTIC_MLFLOW_LIFECYCLE_ONLY
+    blockers: [MODEL_ARTIFACT_DIGEST_NOT_EXERCISED, LLAMA_CPP_RUNTIME_NOT_EXERCISED, LIVE_ARGO_ROLLOUTS_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
 
   - id: A8-demo-console
     atom: A
     issues: [8]
-    pull_request: null
-    state: PLANNED
+    pull_request: 37
+    state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
     parent_completion: K2-base-delivery
-    branch: null
-    base_branch: null
-    owns_paths: [demo-console/]
-    consumes_artifacts: [typed-base-service-contract-v1, evidence-envelope-contract-v1]
-    provides_artifacts: [manager-demo-console-v1]
-    blockers: [COMPLETION_REQUIRES_TYPED_API, UI_MUST_NOT_PROMOTE_EVIDENCE]
+    branch: feat/manager-demo-console
+    base_branch: feat/core-platform-vertical-slice
+    head_commit: 1081f471710158a5e76cc0e373504cbcd0a27940
+    owns_paths: [demo-console/, .github/workflows/demo-console.yml]
+    consumes_artifacts: [evidence-envelope-contract-v1, canonical-public-evidence-and-gap-registries]
+    provides_artifacts: [manager-demo-console-build-v1]
+    remote_evidence:
+      workflow_run_id: 32251120563
+      artifact_id: 9364438271
+      artifact_digest: sha256:544a3c968918814c03e24144b373393735a5e25f6825052d26e08b45ff284a0a
+      artifact_size_bytes: 1358050
+      evidence_ceiling: FRONTEND_BUILD_AND_CANONICAL_PUBLIC_EVIDENCE_RENDER_ONLY
+    blockers: [UI_MUST_NOT_PROMOTE_EVIDENCE, HUMAN_ADMIT_MERGE]
 
   - id: E10-supply-chain-fault
     atom: E
     issues: [10]
-    pull_request: null
-    state: PLANNED
+    pull_request: 40
+    state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
     parent_completion: K2-base-delivery
-    branch: null
-    base_branch: null
-    owns_paths: [supply-chain/, tests/failure/network/, evidence/receipts/supply-chain/]
+    branch: feat/supply-chain-fault
+    base_branch: feat/core-platform-vertical-slice
+    head_commit: b03133142c987125eacf173131311bf12de370ed
+    owns_paths: [supply-chain/, tests/failure/network/, evidence/receipts/supply-chain/, .github/workflows/supply-chain-fault.yml]
     consumes_artifacts: [immutable-artifact-contract-v1, evidence-envelope-contract-v1]
-    provides_artifacts: [sbom-signature-evidence-v1, bounded-fault-tool-evidence-v1]
-    blockers: [COMPLETION_REQUIRES_K2, SUPPLY_CHAIN_RUNTIME_NOT_YET_EXERCISED]
+    provides_artifacts: [sbom-same-run-signature-evidence-v1, bounded-fault-drill-evidence-v1]
+    remote_evidence:
+      workflow_run_id: 32251234101
+      artifact_id: 9364488819
+      artifact_digest: sha256:74b1664bdd836d4bf94cf4e089e5549d6917dd48aafef0b5e6d82bf6df493eda
+      artifact_size_bytes: 1057880
+      evidence_ceiling: GITHUB_HOSTED_SBOM_SAME_RUN_BLOB_SIGNING_AND_BOUNDED_FAULT_DRILL_ONLY
+    blockers: [LATER_INDEPENDENT_BLOB_REVERIFICATION_NOT_EXERCISED, REGISTRY_IMAGE_SIGNATURE_NOT_EXERCISED, PRODUCTION_INCIDENT_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
 
   - id: X5-failure-recovery-convergence
     atom: X
@@ -169,9 +190,9 @@ atoms:
     branch: null
     base_branch: null
     owns_paths: [tests/failure/scenarios/, incidents/, runbooks/, management/, evidence/receipts/failure/]
-    consumes_artifacts: [typed-base-service-contract-v1, telemetry-slo-load-evidence-v1, policy-security-license-evidence-v1, mlflow-eval-evidence-v1, canary-rollback-evidence-v1, sbom-signature-evidence-v1, bounded-fault-tool-evidence-v1]
+    consumes_artifacts: [typed-base-service-contract-v1, telemetry-slo-load-smoke-evidence-v1, policy-security-license-metadata-evidence-v1, mlflow-deterministic-lifecycle-evidence-v1, canary-rejection-rollback-state-evidence-v1, sbom-same-run-signature-evidence-v1, bounded-fault-drill-evidence-v1]
     provides_artifacts: [manager-reliability-closure-v2, same-failure-retest-evidence-v1]
-    blockers: [FAILURE_RUNTIME_NOT_YET_EXERCISED]
+    blockers: [FAILURE_CONVERGENCE_NOT_IMPLEMENTED, REQUIRED_LOCAL_SUBSTRATE_RECEIPTS_PENDING]
 
   - id: X9-full-demo-convergence
     atom: X
@@ -183,15 +204,14 @@ atoms:
     branch: null
     base_branch: null
     owns_paths: [README.md, docs/INDEX.md, docs/architecture/FULL_MVP_DEMO.md, registry/stack-plan.yaml, scripts/demo/, evidence/receipts/convergence/]
-    consumes_artifacts: [manager-reliability-closure-v2, same-failure-retest-evidence-v1, manager-demo-console-v1, exact-public-lane-receipts]
+    consumes_artifacts: [manager-reliability-closure-v2, same-failure-retest-evidence-v1, manager-demo-console-build-v1, exact-public-lane-receipts]
     provides_artifacts: [full-manager-mvp-demo-evidence-v1, reviewer-one-command-path-v1]
     blockers: [FULL_RUNTIME_RECEIPTS_NOT_YET_ADMITTED, HUMAN_ADMIT_PUBLICATION]
 
 notes:
-  - PR #12 is a true child of PR #6 because it consumes the unmerged bootstrap contract.
-  - PR #13 is a true child of PR #12 because it consumes the unmerged Full MVP contract and freezes issue #1 evidence/invariants.
-  - K2 may be created from PR #13 once its exact contracts are consumed; its runtime completion remains Local-Handoff-gated.
-  - A3/E4/A7/A8/E10 are siblings only after K2 freezes shared typed service/artifact/evidence contracts.
-  - If one sibling consumes another sibling's unmerged bytes, reclassify the observed relation as a true child.
-  - X5 and X9 must not fabricate multiple Git parents; choose one stable admitted base and consume other prerequisite receipts as exact verified side inputs.
-  - No branch/PR identity is recorded before it exists. PLANNED nodes keep null Git identities.
+  - PR #12 is a true child of PR #6; PR #13 is a true child of PR #12; PR #14 is a true child of PR #13 because each consumes the prior unmerged contract bytes.
+  - PRs #36/#38/#39/#37/#40 are observed siblings based on PR #14 Core. None consumes another sibling's unmerged bytes.
+  - #3 has an explicit minimal shared-Core path lease delta for telemetry integration; convergence must reconcile it rather than pretending full path disjointness.
+  - A remote FIRST_GREEN receipt is lane-bounded and does not satisfy Local Handoff, production, real-adoption, legal-clearance, or real-incident claims.
+  - X5/X9 must not fabricate multiple Git parents. Choose one stable admitted base and consume other prerequisites as exact verified side-input subjects.
+  - No branch/PR identity is recorded before it exists. Planned nodes retain null Git identities.
