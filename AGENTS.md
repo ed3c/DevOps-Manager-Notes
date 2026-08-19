@@ -2,25 +2,32 @@
 
 ## Purpose
 
-This public repository is the executable evidence plane for the Full Manager MVP Demo. It must remain independently reviewable without access to the private `Product-Manager-Notes` control plane.
+This public repository is the executable evidence plane for the Full Manager MVP Demo. It must remain independently reviewable and public-safe.
 
-`Product-Manager-Notes` owns source/requirement/gap/orchestration/narrative state. `skills-shared` owns reusable methods. This repository owns implementation, runtime/failure proof, exact receipts, public-safe Demo Console and delivery evidence.
+`Product-Manager-Notes` is the public-safe Manager requirement/routing/narrative plane. `skills-shared` owns reusable Tech Lead, Shadow Architect and Git Town methods. This repository owns implementation, CI/runtime/failure evidence, exact receipts, the Demo Console, reviewer convergence and the typed Local Handoff queue.
 
 ## Mandatory read order
 
 1. `README.md`
 2. `docs/INDEX.md`
 3. `docs/architecture/FULL_MVP_DEMO.md`
-4. `roles/devops-manager/job-contract.yaml`
-5. `registry/mvp-demo-stack.yaml`
-6. `registry/evidence.yaml`
-7. `registry/gaps.yaml`
-8. `registry/stack-plan.yaml`
-9. `prompts/README.md`
-10. exact issue / PR / commit / Local Handoff subject
-11. nearest directory README/contract/test/receipt when it exists
+4. `docs/milestones/PUBLIC_REMOTE_FANOUT_FIRST_GREEN.md`
+5. `docs/milestones/PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN.md`
+6. `docs/milestones/PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN.md`
+7. `roles/devops-manager/job-contract.yaml`
+8. `registry/mvp-demo-stack.yaml`
+9. `registry/evidence.yaml`
+10. `registry/gaps.yaml`
+11. `registry/stack-plan.yaml`
+12. `registry/public-m2-first-green.json`
+13. `registry/public-m3-failure-recovery.json`
+14. `registry/public-m4-reviewer-convergence.json`
+15. `handoff/local-handoff-queue.json` when crossing the local/runtime boundary
+16. `prompts/README.md`
+17. exact issue / PR / commit / Actions run / artifact / receipt
+18. nearest directory README/contract/test/receipt when it exists
 
-When reusable procedure is needed, read the canonical owners in `ed3c/skills-shared`:
+Reusable procedure must be read from canonical `ed3c/skills-shared` owners rather than copied into local variants:
 
 ```text
 skills/agentic-tech-lead-orchestration/
@@ -31,31 +38,31 @@ skills/git-town-stacked-pr-worker/
 Trigger-selected support only:
 
 ```text
-runtime-env                when a secret-free runtime/profile/workload contract is needed
-truth-verify-loop          when a mutable/high-risk external claim needs fresh verification
-openwiki-source-anchoring  when generated documentation/source claims need exact source anchoring
-skill-resume-site          only for admitted public portfolio export
+runtime-env                secret-free runtime/profile/workload contract
+truth-verify-loop          mutable/high-risk external claim verification
+openwiki-source-anchoring  exact source/path/quote anchoring
+skill-resume-site          admitted public portfolio projection only
 ```
 
-No support repository may own this repository's mutable issue/branch/runtime state or widen authority.
+No support repository becomes a second mutable authority for this repo.
 
 ## Operating mode
 
 Default `MODE=MONITOR`.
 
-Builder may perform reversible design, code, tests and bounded execution. In parallel, Shadow Architect watches material deltas:
+Builder may perform reversible design/code/tests and bounded execution. Shadow Architect independently watches:
 
 ```text
-ASSUMPTION
-STATE
-AUTHORITY
-OWNERSHIP
-LIFECYCLE
-CONCURRENCY
-RESOURCE
-EXTERNAL_SIDE_EFFECT
-FAILURE_SURFACE
-EVIDENCE
+ASSUMPTION_DELTA
+STATE_DELTA
+AUTHORITY_DELTA
+OWNERSHIP_DELTA
+LIFECYCLE_DELTA
+CONCURRENCY_DELTA
+RESOURCE_DELTA
+EXTERNAL_SIDE_EFFECT_DELTA
+FAILURE_SURFACE_DELTA
+EVIDENCE_DELTA
 ```
 
 For every material delta ask:
@@ -73,7 +80,32 @@ L2 REVIEW
 L3 BLOCK
 ```
 
-L3 is reserved for unsafe/irreversible transitions, secret/private exposure, destructive migration without rollback, privilege expansion, unbounded fault injection, semantic conflict, evidence laundering or public claim inflation.
+L3 includes unsafe/irreversible changes, secret/private disclosure, destructive migration without rollback, privilege expansion, unbounded fault injection, overlapping mutation authority, semantic conflict, evidence laundering or public claim inflation.
+
+## Current checkpoints
+
+```text
+M1 CORE_REMOTE_FIRST_GREEN                        PASS_BOUNDED
+M2 PUBLIC_REMOTE_FANOUT_FIRST_GREEN               PASS_BOUNDED
+M3 PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN     PASS_BOUNDED
+M4 PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN PASS_BOUNDED
+```
+
+M4 remote reviewer evidence is bound to PR #44 source:
+
+```text
+commit 55d18cdc556ca5d66c67406318ae25196c077fd2
+tree   a4ad37d9baf73a5239f79c516c67b0182420336a
+```
+
+Remote evidence ceilings remain separate:
+
+```text
+GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY
+GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY
+```
+
+These do not prove live Kubernetes, real Argo runtime, local model inference, 1,000-VU recovery, production users/incidents or management tenure.
 
 ## Eight-stage execution contract
 
@@ -88,23 +120,23 @@ P0 SUBJECT_AUTHORITY
 → P7 CONVERGENCE_HANDOFF
 ```
 
-Start-readiness and completion-readiness are separate edge classes. A task may start with bounded unknowns, but it cannot close without its own exact receipt and all completion predecessors.
+Start-readiness and completion-readiness are distinct. A task may start with bounded unknowns but cannot close without its own receipt and all completion predecessors.
 
-Every stage/session handoff records:
+Every zero-context handoff records:
 
 ```text
 repository / branch / commit / tree / issue
 state_in / state_out
 goal / non-goals
 allowed / read-only / forbidden paths
-runtime resources and lease owner
+resource leases
 consumed / produced artifacts
-start dependencies / completion dependencies
+start / completion dependencies
 invariants / negative controls
-evidence state / evidence ceiling
-Shadow deltas + intervention level
+evidence state / ceiling
+Shadow deltas / intervention
 unknowns / blockers
-local runtime handoff required?
+Local Handoff requirement
 next prompt / stage
 Human-owned operations
 ```
@@ -112,40 +144,44 @@ Human-owned operations
 ## Tech Lead laws
 
 - Freeze exact subject, objective, non-goals, invariants, dependencies, acceptance criteria, budgets, rollback and evidence lane before fan-out.
-- A task dependency exists only for real artifact/state consumption or an admitted completion receipt.
-- A Git true-child exists only when the child consumes the parent's **unmerged bytes/contracts**.
-- Parallel writers require disjoint file/resource leases.
-- Worker/LLM/issue/branch/CI/process self-report is candidate evidence only.
+- Dependency edges require real artifact/state consumption or an admitted receipt.
+- Git ancestry and task-DAG dependencies are separate graphs.
+- Parallel writers require disjoint path/resource leases; observed lease deltas must be recorded.
+- Worker/LLM/issue/branch/process/CI self-report is candidate evidence only.
 - Every deployment side effect has rollback/reconciliation semantics.
-- Every retry path has idempotency and a bounded retry budget.
-- Every growing resource has a bound or saturation oracle.
-- Every performance claim names workload, environment, percentile/window, duration and evidence lane.
-- FIRST_GREEN triggers Shadow review; it never closes the manager proof loop.
-- Synthetic incidents are `DRILL`/`SIMULATION`.
-- 1,000 virtual users are not 1,000 real users.
+- Retry paths require idempotency and bounded retry budgets.
+- Growing resources require bounds or saturation oracles.
+- Performance claims name workload/environment/window/duration/evidence lane.
+- FIRST_GREEN triggers Shadow review; it never closes production proof.
+- Synthetic incident evidence remains `DRILL`/`SIMULATION`.
+- 1,000 virtual users are synthetic load evidence, not 1,000 real users.
 - Local Kubernetes is not production-cluster experience.
-- UI state cannot promote backend evidence state.
+- UI state cannot promote backend evidence.
+- Queue existence cannot promote local execution.
 
-## Full MVP shared contracts
+## Evidence subject law
 
-PR #12 / issue #11 freezes the current Full MVP technology/design contract. It is design evidence, not runtime proof.
-
-The base implementation owner #2 must freeze these shared interfaces before fan-out:
+A mutable PR head and a historical artifact evidence head are different subjects.
 
 ```text
-typed API schema
-business oracle contract
-artifact identity contract
-deployment revision contract
-evidence receipt envelope
-health/readiness semantics
-local namespace / cluster naming
-rollback target contract
+current_head
+  = current mutable branch/PR routing subject
+
+evidence_head
+  = exact commit that produced the admitted workflow artifact
 ```
 
-Until #2 freezes them, #3/#4/#7/#8/#10 may inspect/design but must not independently invent incompatible shared interfaces.
+Never relabel an older Actions artifact as evidence for a newer head.
 
-## Molecular Git Town / Worker laws
+For PR #42, the admitted M3 split is intentional:
+
+```text
+current PR head   c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e
+evidence head     e48711055572d83c872e72445cdf1389592ce85e
+evidence artifact 9365550423
+```
+
+## Molecular Git Town laws
 
 Follow `git-town-stacked-pr-worker`:
 
@@ -154,61 +190,95 @@ PATH-DISJOINT + no unmerged consumption → SIBLING
 consumes parent unmerged bytes/contract → TRUE_CHILD
 smallest behavior + tests + evidence    → TERMINAL_LEAF
 shared multi-input closure              → CONVERGENCE
-physical runtime prerequisite           → PROCESS_DEPENDENCY / LOCAL_HANDOFF
+physical/local prerequisite             → PROCESS_DEPENDENCY / LOCAL_HANDOFF
 ```
 
-Atom vocabulary:
+Observed current Stack:
 
 ```text
-C contract/schema/interface lock
-K deterministic core
-A adapter/provider/substrate
-E eval/mutation/failure control
-X convergence/E2E
-D docs/receipt/handoff
+PR #14 Core
+├─ PR #36 Observability
+├─ PR #38 Policy/Security
+├─ PR #39 ML/LLMOps
+├─ PR #37 Demo Console
+└─ PR #40 Supply/Fault
+
+PR #36
+└─ PR #42 Failure/Recovery
+     ↑ exact evidence side inputs #38/#39/#40
+
+PR #42
+└─ PR #44 Reviewer Convergence
+     ↑ exact Demo Console bytes #37
+     ↑ exact M2/M3 Actions artifacts
+     └─ PR #45 Local Handoff Queue
 ```
 
-Never invent branch names, PR numbers, head SHAs, merged state or multi-parent Git ancestry. `registry/stack-plan.yaml` is the consumer-owned machine plan and must be updated from observed GitHub metadata.
+Never fabricate multi-parent Git history. One convergence owner chooses one real Git base and consumes other prerequisites as typed side inputs.
 
-## Current Worker leases
+## M4 reviewer convergence laws
 
-After #2 freezes the shared service/artifact interfaces, the intended parallel lanes are:
+Issue #9 / PR #44 has two intentionally distinct proof lanes:
 
 ```text
-#3  observability/, sre/, tests/load/, evidence/receipts/observability/
-#4  platform/policies/, tests/failure/policy/, evidence/receipts/security/
-#7  mlops/, platform/rollouts/, evidence/receipts/llmops/
-#8  demo-console/ and its tests only
-#10 supply-chain/, bounded fault-tool tests, evidence/receipts/supply-chain/
+full-reviewer-demo.yml
+→ exact Demo Console byte parity
+→ current PR-head readback
+→ deterministic reviewer bootstrap
+→ seven DRILL replays
+→ business PASS/FAIL telemetry
+
+full-reviewer-convergence.yml
+→ six exact Actions artifact re-downloads
+→ SHA-256 archive verification
+→ required-path admission
+→ bounded static reviewer bundle
 ```
 
-These are siblings only while they consume the same frozen #2 contracts and do not consume each other's unmerged bytes. Reclassify real ancestry if that changes.
+The two workflows must not promote each other's evidence ceiling. If their proof obligations become identical, collapse them into one owner.
 
-Shared final surfaces have one convergence owner:
+The deterministic developer entrypoint is:
+
+```bash
+bash scripts/demo/run_reviewer_demo.sh <output-directory>
+```
+
+It has no paid model/provider API dependency. It is still not live-substrate proof.
+
+## Local Handoff
+
+PR #45 owns the current typed Local Handoff leaf. Queue subject:
 
 ```text
-#5 owns incidents/runbooks/management/failure receipts for the reliability convergence.
-#9 owns final README/index/demo orchestration/convergence receipt after prerequisite closure.
+commit 55d18cdc556ca5d66c67406318ae25196c077fd2
+tree   a4ad37d9baf73a5239f79c516c67b0182420336a
 ```
 
-## Technology admission
-
-`registry/mvp-demo-stack.yaml` is the selected stack inventory. Default distribution prefers permissive families (MIT, Apache-2.0, BSD, PostgreSQL-style) and avoids forced source disclosure by default.
-
-Top-level repository licensing is not recursive clearance. Treat these as separate subjects:
+ACTIVE item:
 
 ```text
-Python transitive packages
-npm transitive packages
-container base images
-Kubernetes/Argo/MLflow/Jaeger/Prometheus images
-plugins/exporters
-GitHub Actions / marketplace actions
-model weights/tokenizers
-hosted/proprietary service terms
+M4-LOCAL-REVIEWER-001
 ```
 
-Every downloaded model/image/tool artifact requires its own digest and license record before demo admission.
+Command:
+
+```bash
+bash scripts/demo/run_reviewer_demo.sh evidence/local-reviewer
+```
+
+Expected receipt:
+
+```text
+evidence/local-reviewer/reviewer-demo-receipt.json
+```
+
+Evidence ceiling:
+
+```text
+LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY
+```
+
+The next item `M4-LIVE-SUBSTRATE-002` is `BLOCKED_UNRESOLVED`. Do not invent kind/Kubernetes, Argo, Qwen/llama.cpp or 1,000-VU commands. First commit a bounded runner with exact tool/model/image subjects, resource limits, timeouts, cleanup and receipt schema; only then make the queue item executable.
 
 ## Evidence states and ladder
 
@@ -232,74 +302,52 @@ L5 ADVERSARIAL_OR_CHAOS
 L6 PRODUCTION_OBSERVATION
 ```
 
-Lower evidence never self-promotes. Exact PASS binds subject, revision, workload, environment and evidence lane.
+Lower evidence never self-promotes.
 
-## Closure rule
-
-A technical manager capability closes only through:
+Forbidden promotions include:
 
 ```text
-requirement
-→ architecture / invariant
-→ implementation
-→ business/SLI/SLO oracle
-→ negative control / failure injection
-→ incident decision + mitigation/recovery
-→ corrective change
-→ same-failure repeated verification
-→ durable exact-subject receipt
+CI_GREEN               → BUSINESS_CORRECT
+REMOTE_FIRST_GREEN     → PRODUCTION_RUNTIME
+LOCAL_REVIEWER_PASS    → LIVE_K8S_PASS
+LOCAL_K8S_PASS         → PRODUCTION_INFRA_EXPERIENCE
+1000_VU_PASS           → 1000_REAL_USERS
+DRILL_COMPLETE         → PRODUCTION_INCIDENT_HISTORY
+LICENSE_METADATA_PASS  → BLANKET_LEGAL_CLEARANCE
+UI_GREEN               → BACKEND_EVIDENCE_PASS
+ISSUE_CLOSED           → RUNTIME_CLOSED
+CURRENT_PR_HEAD         → HISTORICAL_ARTIFACT_EVIDENCE
+QUEUE_EXISTS            → QUEUE_EXECUTED
 ```
 
-A successful deployment without a failure/recovery proof is incomplete Manager evidence.
+## Public disclosure stop law
 
-## Local Handoff Execution Queue
-
-Use `handoff/local-handoff-queue.json` only at a genuine local host/runtime/provider/forge boundary.
-
-Every ACTIVE item binds:
+Before public artifact persistence or portfolio projection, stop if any output contains or could expose:
 
 ```text
-exact target commit + tree
-required capabilities
-concrete argv + cwd + timeout
-sanitized durable receipt
-required PASS exit
-cleanup obligation
-next item, if one already has an executable command
+credentials / private keys / tokens
+customer or user private data
+employer/client confidential material
+private repository source/body content
+restricted paid/source material
+unredacted machine/user identifiers
+claims above the admitted evidence ceiling
 ```
 
-Do not put secrets, credential values, private reasoning or generic arbitrary shell commands in a queue. Do not create a placeholder future command just to make the queue look complete. Compile the next item only after its executable runner exists.
+Public repo reachability itself is never proof of safety or capability.
 
-Queue shape validation is not execution. Local capability PASS does not prove application/Kubernetes/model/fault correctness.
+## Human-owned operations
 
-## Google / GitHub boundary
-
-GitHub is the canonical public evidence surface here. Product control-plane Google Sheet/Doc are human mirrors only. This public repo must never depend on a private URL to explain its evidence.
-
-## Automation boundary
-
-Unattended workers may create/update bounded code/docs/tests, run deterministic CI, emit receipts and prepare draft PRs when contracts allow it. They must stop on:
+Do not automate:
 
 ```text
-stale/wrong subject
-overlapping writer/resource lease
-missing predecessor receipt
-semantic conflict
-required local capability unavailable
-secret/private disclosure risk
-unbounded retry/resource/fault injection
-invalid/mismatched receipt
-failed cleanup
-Human-owned transition
+semantic merge-conflict resolution
+force push
+merge / release
+repository visibility or permission changes
+production promotion / rollback admission
+claiming real users / incidents / production experience
+claiming people-management or TPM tenure
 ```
 
-The following remain Human/trusted-owner operations:
-
-```text
-semantic conflict resolution
-force push / merge / release
-repository visibility / permission widening
-production promotion / production rollback admission
-credential/provider enrollment
-claims of real users, real incidents, production tenure or people-management tenure
-```
+Stop on stale subjects, overlapping leases, invalid receipts, unavailable physical runtime, unbounded side effects, semantic conflicts or any Human-owned transition.
