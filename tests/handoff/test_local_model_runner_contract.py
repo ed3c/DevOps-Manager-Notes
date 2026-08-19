@@ -44,6 +44,8 @@ class LocalModelRunnerContractTests(unittest.TestCase):
         self.assertLessEqual(plan["resource_budget"]["threads"], 8)
         self.assertLessEqual(plan["resource_budget"]["max_tokens"], 128)
         self.assertLessEqual(plan["resource_budget"]["timeout_seconds"], 300)
+        self.assertLessEqual(plan["resource_budget"]["max_model_bytes"], 2_000_000_000)
+        self.assertEqual(plan["resource_budget"]["build_parallelism"], 2)
         self.assertFalse(plan["resource_budget"]["persistent_model_cache"])
         self.assertEqual(
             plan["evidence_ceiling_after_real_execution"],
@@ -73,7 +75,7 @@ class LocalModelRunnerContractTests(unittest.TestCase):
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("exact 40-hex", completed.stdout)
 
-    def test_mutable_or_non_https_model_url_is_rejected(self) -> None:
+    def test_non_https_model_url_is_rejected(self) -> None:
         completed = subprocess.run(
             [
                 sys.executable,
@@ -117,6 +119,11 @@ class LocalModelRunnerContractTests(unittest.TestCase):
         completed = self.run_plan("--threads", "64")
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("threads must be between", completed.stdout)
+
+    def test_unbounded_model_download_is_rejected(self) -> None:
+        completed = self.run_plan("--max-model-bytes", "2000000001")
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("max_model_bytes must be between", completed.stdout)
 
 
 if __name__ == "__main__":
