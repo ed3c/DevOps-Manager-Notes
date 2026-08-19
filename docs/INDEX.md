@@ -1,68 +1,77 @@
-# DevOps Evidence & Traceability Index
+# Documentation & Traceability Index
 
-This index routes humans and Agents to exact public evidence. It is navigation, not proof authority.
+Machine/evidence authority remains with exact registry subjects, executable checks, receipts, GitHub metadata and admitted runtime evidence. This file is navigation only.
 
-## Read route
+## Start here
 
 ```text
 README.md
 → AGENTS.md
-→ role contract
-→ technology / Stack / evidence / gap registries
-→ architecture contract
-→ exact issue / PR / commit
-→ implementation / test / failure artifact
-→ durable receipt
+→ docs/architecture/FULL_MVP_DEMO.md
+→ registry/mvp-demo-stack.yaml
+→ registry/stack-plan.yaml
+→ prompts/README.md
+→ exact issue/PR/commit/runtime receipt
 ```
 
-## Core architecture
+## Current control planes
 
-- `docs/architecture/DELIVERY_RELIABILITY_LAB.md` — implementation state machine, issue DAG, failure matrix, invariants and evidence lanes.
-- `README.md` — directory→State Machine→DAG ownership, molecular Stack, technology URLs, local handoff and end-to-end data flow.
+| Plane | Owner | Purpose |
+|---|---|---|
+| Method | `ed3c/skills-shared` | Tech Lead / Shadow Architect / Git Town reusable procedure |
+| Manager routing | `ed3c/Product-Manager-Notes` | job/source/requirement/gap/prompt/narrative state |
+| Executable evidence | `ed3c/DevOps-Manager-Notes` | implementation, CI/runtime/failure evidence and public Demo Console |
+| Runtime contracts | `ed3c/runtime-env` when triggered | secret-free local/provider capability/workload contracts |
+| External verification | `truth-verify-loop` / `openwiki-source-anchoring` when triggered | fresh claim/source verification without evidence promotion |
+| Human dashboard | Google Sheet | non-authoritative mirror |
+| Human narrative | Google Doc | non-authoritative mirror |
 
-## Contracts and registries
-
-- `roles/devops-manager/job-contract.yaml` — exact role requirements compiled from the source posting.
-- `registry/evidence.yaml` — evidence ladder/state authority.
-- `registry/gaps.yaml` — unresolved proof obligations.
-- `registry/technology-candidates.yaml` — upstream repo/license/ADR admission inventory.
-- `registry/stack-plan.yaml` — molecular task/branch/PR topology.
-
-## Issue graph
+## Current Full MVP subjects
 
 ```text
-#1 requirement/invariant/evidence audit
- ↓
-#2 base CI/CD → container → local Kubernetes delivery
- ├── #3 OTel / SLI-SLO / load
- └── #4 policy / security / dependency-license
-       ↓ verified side inputs
-#5 failure / rollback / incident / postmortem / re-test convergence
+bootstrap PR #6
+└─ Full MVP technology/architecture PR #12 / issue #11
+   └─ #1 invariant/evidence audit
+      └─ #2 core platform
+         ├─ #3 observability/SLO/load
+         ├─ #4 policy/security/license
+         ├─ #7 ML/LLMOps/progressive delivery
+         ├─ #8 Demo Console
+         └─ #10 supply-chain/fault tooling
+              ↓ exact side-input receipts
+            #5 failure/recovery/postmortem
+              ↓ plus #8
+            #9 final reviewer convergence
 ```
 
-Start-readiness and completion-readiness are distinct; see README.
+## Architecture and stack
 
-## Runtime handoff
+- `docs/architecture/FULL_MVP_DEMO.md` — end-to-end Internal AI Platform demo architecture, state machine, job coverage and failure path.
+- `docs/architecture/DELIVERY_RELIABILITY_LAB.md` — base reliability contract.
+- `registry/mvp-demo-stack.yaml` — selected permissive/commercial-use technology inventory and remaining proof.
+- `registry/stack-plan.yaml` — observed/planned molecular Git Town Stack and path leases.
+- `prompts/README.md` — zero-context Worker router for separate ChatGPT/Agent sessions.
 
-- `scripts/handoff/check_local_capabilities.py` — bounded secret-free local capability probe.
-- `handoff/local-handoff-queue.json` — typed zero-context continuation for genuine local-runtime evidence.
-- `evidence/receipts/` — durable sanitized receipts created by admitted executions.
-
-The queue is not a generic remote shell. Queue validity does not prove commands ran.
-
-## Public evidence closure
+## Evidence closure route
 
 ```text
-requirement
-→ architecture/invariant
-→ exact implementation subject
-→ deterministic oracle
-→ local/real substrate oracle where required
-→ planted failure / negative control
-→ mitigation/recovery
+source / requirement
+→ invariant / product-system contract
+→ technology ADR
+→ Tech Lead task contract
+→ molecular implementation leaf
+→ deterministic/runtime oracle
+→ failure / negative control
+→ mitigation / rollback / recovery
 → corrective change
 → same-failure re-test
-→ evidence receipt + ceiling
+→ exact receipt
+→ reviewer Demo Console
+→ Product evidence graph / interview-safe narrative
 ```
 
-Residual production, real-user adoption, real team-management tenure, provider credentials and Human promotion remain outside repository proof unless exact authorized evidence actually exists.
+A missing edge remains `ABSENT`, `NOT_IMPLEMENTED` or `NOT_EXERCISED`; README/UI/issue state cannot fill it by assertion.
+
+## Local Handoff
+
+`handoff/local-handoff-queue.json` is the zero-context local continuation surface. Queue validation proves shape only. Every executable item binds an exact commit/tree, concrete bounded command, sanitized receipt and PASS exit condition.
