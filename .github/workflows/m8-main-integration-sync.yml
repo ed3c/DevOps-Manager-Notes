@@ -1,0 +1,553 @@
+name: M8 main integration sync
+
+on:
+  push:
+    branches:
+      - audit/m8-main-integration-closure
+    paths:
+      - '.github/workflows/m8-main-integration-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: m8-main-integration-sync-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compile:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Checkout exact branch subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Compile M8 public-safe routing surfaces
+        env:
+          SYNC_SOURCE_COMMIT: ${{ github.sha }}
+          SYNC_BRANCH: ${{ github.ref_name }}
+        run: |
+          python3 - <<'PY'
+          from __future__ import annotations
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          START = '<!-- M8_MAIN_INTEGRATION_START -->'
+          END = '<!-- M8_MAIN_INTEGRATION_END -->'
+
+          def upsert(path: str, body: str) -> None:
+              p = Path(path)
+              text = p.read_text(encoding='utf-8') if p.exists() else ''
+              block = f"{START}\n{body.rstrip()}\n{END}\n"
+              pattern = re.compile(re.escape(START) + r'.*?' + re.escape(END) + r'\n?', re.S)
+              if pattern.search(text):
+                  text = pattern.sub(block, text)
+              else:
+                  text = text.rstrip() + '\n\n' + block
+              p.parent.mkdir(parents=True, exist_ok=True)
+              p.write_text(text, encoding='utf-8')
+
+          readme = r'''## M8 — merged-main integration and Local Handoff readiness
+
+```text
+M8 PUBLIC_MAIN_INTEGRATION_AND_LOCAL_HANDOFF_READY = PASS_BOUNDED
+```
+
+M8 means the reviewed implementation and M2–M7 traceability stacks are reachable from `main`, completed contract-only work has a closure route, and the remaining physical work is encoded as a receipt-gated Local Handoff. It does **not** mean local or production runtime execution has occurred.
+
+### Merged implementation topology
+
+```text
+main
+└─ PR #6 bootstrap/program root
+   └─ PR #12 architecture and technology contract
+      └─ PR #13 evidence audit / invariant freeze
+         └─ PR #14 typed Core platform
+            ├─ PR #38 policy/security/license
+            ├─ PR #39 ML/LLMOps
+            │  ├─ PR #55 self-contained Argo runner contract
+            │  └─ PR #56 local model runner contract
+            ├─ PR #37 Manager Demo Console
+            ├─ PR #40 supply-chain/fault
+            │  └─ PR #58 registry-signing runner contract
+            └─ PR #36 observability/load
+               ├─ PR #57 1,000-VU runner contract
+               └─ PR #42 failure/recovery
+                  └─ PR #44 reviewer convergence
+                     └─ PR #45 Local Handoff bootstrap
+                        └─ PR #51 live-kind runner
+                           └─ PR #52 canonical queue
+                              └─ PR #65 M7 advanced execution bundle
+
+M2→M7 documentation/index stack
+└─ PR #68 merged to main after the executable stack
+```
+
+Git ancestry and task-DAG dependencies remain separate. Side-input receipt or byte-parity edges are not represented as fake Git parents.
+
+### Directory → State Machine → DAG ownership
+
+| Directory | State-machine responsibility | Primary merged atoms | Current ceiling |
+|---|---|---|---|
+| `platform/app/`, `platform/docker/`, `platform/kubernetes/` | `BUILD_TESTED → ARTIFACT_BOUND → APPLICATION_READY` | #14 | remote CI plus runner contracts; live kind receipt absent |
+| `observability/`, `sre/`, `tests/load/` | `OBSERVED → LOAD_PROBED → HEALTHY/DEGRADED` | #36, #57 | remote 20-VU proof plus 1,000-VU runner contract |
+| `platform/policies/` | `POLICY_EVALUATED → ADMITTED/REJECTED` | #38 | bounded OPA/Trivy/license evidence |
+| `mlops/`, `platform/rollouts/` | `EVAL_RUNNING → PROMOTION_ELIGIBLE/CANARY_REJECTED` | #39, #55, #56 | deterministic lifecycle plus physical runners not exercised |
+| `demo-console/` | `REVIEWER_PACKET_ASSEMBLED → DEMO_VISIBLE` | #37, #44 | reviewer UI; no evidence promotion authority |
+| `supply-chain/` | `SBOM_CREATED → SIGNED/REJECTED` | #40, #58 | remote artifact proof plus local registry runner contract |
+| `tests/failure/scenarios/`, `incidents/`, `runbooks/`, `management/` | `INCIDENT_ACTIVE → RECOVERED → SAME_FAILURE_RETEST` | #42 | deterministic DRILL/SIMULATION only |
+| `handoff/`, `scripts/handoff/` | `LOCAL_REVIEWER_ACTIVE → LIVE_KIND → ADVANCED_QUEUE` | #45, #51, #52, #65 | queue/runner/compiler readiness only |
+| `docs/`, `registry/` | `EVIDENCE_BOUND → INDEXED → ROUTED` | #41/#43/#46/#53/#59/#66/#68 | public traceability, not runtime proof |
+
+### Runtime data flow
+
+```text
+source / requirement
+→ invariant and evidence contract
+→ Core implementation
+→ CI / SBOM / policy / eval / telemetry
+→ deterministic failure and same-failure re-test
+→ reviewer packet and Demo Console
+→ canonical Local Handoff queue
+→ local reviewer receipt
+→ live-kind receipt
+→ M7 live advanced queue compilation
+→ Argo controllers
+→ local model
+→ synthetic 1,000 VU
+→ registry-stored signing
+→ bounded local evidence packet
+```
+
+### Current Local Handoff frontier
+
+```text
+M5-LOCAL-REVIEWER-001       ACTIVE
+M5-LIVE-KIND-002            BLOCKED_BY_PREDECESSOR
+M6-ADVANCED-SUBSTRATE-003   BLOCKED_BY_PREDECESSOR
+```
+
+After both real predecessor receipts are admitted, `scripts/handoff/compile_m7_advanced_queue.py` may emit the next canonical queue with exactly one ACTIVE item. Fixture receipts never satisfy live completion edges.
+
+### Residuals
+
+```text
+local deterministic reviewer             NOT_EXERCISED
+live kind/Kubernetes application smoke   NOT_EXERCISED
+live advanced queue compilation          NOT_EXERCISED
+Argo controllers                         NOT_EXERCISED
+Argo CD Application reconcile            NOT_EXERCISED
+live Rollouts canary                     NOT_EXERCISED
+llama.cpp/model inference                NOT_EXERCISED
+synthetic 1,000 VU                       NOT_EXERCISED
+registry-stored signing                  NOT_EXERCISED
+production users/incidents/tenure        OUTSIDE_CURRENT_PROOF
+people-management tenure                 OUTSIDE_REPOSITORY_PROOF
+```
+'''
+          upsert('README.md', readme)
+
+          agents = r'''## M8 merged-main operating contract
+
+The merged implementation and M2–M7 traceability are now reviewed as one `main` integration surface. Agents must still separate four identities:
+
+```text
+current main/routing head
+historical evidence head
+canonical predecessor execution epoch
+physical runtime receipt subject
+```
+
+Mandatory M8 read order:
+
+```text
+README.md
+→ docs/INDEX.md
+→ docs/milestones/PUBLIC_M8_MAIN_INTEGRATION_AND_HANDOFF_READY.md
+→ registry/public-m8-main-integration.json
+→ registry/closure-matrix.yaml
+→ registry/stack-plan.yaml
+→ handoff/local-handoff-queue.json
+→ handoff/LOCAL_HANDOFF_EXECUTION_QUEUE.md
+→ exact issue / merged PR / Actions run / receipt
+```
+
+Closure laws:
+
+- Close a contract-only issue only when its implementation, negative controls, traceability and merge edge are complete.
+- Keep a capability issue open when its own acceptance requires a physical receipt that is absent.
+- A merged PR is integration evidence, not runtime evidence.
+- Issue state, README text, UI state and fixture receipts cannot close a physical edge.
+- Do not reopen a completed molecular leaf merely because a higher-level convergence issue remains open.
+- Do not close #9 or advanced physical lanes until the Local Handoff receipts exist.
+- Do not advance the queue unattended; `queue_advance` remains automation-forbidden.
+- Branch cleanup is exact-ref owner/admin work and cannot alter evidence claims.
+
+Shadow Architect remains `MODE=MONITOR` and blocks stale subjects, fixture/live laundering, authority widening, unbounded resources, cleanup failure, secret disclosure, semantic conflict, or production/experience claim inflation.
+'''
+          upsert('AGENTS.md', agents)
+
+          index = r'''## M8 merged-main integration route
+
+```text
+README.md
+→ AGENTS.md
+→ docs/milestones/PUBLIC_M8_MAIN_INTEGRATION_AND_HANDOFF_READY.md
+→ registry/public-m8-main-integration.json
+→ registry/closure-matrix.yaml
+→ registry/stack-plan.yaml
+→ handoff/local-handoff-queue.json
+→ handoff/LOCAL_HANDOFF_EXECUTION_QUEUE.md
+```
+
+M8 is a merged-main and handoff-readiness checkpoint only. Physical and production residuals remain explicit.
+'''
+          upsert('docs/INDEX.md', index)
+
+          milestone = '''# M8 — PUBLIC_MAIN_INTEGRATION_AND_LOCAL_HANDOFF_READY
+
+Status: `PASS_BOUNDED`
+
+This milestone records merged-main integration, issue/PR closure classification, M1→M7 traceability continuity, and a concrete Local Handoff route. It does not record physical local or production execution.
+
+## Integrated planes
+
+- executable platform, observability, policy/security, ML/LLMOps, Demo Console and supply chain;
+- deterministic failure/recovery and reviewer convergence;
+- canonical Local Handoff, live-kind runner, advanced runner contracts and M7 queue compiler;
+- README/AGENTS/milestone/registry traceability through M7.
+
+## Closure decision classes
+
+```text
+CLOSE              own acceptance and merge edge complete
+KEEP_OPEN          own physical/capability receipt absent
+SUPERSEDE          replaced by a canonical later contract
+LOCAL_HANDOFF      implementation ready; physical execution required
+HUMAN_ONLY         production, visibility, permission, credential or experience admission
+```
+
+## Evidence boundary
+
+`PASS_BOUNDED` here proves merged-main integration and machine-checkable routing. It cannot prove local Kubernetes, Argo, local model, 1,000-VU execution, registry signing, real users, production incidents, production tenure or people-management tenure.
+'''
+          Path('docs/milestones/PUBLIC_M8_MAIN_INTEGRATION_AND_HANDOFF_READY.md').write_text(milestone, encoding='utf-8')
+
+          merged_prs = [6, 12, 13, 14, 36, 37, 38, 39, 40, 42, 44, 45, 51, 52, 55, 56, 57, 58, 65, 68]
+          registry = {
+              'schema_version': 'full-manager-mvp/public-m8-main-integration/v1',
+              'milestone': 'PUBLIC_MAIN_INTEGRATION_AND_LOCAL_HANDOFF_READY',
+              'verdict': 'PASS_BOUNDED',
+              'sync_source': {
+                  'repository': 'ed3c/DevOps-Manager-Notes',
+                  'branch': os.environ['SYNC_BRANCH'],
+                  'commit': os.environ['SYNC_SOURCE_COMMIT'],
+              },
+              'canonical_method': {
+                  'repository': 'ed3c/skills-shared',
+                  'commit': '4ca9417b1da5ff32f1d4d3e7af64a15908749024',
+                  'queue_schema': 'agentic-tech-lead/local-handoff-queue/v1',
+              },
+              'expected_merged_pull_requests': merged_prs,
+              'main_integration_state': 'VALIDATION_PENDING',
+              'local_handoff': {
+                  'queue': 'handoff/local-handoff-queue.json',
+                  'active_item': 'M5-LOCAL-REVIEWER-001',
+                  'physical_receipts_admitted': 0,
+                  'advanced_compiler': 'scripts/handoff/compile_m7_advanced_queue.py',
+                  'advanced_live_queue_state': 'NOT_COMPILED',
+              },
+              'residuals': {
+                  'local_reviewer': 'NOT_EXERCISED',
+                  'live_kind_kubernetes': 'NOT_EXERCISED',
+                  'argo_controllers': 'NOT_EXERCISED',
+                  'argo_application_reconcile': 'NOT_EXERCISED',
+                  'live_rollouts_canary': 'NOT_EXERCISED',
+                  'local_model': 'NOT_EXERCISED',
+                  'synthetic_1000_vu': 'NOT_EXERCISED',
+                  'registry_signing': 'NOT_EXERCISED',
+                  'production_users_incidents_tenure': 'OUTSIDE_CURRENT_PROOF',
+                  'people_management_tenure': 'OUTSIDE_REPOSITORY_PROOF',
+              },
+              'evidence_ceiling': 'GITHUB_HOSTED_MERGED_MAIN_INTEGRATION_AND_HANDOFF_ROUTING_ONLY',
+          }
+          Path('registry/public-m8-main-integration.json').write_text(json.dumps(registry, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+
+          closure = '''schema_version: full-manager-mvp/closure-matrix/v1
+milestone: M8
+policy:
+  issue_state_is_not_capability_evidence: true
+  merged_pr_is_not_physical_runtime_evidence: true
+  close_contract_only_when_own_acceptance_complete: true
+  keep_physical_lanes_open_until_receipt: true
+close_candidates:
+  - {issue: 1, reason: evidence_audit_and_invariant_freeze_merged}
+  - {issue: 6, reason: bootstrap_program_integrated}
+  - {issue: 8, reason: manager_demo_console_merged}
+  - {issue: 11, reason: technology_architecture_contract_merged}
+  - {issue: 60, reason: m7_bundle_and_compiler_contract_merged}
+  - {issue: 61, reason: m7_shadow_contract_review_complete}
+  - {issue: 62, reason: m7_contract_ci_and_portable_assertion_complete}
+  - {issue: 63, reason: m7_traceability_index_merged}
+  - {issue: 64, reason: fixture_and_negative_controls_complete}
+keep_open:
+  - {issue: 2, reason: live_kind_receipt_absent}
+  - {issue: 3, reason: synthetic_1000_vu_receipt_absent}
+  - {issue: 4, reason: higher_security_or_legal_scope_requires_explicit_acceptance_review}
+  - {issue: 5, reason: higher_substrate_failure_recovery_receipt_absent}
+  - {issue: 7, reason: local_model_and_live_delivery_receipts_absent}
+  - {issue: 9, reason: full_physical_convergence_not_complete}
+  - {issue: 10, reason: registry_stored_signing_receipt_absent}
+  - {issue: 54, reason: advanced_physical_runner_receipts_absent}
+  - {issue: 67, reason: exact_branch_admin_cleanup_pending}
+local_handoff:
+  active: M5-LOCAL-REVIEWER-001
+  blocked: [M5-LIVE-KIND-002, M6-ADVANCED-SUBSTRATE-003]
+'''
+          Path('registry/closure-matrix.yaml').write_text(closure, encoding='utf-8')
+
+          stack = Path('registry/stack-plan.yaml')
+          stack_text = stack.read_text(encoding='utf-8')
+          stack_text = re.sub(r'^version:\s*\d+', 'version: 10', stack_text, count=1, flags=re.M)
+          stack.write_text(stack_text, encoding='utf-8')
+          stack_append = r'''## M8 merged-main atom
+
+```text
+M1–M7 implementation and traceability PRs
+→ reviewed stack merges
+→ main integration
+→ M8 closure audit
+→ canonical Local Handoff
+```
+
+Machine details: `registry/public-m8-main-integration.json` and `registry/closure-matrix.yaml`.
+'''
+          upsert('registry/STACK-M8.md', stack_append)
+
+          handoff = '''# Local Handoff Execution Queue — M8
+
+Canonical machine queue: `handoff/local-handoff-queue.json`.
+
+## Step 1 — active deterministic reviewer
+
+Checkout the canonical predecessor execution epoch named by the queue, then run the exact command from `M5-LOCAL-REVIEWER-001`:
+
+```bash
+python3 scripts/handoff/run_local_reviewer_handoff.py \
+  --output evidence/local-reviewer/handoff-receipt.json \
+  --work-dir evidence/local-reviewer/work
+```
+
+Required receipt: state `PASS`, ceiling `LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY`.
+
+## Step 2 — live kind, only after Step 1 PASS
+
+```bash
+M5_KIND_NODE_IMAGE='<exact-name>@sha256:<64-hex>' \
+  bash scripts/handoff/run_live_kind_from_env.sh \
+  --output evidence/local-kind/local-kind-receipt.json \
+  --cluster-name manager-demo-m5 \
+  --local-port 18030
+```
+
+Required receipt: verdict `PASS`, ceiling `LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY`.
+
+## Step 3 — compile the M7 live advanced queue
+
+Run from an exact merged-main commit containing `scripts/handoff/compile_m7_advanced_queue.py`:
+
+```bash
+python3 scripts/handoff/compile_m7_advanced_queue.py \
+  --reviewer-receipt evidence/local-reviewer/handoff-receipt.json \
+  --kind-receipt evidence/local-kind/local-kind-receipt.json \
+  --output handoff/m7-advanced-local-handoff-queue.json \
+  --compile-receipt evidence/receipts/handoff/m7-advanced-queue-compile-receipt.json
+```
+
+The compiler must reject fixture, absent, failing, wrong-subject or wrong-ceiling inputs. Queue advancement remains Human/trusted-controller owned.
+
+## Step 4 — execute the newly admitted queue sequentially
+
+```text
+Argo controllers → local model → synthetic 1,000 VU → registry-stored signing
+```
+
+Never run sibling advanced items concurrently. Every item owns cleanup and must emit its own bounded PASS/FAIL receipt.
+'''
+          Path('handoff/LOCAL_HANDOFF_EXECUTION_QUEUE.md').write_text(handoff, encoding='utf-8')
+
+          validation = r'''name: M8 merged-main integration audit
+
+on:
+  pull_request:
+    paths:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'docs/INDEX.md'
+      - 'docs/milestones/PUBLIC_M8_MAIN_INTEGRATION_AND_HANDOFF_READY.md'
+      - 'registry/public-m8-main-integration.json'
+      - 'registry/closure-matrix.yaml'
+      - 'registry/stack-plan.yaml'
+      - 'registry/STACK-M8.md'
+      - 'handoff/local-handoff-queue.json'
+      - 'handoff/LOCAL_HANDOFF_EXECUTION_QUEUE.md'
+      - '.github/workflows/m8-main-integration-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+concurrency:
+  group: m8-main-integration-audit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      GITHUB_TOKEN: ${{ github.token }}
+      SKILLS_SHARED_COMMIT: 4ca9417b1da5ff32f1d4d3e7af64a15908749024
+    steps:
+      - name: Checkout exact audit subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_COMMIT }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout canonical Tech Lead method
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ed3c/skills-shared
+          ref: ${{ env.SKILLS_SHARED_COMMIT }}
+          path: _skills-shared
+          persist-credentials: false
+
+      - name: Verify merged implementation surface
+        run: |
+          required=(
+            platform/app/pyproject.toml
+            platform/docker/Dockerfile
+            platform/kubernetes/render_deployment.py
+            observability
+            platform/policies
+            mlops
+            demo-console/package.json
+            supply-chain
+            tests/failure/scenarios/run_failure_drills.py
+            scripts/demo/run_reviewer_demo.sh
+            scripts/handoff/run_local_reviewer_handoff.py
+            scripts/handoff/run_live_kind_smoke.py
+            scripts/handoff/compile_m7_advanced_queue.py
+            scripts/handoff/run_argo_ephemeral_kind.py
+            scripts/handoff/run_local_model.py
+            scripts/handoff/run_local_capacity.py
+            scripts/handoff/run_local_registry_signing.py
+          )
+          for path in "${required[@]}"; do test -e "$path" || { echo "missing merged path: $path"; exit 1; }; done
+
+      - name: Verify expected PRs are merged
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          from urllib import request
+
+          x = json.loads(Path('registry/public-m8-main-integration.json').read_text())
+          observed = {}
+          for number in x['expected_merged_pull_requests']:
+              req = request.Request(
+                  f'https://api.github.com/repos/ed3c/DevOps-Manager-Notes/pulls/{number}',
+                  headers={
+                      'Authorization': f'Bearer {os.environ["GITHUB_TOKEN"]}',
+                      'Accept': 'application/vnd.github+json',
+                      'X-GitHub-Api-Version': '2022-11-28',
+                  },
+              )
+              with request.urlopen(req, timeout=15) as response:
+                  p = json.load(response)
+              observed[str(number)] = {'state': p['state'], 'merged': p['merged'], 'merge_commit_sha': p['merge_commit_sha']}
+              if not p['merged'] or p['state'] != 'closed' or not p['merge_commit_sha']:
+                  raise SystemExit(f'PR #{number} is not merged')
+          Path('/tmp/m8-merged-prs.json').write_text(json.dumps(observed, indent=2, sort_keys=True) + '\n')
+          print('merged-pr-readback=PASS')
+          PY
+
+      - name: Validate canonical Local Handoff queue
+        run: |
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue handoff/local-handoff-queue.json
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue handoff/local-handoff-queue.json \
+            --selftest
+
+      - name: Verify closure matrix and evidence ceiling
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          x = json.loads(Path('registry/public-m8-main-integration.json').read_text())
+          assert x['verdict'] == 'PASS_BOUNDED'
+          assert x['local_handoff']['active_item'] == 'M5-LOCAL-REVIEWER-001'
+          assert x['local_handoff']['physical_receipts_admitted'] == 0
+          assert x['local_handoff']['advanced_live_queue_state'] == 'NOT_COMPILED'
+          assert all(v in {'NOT_EXERCISED','OUTSIDE_CURRENT_PROOF','OUTSIDE_REPOSITORY_PROOF'} for v in x['residuals'].values())
+          text = Path('registry/closure-matrix.yaml').read_text()
+          for token in ('close_candidates:', 'keep_open:', 'issue: 9', 'issue: 54', 'issue: 67'):
+              assert token in text, token
+          assert Path('registry/stack-plan.yaml').read_text().startswith('version: 10')
+          PY
+
+      - name: Public disclosure and no-runtime boundary
+        run: |
+          if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_)' \
+            README.md AGENTS.md docs/milestones/PUBLIC_M8_MAIN_INTEGRATION_AND_HANDOFF_READY.md \
+            registry/public-m8-main-integration.json registry/closure-matrix.yaml handoff/LOCAL_HANDOFF_EXECUTION_QUEUE.md; then
+            echo 'secret-like material found in M8 public surface'
+            exit 1
+          fi
+          test ! -f evidence/local-reviewer/handoff-receipt.json
+          test ! -f evidence/local-kind/local-kind-receipt.json
+          test ! -f handoff/m7-advanced-local-handoff-queue.json
+
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M8 merged-main integration boundary
+          - expected merged PR readback: exercised
+          - merged implementation path readback: exercised
+          - canonical Local Handoff assertion/selftest: exercised
+          - closure matrix and M8 routing: exercised
+          - local reviewer / kind / advanced runtime: **NOT_EXERCISED**
+          - production users/incidents/tenure: **OUTSIDE_CURRENT_PROOF**
+          - evidence ceiling: `GITHUB_HOSTED_MERGED_MAIN_INTEGRATION_AND_HANDOFF_ROUTING_ONLY`
+          EOF
+'''
+          Path('.github/workflows/m8-main-integration-audit.yml').write_text(validation, encoding='utf-8')
+          PY
+
+      - name: Commit compiled surfaces
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md AGENTS.md docs/INDEX.md docs/milestones/PUBLIC_M8_MAIN_INTEGRATION_AND_HANDOFF_READY.md \
+            registry/public-m8-main-integration.json registry/closure-matrix.yaml registry/stack-plan.yaml registry/STACK-M8.md \
+            handoff/LOCAL_HANDOFF_EXECUTION_QUEUE.md .github/workflows/m8-main-integration-audit.yml
+          if git diff --cached --quiet; then
+            echo 'M8 surfaces already compiled'
+            exit 0
+          fi
+          git commit -m 'docs: compile M8 merged-main closure and Local Handoff [m8-sync]'
+          git push origin HEAD:${{ github.ref_name }}
