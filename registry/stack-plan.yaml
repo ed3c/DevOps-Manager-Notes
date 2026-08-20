@@ -138,12 +138,13 @@ m9_atoms:
   - id: D9-local-receipt-admission-index
     atom: D
     issues: [78]
-    pull_request: null
-    state: BRANCH_CREATED_PR_PENDING
+    pull_request: 79
+    state: PR_DRAFT_INDEX_PENDING_FIRST_GREEN
     stack_class: true_child
     git_parent: A9-local-receipt-admission
     branch: docs/m9-local-receipt-admission-index
     base_branch: feat/m9-local-receipt-admission
+    base_head: fc7ae40c0a5ea0a403c2ed27555de3cbbc8d042b
     outputs:
       - README.md
       - AGENTS.md
@@ -153,7 +154,7 @@ m9_atoms:
       - registry/stack-plan.yaml
       - .github/workflows/m9-receipt-admission-index.yml
     evidence_ceiling: GITHUB_HOSTED_M9_TRACEABILITY_INDEX_ONLY
-    blockers: [PR_IDENTITY_PENDING, INDEX_CI_PENDING, HUMAN_ADMIT_MERGE]
+    blockers: [INDEX_CI_PENDING, HUMAN_ADMIT_MERGE]
 
 local_handoff_data_flow:
   - LOCAL_COMMAND
@@ -175,6 +176,7 @@ open_residual_issues:
 notes:
   - Exact historical evidence remains bound to the commit and run that produced it.
   - A9 receipt admission does not execute physical runtime and does not advance the queue.
-  - D9 is a true child because it consumes A9 unmerged contracts; local receipts are process dependencies, not Git parents.
+  - D9 PR #79 is a true child because it consumes A9 unmerged contracts; local receipts are process dependencies, not Git parents.
   - A public packet contains only allowlisted summaries and raw receipt identity metadata.
+  - After D9 merges into A9, A9 exact-head CI must rerun before main merge.
   - No queue/packet/CI/repository artifact promotes to production, adoption, incident-history, legal-clearance, employment or people-management evidence.
