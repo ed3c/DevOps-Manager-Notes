@@ -1,0 +1,76 @@
+name: Full MVP Manager Demo Console
+
+on:
+  pull_request:
+    paths:
+      - 'demo-console/**'
+      - 'registry/evidence.yaml'
+      - 'registry/gaps.yaml'
+      - '.github/workflows/demo-console.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact workflow subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # observed v6 subject from first-green run
+        with:
+          node-version: '22.22.0'
+          cache: npm
+          cache-dependency-path: demo-console/package.json
+      - name: Install pinned direct dependencies
+        working-directory: demo-console
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Capture exact resolved npm environment
+        working-directory: demo-console
+        run: |
+          npm ls --all --json > npm-tree.json
+          sha256sum npm-tree.json > npm-tree.sha256
+      - name: Type check canonical evidence adapter
+        working-directory: demo-console
+        run: npm run check
+      - name: Build reviewer console
+        working-directory: demo-console
+        run: npm run build
+      - name: Public-boundary assertions
+        run: |
+          test -f demo-console/dist/evidence-index.json
+          grep -q 'UI state cannot promote backend evidence state' demo-console/dist/evidence-index.json
+          if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_)' demo-console/dist; then
+            echo 'secret-like material found in public artifact'
+            exit 1
+          fi
+          BYTES="$(du -sb demo-console/dist | awk '{print $1}')"
+          test "$BYTES" -lt 5000000
+          printf '%s\n' "$BYTES" > demo-console/dist/build-bytes.txt
+          cp demo-console/npm-tree.sha256 demo-console/dist/npm-tree.sha256
+      - name: Persist public build artifact
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: full-manager-mvp-console-${{ github.run_id }}-${{ github.run_attempt }}
+          path: demo-console/dist
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          ## Demo Console FIRST_GREEN boundary
+          - React/Vite/TanStack Query/ECharts build: exercised
+          - canonical registry compilation: exercised
+          - public secret-pattern + bounded-build-size gate: exercised
+          - exact resolved npm tree digest: exercised
+          - backend/runtime capability promotion: **FORBIDDEN**
+          - artifact digest: \`${{ steps.upload.outputs.artifact-digest }}\`
+          - evidence ceiling: frontend build/render contract only
+          EOF
