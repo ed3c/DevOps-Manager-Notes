@@ -1,0 +1,15 @@
+schema_version: full-manager-mvp/model-artifact/v1
+name: Qwen2.5-0.5B-Instruct-GGUF
+source: https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF
+license_declared_by_source: Apache-2.0
+runtime_candidate: llama.cpp
+state: NOT_EXERCISED
+revision: null
+filename: null
+sha256: null
+rules:
+  - source repository license is not an artifact digest
+  - model weights and tokenizer artifacts require their own pinned revision filename digest and notice before runtime admission
+  - llama.cpp runtime presence does not prove this model was downloaded or executed
+  - local model execution does not prove production model traffic or adoption
+next_gate: Local Handoff after exact artifact materialization runner exists

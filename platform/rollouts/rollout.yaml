@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: full-manager-mvp
+  namespace: manager-demo
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: full-manager-mvp
+  template:
+    metadata:
+      labels:
+        app: full-manager-mvp
+    spec:
+      containers:
+        - name: control-plane
+          image: IMAGE_REF_MUST_BE_RENDERED_BY_EXACT_DIGEST
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet: {path: /health/ready, port: 8000}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: 500m, memory: 512Mi}
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+  strategy:
+    canary:
+      stableService: full-manager-mvp
+      canaryService: full-manager-mvp-canary
+      steps:
+        - setWeight: 10
+        - pause: {duration: 30s}
+        - analysis:
+            templates:
+              - templateName: manager-demo-canary-analysis
+        - setWeight: 50
+        - pause: {duration: 30s}
+        - analysis:
+            templates:
+              - templateName: manager-demo-canary-analysis
+        - setWeight: 100

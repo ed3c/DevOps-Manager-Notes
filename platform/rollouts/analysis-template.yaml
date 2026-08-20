@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: manager-demo-canary-analysis
+spec:
+  metrics:
+    - name: transport-success
+      interval: 15s
+      count: 4
+      successCondition: result[0] >= 0.99
+      provider:
+        prometheus:
+          address: http://prometheus:9090
+          query: |
+            sum(rate(manager_demo_http_requests_total{status=~"2.."}[1m]))
+            /
+            clamp_min(sum(rate(manager_demo_http_requests_total[1m])), 0.000001)
+    - name: business-oracle-pass
+      interval: 15s
+      count: 4
+      successCondition: result[0] >= 0.99
+      provider:
+        prometheus:
+          address: http://prometheus:9090
+          query: |
+            sum(rate(manager_demo_business_oracle_total{verdict="PASS"}[1m]))
+            /
+            clamp_min(sum(rate(manager_demo_business_oracle_total[1m])), 0.000001)
