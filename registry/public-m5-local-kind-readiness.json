@@ -1,0 +1,112 @@
+{
+  "schema_version": "full-manager-mvp/public-m5-local-kind-readiness/v1",
+  "milestone": "PUBLIC_LOCAL_KIND_RUNNER_AND_QUEUE_READY",
+  "verdict": "PASS_BOUNDED",
+  "method": {
+    "tech_lead": "ed3c/skills-shared/skills/agentic-tech-lead-orchestration",
+    "shadow_architect": "ed3c/skills-shared/skills/spatial-loop-systems-engineering",
+    "stack_worker": "ed3c/skills-shared/skills/git-town-stacked-pr-worker"
+  },
+  "runner": {
+    "issue": 47,
+    "pull_request": 51,
+    "branch": "handoff/m5-live-kind-runner",
+    "base_pull_request": 45,
+    "head": "20d2ccb0ed8c877309452eece7c755bb3411c4c1",
+    "tree": "7d4b5d5aaba2d023803b152ce5ac7f23f274eba0",
+    "contract_workflow_run": 32259961112,
+    "contract_verdict": "PASS",
+    "contract_evidence_ceiling": "GITHUB_HOSTED_LOCAL_RUNNER_CONTRACT_ONLY",
+    "local_runtime_verdict": "NOT_EXERCISED",
+    "local_runtime_receipt": null,
+    "potential_evidence_ceiling_after_real_pass": "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY"
+  },
+  "queue": {
+    "issue": 48,
+    "pull_request": 52,
+    "branch": "handoff/m5-live-kind-queue",
+    "base_pull_request": 51,
+    "head": "660d4deea81712f3d6ab5288ae09288b2e15cc27",
+    "contract_workflow_run": 32260403160,
+    "contract_verdict": "PASS",
+    "contract_evidence_ceiling": "GITHUB_HOSTED_LOCAL_HANDOFF_CONTRACT_VALIDATION_ONLY",
+    "current_active_item": "M4-LOCAL-REVIEWER-001",
+    "next_concrete_item": "M4-LIVE-SUBSTRATE-002"
+  },
+  "queue_items": {
+    "M4-LOCAL-REVIEWER-001": {
+      "state": "ACTIVE",
+      "command": [
+        "bash",
+        "scripts/demo/run_reviewer_demo.sh",
+        "evidence/local-reviewer"
+      ],
+      "receipt": "evidence/local-reviewer/reviewer-demo-receipt.json",
+      "receipt_state": "ABSENT",
+      "evidence_ceiling_after_pass": "LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY"
+    },
+    "M4-LIVE-SUBSTRATE-002": {
+      "state": "WAITING_PREDECESSOR",
+      "runner_pull_request": 51,
+      "runner_head": "20d2ccb0ed8c877309452eece7c755bb3411c4c1",
+      "runner_tree": "7d4b5d5aaba2d023803b152ce5ac7f23f274eba0",
+      "environment_names": [
+        "M5_KIND_NODE_IMAGE"
+      ],
+      "command": [
+        "bash",
+        "scripts/handoff/run_live_kind_from_env.sh",
+        "--output",
+        "evidence/local-kind/local-kind-receipt.json",
+        "--cluster-name",
+        "manager-demo-m5",
+        "--local-port",
+        "18030"
+      ],
+      "receipt": "evidence/local-kind/local-kind-receipt.json",
+      "receipt_state": "ABSENT",
+      "receipt_schema": "full-manager-mvp/local-kind-substrate-receipt/v1",
+      "evidence_ceiling_after_pass": "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY"
+    },
+    "M5-ARGO-MODEL-CAPACITY-003": {
+      "state": "BLOCKED_UNRESOLVED",
+      "commands": [],
+      "evidence_state": "NOT_EXERCISED"
+    }
+  },
+  "resource_budget": {
+    "max_clusters_created": 1,
+    "cluster_prefix": "manager-demo-",
+    "cluster_name": "manager-demo-m5",
+    "replicas": 2,
+    "cpu_request": "100m",
+    "cpu_limit": "1",
+    "memory_request": "128Mi",
+    "memory_limit": "512Mi",
+    "handoff_timeout_seconds": 900,
+    "loopback_port": 18030
+  },
+  "shadow_corrections": [
+    "restore caller kubectl current-context",
+    "cleanup attempted cluster after partial kind creation",
+    "align outer queue timeout with bounded individual operation timeouts",
+    "require exact kind-node image digest through M5_KIND_NODE_IMAGE",
+    "retain failed intermediate contract run as non-admitted evidence rather than hiding it"
+  ],
+  "residuals": {
+    "local_deterministic_reviewer": "NOT_EXERCISED",
+    "local_kind_kubernetes_application_smoke": "NOT_EXERCISED",
+    "real_argo_cd_reconcile": "NOT_EXERCISED",
+    "live_argo_rollouts_canary": "NOT_EXERCISED",
+    "local_qwen_llama_cpp": "NOT_EXERCISED",
+    "load_1000_vu": "NOT_EXERCISED",
+    "registry_stored_image_signing": "NOT_EXERCISED",
+    "production_users_incidents_tenure": "OUTSIDE_CURRENT_PROOF",
+    "people_management_tenure": "OUTSIDE_REPOSITORY_PROOF"
+  },
+  "authority": {
+    "merge_release_visibility_permissions": "HUMAN_ONLY",
+    "production_promotion_rollback": "HUMAN_ONLY",
+    "real_experience_claims": "HUMAN_ONLY"
+  }
+}

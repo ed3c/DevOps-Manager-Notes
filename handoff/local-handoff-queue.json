@@ -2,9 +2,9 @@
   "schema_version": "agentic-tech-lead/local-handoff-queue/v1",
   "subject": {
     "repository": "ed3c/DevOps-Manager-Notes",
-    "commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
-    "tree": "5ff3349c1eb5c7976263c2e89347a353ccbc1072",
-    "rollback_commit": "660d4deea81712f3d6ab5288ae09288b2e15cc27"
+    "commit": "e7b4e23799a3579572598ebd5864a80831d49db4",
+    "tree": "0b72b9f09f73d3829db2f138d457a5691641bf79",
+    "rollback_commit": "bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7"
   },
   "authority": {
     "automation_forbidden": [
@@ -26,21 +26,22 @@
       "repository visibility and permission decisions",
       "semantic conflict decisions",
       "production promotion or rollback decisions",
-      "real user, incident, production and employment or people-management claims"
+      "queue advancement after receipt review",
+      "real user, incident, production, employment and people-management claims"
     ]
   },
   "current": {
-    "active_item": "M5-LOCAL-REVIEWER-001",
+    "active_item": "M8-LOCAL-REVIEWER-001",
     "state": "ACTIVE"
   },
   "items": [
     {
-      "id": "M5-LOCAL-REVIEWER-001",
+      "id": "M8-LOCAL-REVIEWER-001",
       "task_ref": "ed3c/DevOps-Manager-Notes#9",
       "state": "ACTIVE",
       "entry": {
         "predecessor": null,
-        "required_subject_commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
+        "required_subject_commit": "e7b4e23799a3579572598ebd5864a80831d49db4",
         "required_capabilities": [
           "LOCAL_HOST",
           "repository checkout at exact queue subject",
@@ -48,8 +49,7 @@
           "python3 with venv",
           "node",
           "npm",
-          "outbound package-download reachability",
-          "M4 remote reviewer evidence remains bounded and readable"
+          "outbound package-download reachability"
         ]
       },
       "runtime_lane": {
@@ -75,15 +75,10 @@
       "receipt": {
         "path": "evidence/local-reviewer/handoff-receipt.json",
         "schema": "full-manager-mvp/local-reviewer-handoff-receipt/v1",
-        "required_states": [
-          "PASS",
-          "FAIL"
-        ],
+        "required_states": ["PASS", "FAIL"],
         "forbidden_promotions": [
           "local deterministic reviewer PASS to live kind or Kubernetes PASS",
-          "local deterministic reviewer PASS to Argo CD or Argo Rollouts runtime PASS",
-          "local deterministic reviewer PASS to Qwen or llama.cpp runtime PASS",
-          "local deterministic reviewer PASS to 1000-VU capacity or recovery PASS",
+          "local deterministic reviewer PASS to Argo, model, 1000-VU or signing PASS",
           "DRILL completion to production incident history",
           "local execution to production infrastructure or people-management experience",
           "queue validation to queue execution"
@@ -94,15 +89,15 @@
         "required_verdict": "PASS",
         "cleanup_required": true
       },
-      "next": "M5-LIVE-KIND-002"
+      "next": "M8-LIVE-KIND-002"
     },
     {
-      "id": "M5-LIVE-KIND-002",
-      "task_ref": "ed3c/DevOps-Manager-Notes#47",
+      "id": "M8-LIVE-KIND-002",
+      "task_ref": "ed3c/DevOps-Manager-Notes#9",
       "state": "BLOCKED_BY_PREDECESSOR",
       "entry": {
-        "predecessor": "M5-LOCAL-REVIEWER-001",
-        "required_subject_commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
+        "predecessor": "M8-LOCAL-REVIEWER-001",
+        "required_subject_commit": "e7b4e23799a3579572598ebd5864a80831d49db4",
         "required_capabilities": [
           "LOCAL_HOST",
           "repository checkout at exact queue subject",
@@ -125,15 +120,13 @@
               "--output",
               "evidence/local-kind/local-kind-receipt.json",
               "--cluster-name",
-              "manager-demo-m5",
+              "manager-demo-m8",
               "--local-port",
               "18030"
             ],
             "cwd": ".",
             "timeout_seconds": 900,
-            "environment_names": [
-              "M5_KIND_NODE_IMAGE"
-            ]
+            "environment_names": ["M5_KIND_NODE_IMAGE"]
           }
         ],
         "unresolved_operations": [],
@@ -142,15 +135,10 @@
       "receipt": {
         "path": "evidence/local-kind/local-kind-receipt.json",
         "schema": "full-manager-mvp/local-kind-substrate-receipt/v1",
-        "required_states": [
-          "PASS",
-          "FAIL"
-        ],
+        "required_states": ["PASS", "FAIL"],
         "forbidden_promotions": [
           "local kind PASS to production Kubernetes experience",
-          "local kind PASS to Argo CD or Argo Rollouts runtime PASS",
-          "local kind PASS to Qwen or llama.cpp runtime PASS",
-          "local kind PASS to 1000-VU capacity or recovery PASS",
+          "local kind PASS to Argo, model, 1000-VU or signing PASS",
           "synthetic or local failure behavior to production incident history",
           "local substrate execution to people-management tenure"
         ]
@@ -160,69 +148,66 @@
         "required_verdict": "PASS",
         "cleanup_required": true
       },
-      "next": "M6-ADVANCED-SUBSTRATE-003"
+      "next": "M8-COMPILE-ADVANCED-QUEUE-003"
     },
     {
-      "id": "M6-ADVANCED-SUBSTRATE-003",
+      "id": "M8-COMPILE-ADVANCED-QUEUE-003",
       "task_ref": "ed3c/DevOps-Manager-Notes#9",
       "state": "BLOCKED_BY_PREDECESSOR",
       "entry": {
-        "predecessor": "M5-LIVE-KIND-002",
-        "required_subject_commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
+        "predecessor": "M8-LIVE-KIND-002",
+        "required_subject_commit": "e7b4e23799a3579572598ebd5864a80831d49db4",
         "required_capabilities": [
-          "exact Argo CD and Argo Rollouts runner contracts",
-          "exact Qwen artifact and llama.cpp runner contracts",
-          "bounded 1000-VU load runner contract",
-          "registry-stored signing runner contract"
+          "LOCAL_HOST",
+          "repository checkout at exact queue subject",
+          "python3",
+          "both predecessor receipts admitted",
+          "canonical skills-shared Local Handoff assertion available for post-compile review"
         ]
       },
       "runtime_lane": {
-        "class": "LOCAL_RUNTIME",
-        "commands": [],
-        "unresolved_operations": [
+        "class": "LOCAL_HOST",
+        "commands": [
           {
-            "operation_id": "compile-argo-runtime-runner",
-            "resolver_source": "DevOps-Manager-Notes public M6 Argo runner issue/PR",
-            "required_output": "CONCRETE_COMMAND_CONTRACT"
-          },
-          {
-            "operation_id": "compile-local-model-runner",
-            "resolver_source": "DevOps-Manager-Notes public M6 model runner issue/PR with exact artifact identity",
-            "required_output": "CONCRETE_COMMAND_CONTRACT"
-          },
-          {
-            "operation_id": "compile-1000-vu-runner",
-            "resolver_source": "DevOps-Manager-Notes public M6 load runner issue/PR with explicit host budget",
-            "required_output": "CONCRETE_COMMAND_CONTRACT"
-          },
-          {
-            "operation_id": "compile-registry-signing-runner",
-            "resolver_source": "DevOps-Manager-Notes public M6 registry-signing issue/PR",
-            "required_output": "CONCRETE_COMMAND_CONTRACT"
+            "argv": [
+              "python3",
+              "scripts/handoff/compile_m8_advanced_queue.py",
+              "--expected-predecessor-commit",
+              "e7b4e23799a3579572598ebd5864a80831d49db4",
+              "--expected-predecessor-tree",
+              "0b72b9f09f73d3829db2f138d457a5691641bf79",
+              "--reviewer-receipt",
+              "evidence/local-reviewer/handoff-receipt.json",
+              "--kind-receipt",
+              "evidence/local-kind/local-kind-receipt.json",
+              "--output",
+              "handoff/m7-advanced-local-handoff-queue.json",
+              "--compile-receipt",
+              "evidence/receipts/handoff/m7-advanced-queue-compile-receipt.json"
+            ],
+            "cwd": ".",
+            "timeout_seconds": 120,
+            "environment_names": []
           }
         ],
+        "unresolved_operations": [],
         "live_evidence_required": true
       },
       "receipt": {
-        "path": "evidence/local-advanced/advanced-substrate-receipt.json",
-        "schema": "full-manager-mvp/advanced-substrate-receipt/v1",
-        "required_states": [
-          "PASS",
-          "FAIL",
-          "NOT_EXERCISED"
-        ],
+        "path": "evidence/receipts/handoff/m7-advanced-queue-compile-receipt.json",
+        "schema": "full-manager-mvp/m7-advanced-queue-compile-receipt/v1",
+        "required_states": ["PASS", "FAIL"],
         "forbidden_promotions": [
-          "unresolved runner plan to execution evidence",
-          "local Argo runtime to production deployment tenure",
-          "local model inference to production LLM traffic",
-          "synthetic 1000 VU to 1000 real users",
-          "local registry signing to production supply-chain operations"
+          "queue compilation PASS to any advanced runtime PASS",
+          "compiled queue existence to unattended queue advancement",
+          "fixture compiler evidence to live predecessor admission",
+          "local Argo/model/load/signing plan to production experience"
         ]
       },
       "exit": {
         "requires_receipt": true,
         "required_verdict": "PASS",
-        "cleanup_required": true
+        "cleanup_required": false
       },
       "next": null
     }

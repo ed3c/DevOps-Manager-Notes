@@ -1,0 +1,75 @@
+{
+  "schema_version": "full-manager-mvp/public-m8-main-integration/v1",
+  "milestone": "PUBLIC_MAIN_INTEGRATION_AND_HANDOFF_READY",
+  "verdict": "PASS_BOUNDED",
+  "verified_date": "2026-08-20",
+  "evidence_ceiling": "GITHUB_MAIN_INTEGRATION_AND_LOCAL_HANDOFF_CONTRACT_ONLY",
+  "method": {
+    "repository": "ed3c/skills-shared",
+    "commit": "4ca9417b1da5ff32f1d4d3e7af64a15908749024",
+    "queue_schema": "agentic-tech-lead/local-handoff-queue/v1",
+    "portable_assertion": "skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py"
+  },
+  "main_integration": {
+    "repository": "ed3c/DevOps-Manager-Notes",
+    "integrated_head_before_m8_docs": "bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7",
+    "merges": [
+      {"pull_request": 68, "commit": "d0ecbd05c1dfecc6ae65f62c9869cd6a1412da43", "scope": "M1_M7_BACKBONE"},
+      {"pull_request": 37, "commit": "a47c0de9d5d0a176821a95c7a6c961ed7cf9f058", "scope": "DEMO_CONSOLE"},
+      {"pull_request": 38, "commit": "cf7f0f5939e75475ce10da14f932de1a7f33b257", "scope": "POLICY_SECURITY_LICENSE"},
+      {"pull_request": 39, "commit": "9e5b9c23467ff90a1c1452a255d4a6cfa245b6bf", "scope": "ML_LLMOPS_LIFECYCLE"},
+      {"pull_request": 40, "commit": "0b0709946e84e80918a0e50903badb8b7bd4fa12", "scope": "SUPPLY_CHAIN_FAULT"},
+      {"pull_request": 69, "commit": "bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7", "scope": "ADVANCED_RUNNER_CONTRACT_EVIDENCE"}
+    ]
+  },
+  "advanced_contract_runs": {
+    "argo": 32325970179,
+    "model": 32325970269,
+    "capacity": 32325970231,
+    "registry_signing": 32325970178
+  },
+  "local_handoff": {
+    "execution_subject": {
+      "commit": "e7b4e23799a3579572598ebd5864a80831d49db4",
+      "tree": "0b72b9f09f73d3829db2f138d457a5691641bf79",
+      "rollback_commit": "bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7"
+    },
+    "queue_path": "handoff/local-handoff-queue.json",
+    "active_item": "M8-LOCAL-REVIEWER-001",
+    "blocked_items": [
+      "M8-LIVE-KIND-002",
+      "M8-COMPILE-ADVANCED-QUEUE-003"
+    ],
+    "physical_receipts_admitted": 0,
+    "advanced_queue_state": "NOT_COMPILED"
+  },
+  "stage_complete_issues": [1, 4, 5, 8, 10, 11, 16, 22, 26, 48, 54, 60, 61, 62, 63, 64],
+  "open_residual_issues": [2, 3, 7, 9, 67],
+  "historical_pr_resolution": {
+    "integrated_or_merged": [37, 38, 39, 40, 68, 69],
+    "close_as_integrated_superseded": [55, 56, 57, 58],
+    "close_as_superseded": [15],
+    "close_after_reachability_comment": [6, 12, 13, 14, 36, 42, 44, 45, 51, 52, 65, 41, 43, 46, 53, 59, 66]
+  },
+  "residuals": {
+    "local_deterministic_reviewer": "NOT_EXERCISED",
+    "local_kind_kubernetes": "NOT_EXERCISED",
+    "advanced_queue_compilation": "NOT_EXERCISED",
+    "argo_controllers": "NOT_EXERCISED",
+    "argo_cd_application_reconciliation": "NOT_EXERCISED",
+    "live_argo_rollouts_canary": "NOT_EXERCISED",
+    "local_llama_cpp_model": "NOT_EXERCISED",
+    "synthetic_1000_vu": "NOT_EXERCISED",
+    "registry_stored_image_signing": "NOT_EXERCISED",
+    "production_users_incidents_tenure": "OUTSIDE_CURRENT_PROOF",
+    "people_management_tenure": "OUTSIDE_REPOSITORY_PROOF"
+  },
+  "authority": {
+    "merge_release": "HUMAN_OR_EXPLICITLY_AUTHORIZED_TRUSTED_OWNER",
+    "queue_advance": "HUMAN_OR_EXPLICITLY_AUTHORIZED_TRUSTED_OWNER",
+    "visibility_permissions": "HUMAN_ONLY",
+    "production_promotion_rollback": "HUMAN_ONLY",
+    "provider_credentials": "HUMAN_ONLY",
+    "real_experience_claims": "HUMAN_ONLY"
+  }
+}

@@ -1,355 +1,313 @@
 # DevOps Manager Notes
 
-Public executable evidence plane for the **Full Manager MVP Demo**: one Internal AI Platform demo that covers the technical requirements of both the Technical Product Manager and DevOps Manager target roles.
+Public executable evidence plane for the **Full Manager MVP Demo**: an Internal AI Platform portfolio proving bounded Technical Product Manager and DevOps Manager capabilities with exact Git subjects, deterministic failure oracles, reviewer evidence and typed Local Handoff.
 
-`Product-Manager-Notes` is the private management/routing center. `skills-shared` owns reusable Tech Lead, Shadow Architect and Git Town methods. This repository owns public-safe implementation, CI/runtime evidence, failure/recovery exercises and exact receipts.
+## Authority and control planes
 
-## Read first
+```text
+ed3c/skills-shared
+  canonical Tech Lead / Shadow Architect / Git Town / Local Handoff method
+        ↓
+ed3c/Product-Manager-Notes
+  job requirements / product decisions / gaps / interview narrative routing
+        ↓ exact public-safe evidence request
+ed3c/DevOps-Manager-Notes
+  code / CI / runtime contracts / failure drills / receipts / Demo Console
+        ↓ exact receipt and evidence ceiling
+Product-Manager-Notes + Google projections
+  interview and dashboard views; never evidence authority
+```
+
+GitHub is canonical. Google Doc, Google Sheet, issue prose and UI views are projections only.
+
+## Current checkpoint
+
+```text
+M1 CORE_REMOTE_FIRST_GREEN                          PASS_BOUNDED
+M2 PUBLIC_REMOTE_FANOUT_FIRST_GREEN                 PASS_BOUNDED
+M3 PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN       PASS_BOUNDED
+M4 PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN   PASS_BOUNDED
+M5 PUBLIC_LOCAL_KIND_RUNNER_AND_QUEUE_READY          PASS_BOUNDED
+M6 PUBLIC_ADVANCED_RUNNER_CONTRACTS_READY            PASS_BOUNDED
+M7 PUBLIC_ADVANCED_EXECUTION_BUNDLE_READY             PASS_BOUNDED
+M8 PUBLIC_MAIN_INTEGRATION_AND_HANDOFF_READY           PASS_BOUNDED
+```
+
+M8 means the verified public implementation and contract surfaces are integrated into `main`, documentation is reconciled, and a new exact-subject Local Handoff queue is ready. It does **not** mean physical local execution or production experience.
+
+### Integrated main subjects
+
+| Capability | Integration | Exact merge subject | Maximum admitted claim |
+|---|---|---|---|
+| M1–M7 backbone | PR #68 | `d0ecbd05c1dfecc6ae65f62c9869cd6a1412da43` | repository integration of verified remote lanes |
+| Manager Demo Console | PR #37 | `a47c0de9d5d0a176821a95c7a6c961ed7cf9f058` | frontend build and bounded evidence rendering |
+| Policy / security / license | PR #38 | `cf7f0f5939e75475ce10da14f932de1a7f33b257` | hosted policy/security/license metadata, not legal clearance |
+| ML/LLMOps lifecycle | PR #39 | `9e5b9c23467ff90a1c1452a255d4a6cfa245b6bf` | deterministic MLflow/eval/rollback contract |
+| Supply chain / fault | PR #40 | `0b0709946e84e80918a0e50903badb8b7bd4fa12` | hosted SBOM/blob-signing/fault drill |
+| Advanced runner tests/workflows | PR #69 | `bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7` | runner contract evidence only |
+| M8 Local Handoff execution subject | two-phase closure commit | `e7b4e23799a3579572598ebd5864a80831d49db4` / tree `0b72b9f09f73d3829db2f138d457a5691641bf79` | local commands may be attempted and receipted |
+
+## Current proof frontier
+
+```text
+repository integration                              PASS_BOUNDED
+Core API/PostgreSQL/Alembic/Docker CI               PASS_BOUNDED
+observability/business oracle/20-VU smoke           PASS_BOUNDED
+policy/security/license metadata                     PASS_BOUNDED
+MLflow lifecycle/eval/rejection/rollback             PASS_BOUNDED
+Demo Console build                                  PASS_BOUNDED
+SBOM/same-run signing/bounded fault drill            PASS_BOUNDED
+seven failure/recovery/re-test drills                PASS_BOUNDED
+reviewer packet and artifact re-verification         PASS_BOUNDED
+runner and queue compiler contracts                  PASS_BOUNDED
+
+local deterministic reviewer                        NOT_EXERCISED
+live kind/Kubernetes application smoke              NOT_EXERCISED
+live advanced queue compilation                     NOT_EXERCISED
+Argo controllers                                    NOT_EXERCISED
+Argo CD Application reconciliation                  NOT_EXERCISED
+live Argo Rollouts/Prometheus canary                NOT_EXERCISED
+llama.cpp + exact model inference                   NOT_EXERCISED
+synthetic 1,000-VU execution                        NOT_EXERCISED
+registry-stored image signing                       NOT_EXERCISED
+production users/incidents/tenure                   OUTSIDE_CURRENT_PROOF
+people-management tenure                            OUTSIDE_REPOSITORY_PROOF
+```
+
+## Read order
 
 ```text
 README.md
 → AGENTS.md
 → docs/INDEX.md
 → docs/architecture/FULL_MVP_DEMO.md
-→ registry/mvp-demo-stack.yaml
+→ docs/milestones/PUBLIC_M8_MAIN_INTEGRATION.md
+→ registry/public-m8-main-integration.json
 → registry/stack-plan.yaml
-→ prompts/README.md
-→ exact issue / PR / commit / Local Handoff subject
-→ nearest implementation/test/receipt
+→ handoff/local-handoff-queue.json
+→ exact issue / PR / commit / Actions run / artifact / receipt
 ```
 
-## Eight-stage execution program
+Historical M2–M7 milestones and machine registries remain available through `docs/INDEX.md`.
 
-| Stage | Transition | Main result | Parallelism |
-|---|---|---|---|
-| P0 Subject / authority | `REQUEST_BOUND → SUBJECT_ADMITTED` | exact repo/branch/commit/issue, authority and evidence ceiling | serial |
-| P1 Source / evidence | `SUBJECT_ADMITTED → CONTEXT_ADMITTED` | job/article/PDF/repo/technology evidence and gaps | parallel source workers |
-| P2 Problem closure / System Design | `CONTEXT_ADMITTED → SYSTEM_CONTRACT_EXTRACTED` | invariants, state machines, failure matrix, product/system contract | Product + DevOps design lanes |
-| P3 Technology / ADR | `SYSTEM_CONTRACT_EXTRACTED → ARCHITECTURE_ADMITTED` | commercially usable stack, rejected alternatives, license boundaries | candidate families in parallel |
-| P4 Tech Lead DAG / Stack | `ARCHITECTURE_ADMITTED → WORKERS_ADMITTED` | start/completion DAG, leases, molecular Stack, Worker packets | bounded compilation |
-| P5 Implementation fan-out | `WORKERS_ADMITTED → FIRST_GREEN` | core plus path-disjoint terminal leaves | #3/#4/#7/#8/#10 after #2 |
-| P6 Runtime / failure proof | `FIRST_GREEN → REVERIFIED` | load/fault/canary/rollback/postmortem/same-failure re-test receipts | selected runtime probes |
-| P7 Convergence / export / handoff | `REVERIFIED → DEMO_EVIDENCE_READY` | one-command reviewer path, indexes, public evidence packet, Local Handoff residuals | one convergence owner |
-
-`FIRST_GREEN` is a mandatory Shadow Architect checkpoint, not completion.
-
-## End-to-end state machine
+## End-to-end State Machine
 
 ```text
 SOURCE_BOUND
+→ REQUIREMENT_CLASSIFIED
+→ SYSTEM_CONTRACT_FROZEN
+→ TECHNOLOGY_ADMITTED
+→ WORKERS_ADMITTED
 → BUILD_TESTED
 → SBOM_CREATED
 → SECURITY_POLICY_ADMITTED
-→ ARTIFACT_SIGNED
 → MODEL_CONFIG_REGISTERED
 → OFFLINE_EVAL_RUNNING
-    ├── EVAL_REJECTED
-    └── PROMOTION_ELIGIBLE
+    ├─ EVAL_REJECTED
+    └─ PROMOTION_ELIGIBLE
 → GITOPS_DESIRED_STATE_BOUND
-→ CANARY_RUNNING
-    ├── CANARY_REJECTED → ROLLBACK_RUNNING
-    └── PROMOTED
+→ CANARY_CONTRACT_READY
 → OBSERVED
 → LOAD_OR_FAULT_PROBE_RUNNING
 → HEALTHY | DEGRADED
+→ INCIDENT_COMMAND_ACTIVE
 → MITIGATING
 → RECOVERED
 → POSTMORTEM_OPEN
 → CORRECTIVE_CHANGE_BOUND
 → SAME_FAILURE_RETEST
 → REVERIFIED
-→ DEMO_EVIDENCE_READY
+→ REVIEWER_PACKET_ASSEMBLED
+→ REMOTE_DEMO_EVIDENCE_READY
+→ MAIN_INTEGRATED
+→ LOCAL_HANDOFF_READY
+→ LOCAL_REVIEWER_ACTIVE
+    ├─ FAIL → LOCAL_GAP_OPEN
+    └─ PASS → LIVE_KIND_UNBLOCKED
+→ LIVE_KIND_RUNNING
+    ├─ FAIL → LOCAL_GAP_OPEN
+    └─ PASS → ADVANCED_QUEUE_COMPILATION_UNBLOCKED
+→ ADVANCED_QUEUE_COMPILING
+    ├─ invalid/stale receipt → LOCAL_GAP_OPEN
+    └─ PASS → ADVANCED_QUEUE_REVIEW_REQUIRED
+→ ARGO_CONTROLLERS
+→ LOCAL_MODEL
+→ SYNTHETIC_1000_VU
+→ REGISTRY_SIGNING
+→ LOCAL_ADVANCED_EVIDENCE_READY
 ```
 
-Illegal promotion examples:
-
-```text
-CI_GREEN        → BUSINESS_CORRECT                 forbidden
-LOCAL_K8S_PASS  → PRODUCTION_INFRA_EXPERIENCE      forbidden
-1000_VU_PASS    → 1000_REAL_USERS                  forbidden
-DRILL_COMPLETE  → PRODUCTION_INCIDENT_HISTORY      forbidden
-MODEL_LICENSE   → ALL_TRANSITIVES_CLEARED          forbidden
-UI_GREEN        → BACKEND_EVIDENCE_PASS            forbidden
-ISSUE_CLOSED    → RUNTIME_CLOSED                   forbidden
-```
-
-## Repository topology
-
-```text
-DevOps-Manager-Notes/
-├── README.md
-├── AGENTS.md
-├── LICENSE
-├── docs/
-│   ├── INDEX.md
-│   └── architecture/
-│       ├── DELIVERY_RELIABILITY_LAB.md
-│       └── FULL_MVP_DEMO.md
-├── roles/devops-manager/
-│   └── job-contract.yaml
-├── registry/
-│   ├── evidence.yaml
-│   ├── gaps.yaml
-│   ├── technology-candidates.yaml
-│   ├── mvp-demo-stack.yaml
-│   └── stack-plan.yaml
-├── prompts/
-│   ├── README.md
-│   ├── issue-2-core-platform.md
-│   ├── issue-3-observability-load.md
-│   ├── issue-4-policy-security.md
-│   ├── issue-7-llmops-progressive-delivery.md
-│   ├── issue-8-demo-console.md
-│   ├── issue-10-supply-chain-fault.md
-│   ├── issue-5-failure-recovery.md
-│   └── issue-9-final-convergence.md
-├── system-design/
-├── sre/
-├── platform/
-│   ├── app/
-│   ├── docker/
-│   ├── kubernetes/
-│   ├── gitops/
-│   ├── rollouts/
-│   └── policies/
-├── mlops/
-│   ├── eval/
-│   ├── registry/
-│   ├── prompts/
-│   ├── models/
-│   └── adapters/
-├── demo-console/
-│   └── src/
-├── observability/
-├── supply-chain/
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   ├── e2e/
-│   ├── load/
-│   └── failure/
-├── incidents/
-├── runbooks/
-├── management/
-├── scripts/
-│   ├── demo/
-│   └── handoff/
-├── handoff/
-│   └── local-handoff-queue.json
-├── evidence/receipts/
-│   ├── base/
-│   ├── observability/
-│   ├── security/
-│   ├── llmops/
-│   ├── supply-chain/
-│   ├── failure/
-│   └── convergence/
-└── .github/workflows/
-```
-
-Directories are created only when their first real artifact lands. Path presence is not capability proof.
+States after `LOCAL_HANDOFF_READY` are future physical states and remain `NOT_EXERCISED` until their own receipts exist.
 
 ## Directory → State Machine → DAG ownership
 
-| Surface | State responsibility | Owner issue | Output / evidence ceiling |
-|---|---|---:|---|
-| `registry/mvp-demo-stack.yaml` | technology candidate → selected/rejected → remaining proof | #11 / PR #12 | design/source verification only |
-| `system-design/` | requirement → invariant/SLO/failure contract | #1 | design/static reasoning |
-| `platform/app/` | request/business state → deterministic oracle | #2 | L2 before integration |
-| `platform/docker/` | source → immutable container digest | #2 | L2-L3 |
-| `platform/kubernetes/` + `platform/gitops/` | desired → observed deployment / reconciliation | #2 | named local substrate only |
-| `observability/` + `sre/` | request → trace/metrics/SLI/SLO/load evidence | #3 | named environment / synthetic workload |
-| `platform/policies/` | artifact/deployment → admit/reject | #4 | policy/security lane only |
-| `mlops/` + `platform/rollouts/` | model/prompt/config → eval → canary → rollback | #7 | exact local/model/canary lane |
-| `demo-console/` | typed evidence API → reviewer UI | #8 | presentation only; cannot promote evidence |
-| `supply-chain/` | exact artifact → SBOM/scan/signature/fault tooling | #10 | exact artifact/fault lane |
-| `incidents/` + `runbooks/` + `management/` | failure → decision → recovery → corrective action | #5 | DRILL unless real production event |
-| `registry/stack-plan.yaml` | issue → atom → branch relation → lease | Tech Lead | planning/publication only |
-| `prompts/` | frozen contract → zero-context Worker packet | Tech Lead | instruction only |
-| `handoff/local-handoff-queue.json` | remote boundary → local command → receipt | #2 then later runtime owners | queue shape until executed |
-| `evidence/receipts/` | exact subject/env/workload → verdict | lane owners | exact named evidence lane |
-| `scripts/demo/` + final indexes | admitted receipts → reviewer path | #9 | convergence only |
+| Directory | State / transition owned | Implementation owner | Evidence ceiling |
+|---|---|---|---|
+| `platform/app/` | `BUILD_TESTED → BUSINESS_ORACLE_EVALUATED` | Core PR #14, integrated by #68 | hosted deterministic Core |
+| `platform/docker/` | source → immutable image subject | Core / supply-chain | hosted image build identity |
+| `platform/kubernetes/` | desired deployment → readiness contract | Core + live-kind runner | contract only until local receipt |
+| `platform/gitops/` | desired state binding | architecture/Core | desired-state contract |
+| `platform/rollouts/` | eval eligible → canary contract / rollback target | PR #39 | deterministic desired-state contract |
+| `platform/policies/` | candidate → admitted/rejected | PR #38 | hosted OPA/security metadata |
+| `mlops/` | register → evaluate → promote/reject → rollback | PR #39 | hosted MLflow lifecycle only |
+| `observability/` | request → metric/trace/business signal | PR #36 | hosted telemetry and bounded load |
+| `sre/` | SLI → SLO decision | PR #36 | synthetic/hosted evidence |
+| `supply-chain/` | image → SBOM → sign/verify → tamper reject | PR #40 | same-run hosted blob evidence |
+| `tests/failure/scenarios/` | trigger → detect → mitigate → recover → re-test | PR #42 | DRILL/SIMULATION only |
+| `demo-console/` | canonical evidence → reviewer UI | PR #37 | rendering only |
+| `scripts/demo/` | exact receipts → reviewer packet | PR #44 | deterministic reviewer evidence |
+| `scripts/handoff/` | local command → typed receipt / next queue | PR #51/#52/#65, M8 closure | queue/runner contract until local run |
+| `handoff/` | one ACTIVE item → receipt-gated successor | M8 Local Handoff queue | queue existence is not execution |
+| `docs/milestones/` | evidence subject → bounded narrative | Tech Lead traceability owner | documentation only |
+| `registry/` | exact subject / DAG / gap / evidence index | Tech Lead convergence owner | machine routing only |
+| `incidents/` / `runbooks/` / `management/` | drill authority and recovery communication | PR #42 | simulated Manager process evidence |
 
-## Full data flow
+## Task DAG and data flow
 
 ```mermaid
 flowchart TD
-    S[Job / Article / PDF / Repo / Technology Source] --> P[Product-Manager-Notes Source + Requirement Graph]
-    P --> C[Full MVP Contract / Tech ADR]
-    C --> TL[Tech Lead DAG + Stack + Worker Prompts]
-    TL --> K2[#2 Core Platform]
-    K2 --> A3[#3 OTel / Prometheus / Jaeger / Locust]
-    K2 --> E4[#4 OPA / Trivy]
-    K2 --> A7[#7 MLflow / llama.cpp / Argo Rollouts]
-    K2 --> A8[#8 React Demo Console]
-    K2 --> E10[#10 Syft / Cosign / Toxiproxy]
-    A3 --> X5[#5 Failure / Recovery]
-    E4 --> X5
-    A7 --> X5
-    E10 --> X5
-    X5 --> X9[#9 Full Demo Convergence]
-    A8 --> X9
-    X9 --> EV[Exact Evidence Packet]
-    EV --> P
-    P --> GS[Google Sheet Dashboard Mirror]
-    P --> GD[Google Doc Narrative Mirror]
-    SH[Shadow Architect MONITOR] -. material delta .-> K2
-    SH -.-> A3
-    SH -.-> E4
-    SH -.-> A7
-    SH -.-> E10
-    SH -.-> X5
-    LH[Local Handoff Queue] --> K2
-    LH --> A7
-    LH --> X5
+    JOB[Job / Article / PDF / Repo / Technology Candidate]
+      --> PRODUCT[Product requirement and gap registry]
+    PRODUCT --> CONTRACT[System invariants and ADR]
+    CONTRACT --> CORE[Core Platform]
+
+    CORE --> OBS[Observability / SLO / Load]
+    CORE --> SEC[Policy / Security / License]
+    CORE --> MLOPS[MLflow / Eval / Rollback]
+    CORE --> UI[Manager Demo Console]
+    CORE --> SUPPLY[SBOM / Signing / Fault]
+
+    OBS --> RECOVERY[Failure / Recovery / Same-failure Re-test]
+    SEC --> RECOVERY
+    MLOPS --> RECOVERY
+    SUPPLY --> RECOVERY
+
+    RECOVERY --> REVIEWER[Reviewer Convergence]
+    UI --> REVIEWER
+    REVIEWER --> MAIN[Main Integration]
+    MAIN --> HANDOFF[Canonical Local Handoff Queue]
+
+    HANDOFF --> LOCAL_REVIEWER[Local Reviewer]
+    LOCAL_REVIEWER --> KIND[Live kind / Kubernetes]
+    KIND --> COMPILE[Compile Advanced Queue]
+    COMPILE --> ARGO[Argo Controllers]
+    ARGO --> MODEL[llama.cpp / Model]
+    MODEL --> LOAD[1,000-VU Synthetic Load]
+    LOAD --> SIGN[Registry Signing]
+
+    SHADOW[Shadow Architect MONITOR]
+      -. authority / lifecycle / resource / evidence deltas .-> CORE
+    SHADOW -.-> RECOVERY
+    SHADOW -.-> HANDOFF
 ```
 
-## Start-readiness DAG
+## Molecular Git Town / Stack PR index
+
+### Historical implementation topology
 
 ```text
-PR #6 bootstrap contract
-  └─ PR #12 / #11 Full MVP technology + architecture contract
-       └─ #1 invariant/evidence audit
-            └─ #2 core platform contract
-                 ├─ #3 observability/load
-                 ├─ #4 policy/security/license
-                 ├─ #7 ML/LLMOps/progressive delivery
-                 ├─ #8 Demo Console
-                 └─ #10 supply-chain/fault tooling
+PR #6 bootstrap
+└─ PR #12 Full MVP architecture
+   └─ PR #13 invariant/evidence audit
+      └─ PR #14 Core
+         ├─ PR #36 Observability
+         ├─ PR #37 Demo Console
+         ├─ PR #38 Policy/Security
+         ├─ PR #39 ML/LLMOps
+         └─ PR #40 Supply/Fault
 
-#5 failure-scenario design may start after #2 exposes failure surfaces.
-#9 convergence design may start before all leaves close, but cannot complete early.
+PR #36
+└─ PR #42 Failure/Recovery
+   └─ PR #44 Reviewer Convergence
+      └─ PR #45 Local Handoff bootstrap
+         └─ PR #51 Live-kind runner
+            └─ PR #52 Canonical Local Handoff
+               └─ PR #65 Advanced bundle/compiler
+
+Task-sibling runner leaves:
+PR #39 → PR #55 Argo
+PR #39 → PR #56 Model
+PR #36 → PR #57 Capacity
+PR #40 → PR #58 Registry Signing
 ```
 
-## Completion-readiness DAG
+### Main integration topology
 
 ```text
-#11 / PR #12 technology contract
-→ #1 exact invariant/evidence audit
-→ #2 exact base delivery receipt
-→ (#3 AND #4 AND #7 AND #10 exact lane receipts)
-→ #5 failure/rollback/postmortem/same-failure receipt
-→ (#5 AND #8 exact receipts)
-→ #9 Full Manager MVP convergence receipt
+X8 PR #68  backbone → main
+A8 PR #37  Demo Console → main
+E8 PR #38  Policy/Security → main
+A8 PR #39  ML/LLMOps → main
+E8 PR #40  Supply/Fault → main
+X8 PR #69  exact advanced runner tests/workflows → main
+D8 current closure PR  README/AGENTS/registry/queue → main
 ```
 
-## Molecular Git Town Stack
-
-`registry/stack-plan.yaml` is canonical. Planned structure:
-
-```text
-C0   PR #6    bootstrap DevOps contract                  ROOT
-└─ C11 PR #12  Full MVP technology/architecture          TRUE_CHILD
-   └─ E1  #1   invariant/evidence audit                  TRUE_CHILD while parent bytes unmerged
-      └─ K2 #2 core app/CI/container/K8s                 TRUE_CHILD
-         ├─ A3  #3 observability/load                    SIBLING
-         ├─ E4  #4 policy/security/license               SIBLING
-         ├─ A7  #7 ML/LLMOps/progressive delivery        SIBLING
-         ├─ A8  #8 Demo Console                          SIBLING
-         └─ E10 #10 SBOM/signing/fault tooling           SIBLING
-              └──── verified side-input receipts ───┐
-                                                   ▼
-         X5  #5 failure/recovery/postmortem          CONVERGENCE
-              └────────────┬─────────────────────────┘
-                           ▼
-         X9  #9 final reviewer demo                  CONVERGENCE
-```
-
-A sibling becomes a true child only if it actually consumes another sibling's **unmerged bytes/contracts**. Multi-input convergence does not fabricate multiple Git parents.
-
-## Separate ChatGPT Worker sessions
-
-After #2 freezes the typed service/artifact contracts, Tech Lead can open separate zero-context sessions using `prompts/`:
-
-| Session | Issue | Path lease | May run in parallel? |
-|---|---:|---|---|
-| Core | #2 | app/docker/k8s/gitops/base tests/workflows | no; establishes shared contract |
-| Observability | #3 | observability/sre/load receipts | yes |
-| Policy/Security | #4 | policies/security receipts | yes |
-| ML/LLMOps | #7 | mlops/rollouts/llmops receipts | yes |
-| Demo Console | #8 | demo-console/UI tests | yes |
-| Supply chain/fault | #10 | supply-chain/fault-tool receipts | yes |
-| Failure convergence | #5 | incidents/runbooks/management/failure receipts | after prerequisite receipts |
-| Final convergence | #9 | README/index/demo orchestrator/convergence receipt | one owner only |
-
-Every session receives an exact subject, start/completion dependencies, allowed/read-only/forbidden paths, consumed/provided artifacts, evidence ceiling, Shadow watch list and Local Handoff boundary.
-
-## Selected MVP stack
-
-The complete machine-readable inventory is `registry/mvp-demo-stack.yaml`. Required deterministic path includes:
-
-```text
-Python / FastAPI / Pydantic
-PostgreSQL / SQLAlchemy / Alembic
-React / Vite / TanStack Query / Apache ECharts
-MLflow / llama.cpp / pinned permissive small model artifact
-Docker CLI / Moby / Colima-or-Rancher-Desktop
-kind / Kubernetes / Argo CD / Argo Rollouts
-OpenTelemetry Collector / Prometheus / Jaeger
-OPA / Trivy / Syft / Cosign
-Locust / Toxiproxy / pytest
-GitHub Actions
-```
-
-The default distribution policy prefers MIT, Apache-2.0, BSD and PostgreSQL-style permissive terms. Top-level licensing never recursively clears transitive packages, container images, plugins, model weights, downloaded binaries, GitHub Actions or SaaS terms. vLLM/KServe remain future production-shaped adapters, not core-demo blockers.
-
-## Repository integrations
-
-```text
-skills-shared
-  agentic-tech-lead-orchestration
-  spatial-loop-systems-engineering
-  git-town-stacked-pr-worker
-       ↓ reusable method only
-DevOps-Manager-Notes
-       ↓ trigger-selected support
-runtime-env               secret-free local/provider runtime contract
-truth-verify-loop         mutable/high-risk external claim verification
-openwiki-source-anchoring exact source/path/quote verification for generated docs
-skill-resume-site         P7 public portfolio projection only after evidence admission
-```
-
-Support repositories never own this consumer's issue/branch/runtime state and cannot widen evidence or merge authority.
-
-## Google / GitHub boundary
-
-GitHub is canonical for requirements routed here, issues, PRs, commits, Stack state and evidence receipts. The Product control plane mirrors approved state to the existing Google Sheet dashboard and Google Doc narrative index. A Google URL proves reachability only and never promotes evidence.
-
-## Automation boundary
-
-Automation is expected for source/claim routing, task compilation, code generation, tests, CI, SBOM/scans/policy checks, receipt aggregation, dashboard sync and repeatable local probes. The following remain outside unattended Worker authority:
-
-```text
-semantic conflict resolution
-force push / merge / release
-repository visibility or permission widening
-production promotion / production rollback admission
-credential or provider enrollment decisions
-claims of real users, real incidents, production tenure or people-management tenure
-```
+PR #55–#58 were closed as integrated/superseded after their exact runner bytes arrived through #68 and their exact tests/workflows through #69. Ancestor PRs are closed after reachability is recorded; they are not replay-merged.
 
 ## Local Handoff Execution Queue
 
-Physical Docker/kind/Kubernetes/model/fault claims require a real admitted host. `handoff/local-handoff-queue.json` contains only concrete, bounded commands already present in the exact execution subject. Future runtime items are compiled only after their executable runner exists; placeholders do not become commands.
+Canonical queue: `handoff/local-handoff-queue.json`.
 
-Queue shape validation is not execution. A local PASS receipt remains bounded to its exact evidence ceiling.
-
-## Current Shadow Architect closure
+Execution subject:
 
 ```text
-bootstrap contract                PASS_AS_DESIGN        PR #6
-Full MVP technology contract      PASS_AS_DESIGN        PR #12 / #11
-exact invariant/evidence audit    NOT_EXERCISED          #1
-core platform                     NOT_IMPLEMENTED        #2
-observability/load                NOT_IMPLEMENTED        #3
-policy/security                   NOT_IMPLEMENTED        #4
-ML/LLMOps/progressive delivery    NOT_IMPLEMENTED        #7
-Demo Console                      NOT_IMPLEMENTED        #8
-supply-chain/fault tooling        NOT_IMPLEMENTED        #10
-failure/recovery                  NOT_IMPLEMENTED        #5
-full reviewer convergence         NOT_IMPLEMENTED        #9
-local capability execution        NOT_EXERCISED          Local Handoff
-production/management tenure      OUTSIDE_REPO_PROOF     Human evidence only
+commit   e7b4e23799a3579572598ebd5864a80831d49db4
+tree     0b72b9f09f73d3829db2f138d457a5691641bf79
+rollback bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7
 ```
 
-The next legal frontier is #1, followed by #2. After #2 freezes shared interfaces, #3/#4/#7/#8/#10 are the primary parallel Worker fan-out.
+Queue order:
+
+```text
+M8-LOCAL-REVIEWER-001             ACTIVE
+  ↓ exact PASS receipt
+M8-LIVE-KIND-002                  BLOCKED_BY_PREDECESSOR
+  ↓ exact PASS receipt + cleanup
+M8-COMPILE-ADVANCED-QUEUE-003     BLOCKED_BY_PREDECESSOR
+  ↓ compile receipt + human queue review
+M7 advanced queue                 NOT_COMPILED
+```
+
+First local command:
+
+```bash
+python3 scripts/handoff/run_local_reviewer_handoff.py \
+  --output evidence/local-reviewer/handoff-receipt.json \
+  --work-dir evidence/local-reviewer/work
+```
+
+Do not execute the kind or compiler item before the predecessor receipt is reviewed. The compiled advanced queue must pass the portable `skills-shared` assertion and selftest before any queue advancement.
+
+## Residual issues
+
+Keep open until physical evidence exists:
+
+```text
+#2  live kind/Kubernetes application acceptance
+#3  real synthetic 1,000-VU execution
+#7  exact model artifact/local inference/live canary
+#9  final Local Handoff and advanced runtime convergence
+#67 repository-admin deletion of orchestration-only temporary branches
+```
+
+All other stage-scoped issues may close only after the M8 closure PR is merged and their exact main reachability is commented.
+
+## Forbidden promotions
+
+```text
+CI_GREEN                 → BUSINESS_CORRECT                 forbidden
+RUNNER_CONTRACT_PASS     → PHYSICAL_RUNTIME_PASS            forbidden
+QUEUE_EXISTS             → QUEUE_EXECUTED                   forbidden
+FIXTURE_PASS             → LIVE_PREDECESSOR_PASS            forbidden
+LOCAL_K8S_PASS           → PRODUCTION_INFRA_EXPERIENCE      forbidden
+ARGO_CONTROLLERS_PASS    → APPLICATION_RECONCILIATION_PASS  forbidden
+LOCAL_MODEL_PASS         → PRODUCTION_LLM_TRAFFIC           forbidden
+1000_VU_PASS             → 1000_REAL_USERS                  forbidden
+LOCAL_SIGNING_PASS       → PRODUCTION_KEY_CUSTODY           forbidden
+DRILL_COMPLETE           → PRODUCTION_INCIDENT_HISTORY      forbidden
+LICENSE_METADATA_PASS    → BLANKET_LEGAL_CLEARANCE          forbidden
+REPOSITORY_ARTIFACT      → EMPLOYMENT_OR_MANAGER_TENURE     forbidden
+```
+
+Merge, release, visibility, permission, production promotion/rollback, provider credentials, queue advancement and real-experience claims remain Human/trusted-owner decisions.

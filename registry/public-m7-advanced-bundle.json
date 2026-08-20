@@ -1,0 +1,158 @@
+{
+  "schema_version": "full-manager-mvp/public-m7-advanced-bundle/v1",
+  "milestone": "PUBLIC_ADVANCED_EXECUTION_BUNDLE_READY",
+  "verdict": "PASS_BOUNDED",
+  "verified_date": "2026-08-19",
+  "method": {
+    "repository": "ed3c/skills-shared",
+    "commit": "4ca9417b1da5ff32f1d4d3e7af64a15908749024",
+    "local_handoff_schema": "agentic-tech-lead/local-handoff-queue/v1",
+    "portable_assertion": "skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py"
+  },
+  "canonical_queue_parent": {
+    "pull_request": 52,
+    "current_head": "f7a3937d7d0979e3adfaf1ebc4adc0532450d925",
+    "execution_epoch": {
+      "commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
+      "tree": "5ff3349c1eb5c7976263c2e89347a353ccbc1072",
+      "rollback_commit": "660d4deea81712f3d6ab5288ae09288b2e15cc27"
+    },
+    "physical_receipts_admitted": 0
+  },
+  "bundle": {
+    "issue": 60,
+    "pull_request": 65,
+    "branch": "handoff/m7-advanced-runtime-bundle",
+    "base_branch": "handoff/m5-live-kind-queue",
+    "head": "cf63e2fc85d56c2e49cfefd33fefbec30316e1fa",
+    "tree": "7dce94e01dd3630662deb6dfb3c67c8b5f272bb0",
+    "workflow_run": 32275551599,
+    "contract_state": "PASS",
+    "contract_evidence_ceiling": "GITHUB_HOSTED_M7_ADVANCED_BUNDLE_AND_QUEUE_COMPILER_ONLY",
+    "runtime_state": "NOT_EXERCISED"
+  },
+  "exact_side_inputs": [
+    {
+      "pull_request": 55,
+      "lane": "argo",
+      "head": "8d976171f4aa2eba72bee360823b660f9bed99d4",
+      "tree": "fada58f36c83de296decb41dcd34531b9d73145a",
+      "workflow_run": 32274548200,
+      "mode": "exact_runner_byte_parity"
+    },
+    {
+      "pull_request": 56,
+      "lane": "model",
+      "head": "63355992f382cf260c624e2c7c7c3733cce82c20",
+      "tree": "973f91c0354d43a679c558394ef9f2a6da58ac9a",
+      "workflow_run": 32265971683,
+      "mode": "exact_runner_byte_parity"
+    },
+    {
+      "pull_request": 57,
+      "lane": "capacity",
+      "head": "2240e8ee7ae9f151503d5c03d8043938dbbdce95",
+      "tree": "7965e4c544715d601de455d0839a9576649d8f73",
+      "workflow_run": 32266078175,
+      "mode": "exact_runner_byte_parity"
+    },
+    {
+      "pull_request": 58,
+      "lane": "registry_signing",
+      "head": "1b543fdfad73377fa6ba51e3f190b56ed60452fa",
+      "tree": "266d81dbb51b0d2422deafdb829b2ef8f1f163ff",
+      "workflow_run": 32266026763,
+      "mode": "exact_runner_byte_parity"
+    }
+  ],
+  "compiler": {
+    "path": "scripts/handoff/compile_m7_advanced_queue.py",
+    "live_predecessors": [
+      {
+        "id": "M5-LOCAL-REVIEWER-001",
+        "schema": "full-manager-mvp/local-reviewer-handoff-receipt/v1",
+        "required_state": "PASS",
+        "required_ceiling": "LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY"
+      },
+      {
+        "id": "M5-LIVE-KIND-002",
+        "schema": "full-manager-mvp/local-kind-substrate-receipt/v1",
+        "required_state": "PASS",
+        "required_ceiling": "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY"
+      }
+    ],
+    "fixture_mode": {
+      "explicit_flag": "--fixture-mode",
+      "required_evidence_kind": "FIXTURE",
+      "compile_evidence_ceiling": "FIXTURE_COMPILER_CONTRACT_ONLY",
+      "physical_runtime_executed": false
+    },
+    "negative_controls": [
+      "absent predecessor receipt",
+      "reviewer FAIL",
+      "kind FAIL",
+      "wrong predecessor subject",
+      "wrong evidence ceiling",
+      "fixture receipt without fixture mode"
+    ]
+  },
+  "future_queue": {
+    "schema": "agentic-tech-lead/local-handoff-queue/v1",
+    "physical_state": "NOT_COMPILED_FROM_LIVE_RECEIPTS",
+    "fixture_validation": "PASS",
+    "order": [
+      {
+        "id": "M7-ARGO-CONTROLLERS-001",
+        "state_in_fixture": "ACTIVE",
+        "potential_runtime_ceiling": "LOCAL_ARGO_CONTROLLERS_READY_ONLY"
+      },
+      {
+        "id": "M7-LOCAL-MODEL-002",
+        "state_in_fixture": "BLOCKED_BY_PREDECESSOR",
+        "potential_runtime_ceiling": "LOCAL_LLAMA_CPP_MODEL_INFERENCE_ONLY"
+      },
+      {
+        "id": "M7-CAPACITY-003",
+        "state_in_fixture": "BLOCKED_BY_PREDECESSOR",
+        "potential_runtime_ceiling": "LOCAL_SYNTHETIC_1000_VU_ONLY"
+      },
+      {
+        "id": "M7-REGISTRY-SIGNING-004",
+        "state_in_fixture": "BLOCKED_BY_PREDECESSOR",
+        "potential_runtime_ceiling": "LOCAL_REGISTRY_STORED_IMAGE_SIGNATURE_ONLY"
+      }
+    ]
+  },
+  "shadow": {
+    "l3_blockers_for_contract_readiness": 0,
+    "material_deltas": [
+      "LIFECYCLE_DELTA",
+      "AUTHORITY_DELTA",
+      "OWNERSHIP_DELTA",
+      "RESOURCE_DELTA",
+      "FAILURE_SURFACE_DELTA",
+      "EVIDENCE_DELTA",
+      "CONTRACT_DRIFT"
+    ],
+    "intermediate_failed_runs": [32275347591, 32275449122]
+  },
+  "residuals": {
+    "local_deterministic_reviewer": "NOT_EXERCISED",
+    "local_kind_kubernetes": "NOT_EXERCISED",
+    "live_advanced_queue_compilation": "NOT_EXERCISED",
+    "argo_controllers": "NOT_EXERCISED",
+    "argo_cd_application_reconciliation": "NOT_EXERCISED",
+    "live_argo_rollouts_canary": "NOT_EXERCISED",
+    "local_qwen_llama_cpp": "NOT_EXERCISED",
+    "load_1000_vu": "NOT_EXERCISED",
+    "registry_stored_image_signing": "NOT_EXERCISED",
+    "production_users_incidents": "OUTSIDE_CURRENT_PROOF",
+    "people_management_tenure": "OUTSIDE_REPOSITORY_PROOF"
+  },
+  "authority": {
+    "merge_release_visibility_permissions": "HUMAN_ONLY",
+    "production_promotion_rollback": "HUMAN_ONLY",
+    "provider_or_credential_enrollment": "HUMAN_ONLY",
+    "real_experience_claims": "HUMAN_ONLY"
+  }
+}
