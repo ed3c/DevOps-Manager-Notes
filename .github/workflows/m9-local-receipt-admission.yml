@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - 'scripts/handoff/compile_public_receipt_packet.py'
+      - 'scripts/handoff/admit_public_receipt_packet.py'
       - 'tests/handoff/test_public_receipt_packet.py'
+      - 'tests/handoff/test_public_receipt_admission_policy.py'
       - 'tests/handoff/fixtures/m9/**'
       - '.github/workflows/m9-local-receipt-admission.yml'
   workflow_dispatch:
@@ -35,36 +37,41 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Compile receipt admission surface
+      - name: Compile receipt admission surfaces
         run: |
-          python3 -m py_compile scripts/handoff/compile_public_receipt_packet.py
-          python3 scripts/handoff/compile_public_receipt_packet.py --help >/dev/null
+          python3 -m py_compile \
+            scripts/handoff/compile_public_receipt_packet.py \
+            scripts/handoff/admit_public_receipt_packet.py
+          python3 scripts/handoff/admit_public_receipt_packet.py --help >/dev/null
 
-      - name: Run receipt admission and planted negative controls
-        run: python3 tests/handoff/test_public_receipt_packet.py -v
-
-      - name: Compile explicit fixture packet
+      - name: Run core receipt and Shadow policy controls
         run: |
-          python3 scripts/handoff/compile_public_receipt_packet.py \
+          python3 tests/handoff/test_public_receipt_packet.py -v
+          python3 tests/handoff/test_public_receipt_admission_policy.py -v
+
+      - name: Admit only the current ACTIVE fixture receipt
+        run: |
+          python3 scripts/handoff/admit_public_receipt_packet.py \
             --fixture-mode \
             --queue tests/handoff/fixtures/m9/queue.json \
             --receipt-root tests/handoff/fixtures/m9 \
             --receipt M9-LOCAL-REVIEWER-001=reviewer-pass.json \
-            --receipt M9-LIVE-KIND-002=kind-pass.json \
-            --receipt M9-COMPILE-QUEUE-003=compile-pass.json \
             --output /tmp/m9-public-receipt-packet.json
 
           jq -e '
             .schema_version == "full-manager-mvp/public-local-receipt-packet/v1" and
             .evidence_kind == "FIXTURE" and
             .evidence_ceiling == "FIXTURE_PUBLIC_RECEIPT_PACKET_ONLY" and
-            .aggregate.state == "QUEUE_COMPLETION_REVIEW_REQUIRED" and
-            .aggregate.admitted_item_count == 3 and
-            .aggregate.pass_count == 3 and
+            .aggregate.state == "HUMAN_QUEUE_ADVANCE_REQUIRED" and
+            .aggregate.admitted_item_count == 1 and
+            .aggregate.pass_count == 1 and
             .aggregate.fail_count == 0 and
+            .aggregate.next_item == "M9-LIVE-KIND-002" and
             .aggregate.queue_mutated == false and
             .aggregate.queue_advanced == false and
-            .aggregate.compiler_physical_runtime_executed == false
+            .aggregate.compiler_physical_runtime_executed == false and
+            .admission_policy.future_blocked_receipts_accepted == false and
+            .admission_policy.queue_or_receipt_overwrite_allowed == false
           ' /tmp/m9-public-receipt-packet.json >/dev/null
 
           if grep -q 'SHOULD_NOT_APPEAR_IN_PUBLIC_PACKET' /tmp/m9-public-receipt-packet.json; then
@@ -72,25 +79,42 @@ jobs:
             exit 1
           fi
 
-      - name: Prove fixture cannot enter live admission mode
+      - name: Prove blocked future receipt cannot be admitted early
         run: |
-          if python3 scripts/handoff/compile_public_receipt_packet.py \
+          if python3 scripts/handoff/admit_public_receipt_packet.py \
+            --fixture-mode \
             --queue tests/handoff/fixtures/m9/queue.json \
             --receipt-root tests/handoff/fixtures/m9 \
             --receipt M9-LOCAL-REVIEWER-001=reviewer-pass.json \
-            --output /tmp/should-not-exist.json \
+            --receipt M9-LIVE-KIND-002=kind-pass.json \
+            --output /tmp/should-not-admit-blocked.json \
+            >/tmp/m9-blocked-reject.out 2>&1; then
+            echo 'blocked future receipt unexpectedly admitted'
+            exit 1
+          fi
+          grep -q 'blocked future item' /tmp/m9-blocked-reject.out
+          test ! -e /tmp/should-not-admit-blocked.json
+
+      - name: Prove fixture cannot enter live admission mode
+        run: |
+          if python3 scripts/handoff/admit_public_receipt_packet.py \
+            --queue tests/handoff/fixtures/m9/queue.json \
+            --receipt-root tests/handoff/fixtures/m9 \
+            --receipt M9-LOCAL-REVIEWER-001=reviewer-pass.json \
+            --output evidence/local-handoff/should-not-exist.json \
             >/tmp/m9-live-reject.out 2>&1; then
             echo 'fixture receipt unexpectedly entered live admission mode'
             exit 1
           fi
           grep -q 'fixture receipt is forbidden' /tmp/m9-live-reject.out
-          test ! -e /tmp/should-not-exist.json
+          test ! -e evidence/local-handoff/should-not-exist.json
 
-      - name: Public fixture disclosure guard
+      - name: Public disclosure guard
         run: |
           if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_|AKIA[0-9A-Z]{16})' \
-            tests/handoff/fixtures/m9; then
-            echo 'secret-like material found in M9 fixtures'
+            tests/handoff/fixtures/m9 \
+            scripts/handoff/admit_public_receipt_packet.py; then
+            echo 'secret-like material found in M9 public contract surface'
             exit 1
           fi
 
@@ -100,7 +124,10 @@ jobs:
           ## M9 local receipt admission boundary
           - exact queue/receipt schema and subject validation: exercised with explicit fixtures
           - PASS/FAIL, cleanup, ceiling, prefix-order and byte-bound controls: exercised
-          - fixture/live isolation: exercised
+          - queue progress shape `COMPLETE* -> ACTIVE -> BLOCKED*`: exercised
+          - blocked-future receipt rejection: exercised
+          - live output / input-overwrite / receipt-root authority controls: exercised
+          - fixture/live isolation and extended sensitive-key guard: exercised
           - public packet allowlist and raw receipt SHA-256 projection: exercised
           - queue mutation or advancement: **NOT_PERFORMED**
           - local reviewer/kind/Argo/model/1,000-VU/signing execution: **NOT_EXERCISED**
