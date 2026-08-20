@@ -1,4 +1,4 @@
-version: 10
+version: 11
 method_owner: ed3c/skills-shared/skills/git-town-stacked-pr-worker
 consumer: ed3c/DevOps-Manager-Notes
 canonical_tech_lead_subject: 4ca9417b1da5ff32f1d4d3e7af64a15908749024
@@ -16,12 +16,17 @@ policy:
   runner_contract_pass_is_not_physical_runtime_pass: true
   fixture_pass_is_not_live_pass: true
   local_handoff_must_pass_portable_assertion: true
+  public_receipt_packet_is_projection_not_runtime: true
+  blocked_receipt_admission_forbidden: true
+  receipt_packet_must_not_overwrite_queue_or_raw_receipts: true
+  queue_advance_is_trusted_authority_transition: true
   merge_requires_exact_head_green: true
   merge_release_promotion_human_owned: true
 
 main_integration:
-  state: INTEGRATED_BEFORE_M8_DOCS
-  head: bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7
+  state: M8_INTEGRATED
+  current_before_m9: 5d0c5db1626bf5c1a83334ea864b6a3eb7613df3
+  current_before_m9_tree: abd7fa38e9aa7ca720d9f110559a1f05b05c2023
   merges:
     - {pull_request: 68, commit: d0ecbd05c1dfecc6ae65f62c9869cd6a1412da43, scope: M1_M7_BACKBONE}
     - {pull_request: 37, commit: a47c0de9d5d0a176821a95c7a6c961ed7cf9f058, scope: DEMO_CONSOLE}
@@ -29,219 +34,134 @@ main_integration:
     - {pull_request: 39, commit: 9e5b9c23467ff90a1c1452a255d4a6cfa245b6bf, scope: ML_LLMOPS}
     - {pull_request: 40, commit: 0b0709946e84e80918a0e50903badb8b7bd4fa12, scope: SUPPLY_CHAIN_FAULT}
     - {pull_request: 69, commit: bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7, scope: ADVANCED_RUNNER_CONTRACT_EVIDENCE}
+    - {pull_request: 70, commit: e18bd3762de42ae8baeacc10ed595ecfdd203260, scope: M8_MAIN_INTEGRATION_AND_HANDOFF}
+    - {pull_request: 71, commit: 5d0c5db1626bf5c1a83334ea864b6a3eb7613df3, scope: M8_TRACEABILITY_FINALIZATION}
 
 execution_subject:
+  repository: ed3c/DevOps-Manager-Notes
   commit: e7b4e23799a3579572598ebd5864a80831d49db4
   tree: 0b72b9f09f73d3829db2f138d457a5691641bf79
   rollback_commit: bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7
   queue: handoff/local-handoff-queue.json
   active_item: M8-LOCAL-REVIEWER-001
+  physical_runtime: NOT_EXERCISED
 
-atoms:
-  - id: C0-bootstrap
-    atom: C
-    pull_request: 6
-    state: INTEGRATED_VIA_PR_68_CLOSE_PENDING
-    git_parent: main
-
-  - id: C11-full-mvp-architecture
-    atom: C
-    pull_request: 12
-    state: INTEGRATED_VIA_PR_68_CLOSE_PENDING
-    git_parent: C0-bootstrap
-
-  - id: E1-invariant-evidence-audit
-    atom: E
-    issues: [1]
-    pull_request: 13
-    state: INTEGRATED_VIA_PR_68_CLOSE_PENDING
-    git_parent: C11-full-mvp-architecture
-
+historical_implementation_atoms:
+  - {id: C0-bootstrap, atom: C, pull_request: 6, integrated_via: 68}
+  - {id: C11-full-mvp-architecture, atom: C, pull_request: 12, integrated_via: 68}
+  - {id: E1-invariant-evidence-audit, atom: E, pull_request: 13, integrated_via: 68}
   - id: K2-core-platform
     atom: K
     issues: [2]
     pull_request: 14
-    state: REMOTE_FIRST_GREEN_INTEGRATED_LOCAL_RUNTIME_OPEN
-    git_parent: E1-invariant-evidence-audit
-    main_merge: d0ecbd05c1dfecc6ae65f62c9869cd6a1412da43
-    local_evidence: NOT_EXERCISED
-
+    integrated_via: 68
+    remote_state: PASS_BOUNDED
+    local_state: NOT_EXERCISED
   - id: A3-observability-load
     atom: A
     issues: [3]
     pull_request: 36
-    state: REMOTE_FIRST_GREEN_INTEGRATED_1000_VU_OPEN
-    git_parent: K2-core-platform
-    evidence_ceiling: GITHUB_HOSTED_OBSERVABILITY_AND_BOUNDED_LOAD_ONLY
-
-  - id: A8-demo-console
-    atom: A
-    issues: [8]
-    pull_request: 37
-    state: MERGED_STAGE_COMPLETE
-    git_parent: K2-core-platform
-    merge_commit: a47c0de9d5d0a176821a95c7a6c961ed7cf9f058
-    evidence_ceiling: FRONTEND_BUILD_AND_CANONICAL_PUBLIC_EVIDENCE_RENDER_ONLY
-
-  - id: E4-policy-security-license
-    atom: E
-    issues: [4]
-    pull_request: 38
-    state: MERGED_STAGE_COMPLETE
-    git_parent: K2-core-platform
-    merge_commit: cf7f0f5939e75475ce10da14f932de1a7f33b257
-    evidence_ceiling: GITHUB_HOSTED_POLICY_SECURITY_AND_LICENSE_METADATA_ONLY_NOT_LEGAL_CLEARANCE
-
+    integrated_via: 68
+    remote_state: PASS_BOUNDED
+    physical_1000_vu: NOT_EXERCISED
+  - {id: A8-demo-console, atom: A, issues: [8], pull_request: 37, merge_commit: a47c0de9d5d0a176821a95c7a6c961ed7cf9f058, state: MERGED_STAGE_COMPLETE}
+  - {id: E4-policy-security-license, atom: E, issues: [4], pull_request: 38, merge_commit: cf7f0f5939e75475ce10da14f932de1a7f33b257, state: MERGED_STAGE_COMPLETE}
   - id: A7-ml-llmops
     atom: A
     issues: [7]
     pull_request: 39
-    state: CONTRACT_MERGED_PHYSICAL_RUNTIME_OPEN
-    git_parent: K2-core-platform
     merge_commit: 9e5b9c23467ff90a1c1452a255d4a6cfa245b6bf
-    evidence_ceiling: GITHUB_HOSTED_DETERMINISTIC_MLFLOW_LIFECYCLE_ONLY
-
+    deterministic_state: PASS_BOUNDED
+    local_model_and_live_canary: NOT_EXERCISED
   - id: E10-supply-chain-fault
     atom: E
     issues: [10]
     pull_request: 40
-    state: HOSTED_STAGE_MERGED_REGISTRY_RUNTIME_OPEN
-    git_parent: K2-core-platform
     merge_commit: 0b0709946e84e80918a0e50903badb8b7bd4fa12
-    evidence_ceiling: GITHUB_HOSTED_SBOM_SAME_RUN_BLOB_SIGNING_AND_BOUNDED_FAULT_DRILL_ONLY
+    hosted_state: PASS_BOUNDED
+    registry_stored_signing: NOT_EXERCISED
+  - {id: X5-failure-recovery, atom: X, issues: [5], pull_request: 42, integrated_via: 68, evidence_kind: DRILL_SIMULATION}
+  - {id: X9-reviewer-convergence, atom: X, issues: [9], pull_request: 44, integrated_via: 68, physical_residuals: OPEN}
+  - {id: D4-local-handoff-bootstrap, atom: D, pull_request: 45, integrated_via: 68}
+  - {id: K5-live-kind-runner, atom: K, issues: [2], pull_request: 51, integrated_via: 68, runtime_state: NOT_EXERCISED}
+  - {id: D5-canonical-local-handoff, atom: D, pull_request: 52, integrated_via: 68, superseded_by: M8_QUEUE}
+  - {id: A6-argo-runner, atom: A, issues: [54], pull_request: 55, historical_head: 8d976171f4aa2eba72bee360823b660f9bed99d4, integrated_via: [68,69], runtime_state: NOT_EXERCISED}
+  - {id: A6-model-runner, atom: A, issues: [54], pull_request: 56, historical_head: 63355992f382cf260c624e2c7c7c3733cce82c20, integrated_via: [68,69], runtime_state: NOT_EXERCISED}
+  - {id: E6-capacity-runner, atom: E, issues: [54], pull_request: 57, historical_head: 2240e8ee7ae9f151503d5c03d8043938dbbdce95, integrated_via: [68,69], runtime_state: NOT_EXERCISED}
+  - {id: E6-registry-signing-runner, atom: E, issues: [54], pull_request: 58, historical_head: 1b543fdfad73377fa6ba51e3f190b56ed60452fa, integrated_via: [68,69], runtime_state: NOT_EXERCISED}
+  - {id: X7-advanced-execution-bundle, atom: X, issues: [60,61,62,64], pull_request: 65, integrated_via: 68, contract_run: 32275551599, runtime_state: NOT_EXERCISED}
 
-  - id: X5-failure-recovery
-    atom: X
-    issues: [5]
-    pull_request: 42
-    state: INTEGRATED_VIA_PR_68_STAGE_COMPLETE_CLOSE_PENDING
-    git_parent: A3-observability-load
-    exact_side_inputs: [E4-policy-security-license, A7-ml-llmops, E10-supply-chain-fault]
-    evidence_kind: DRILL_SIMULATION
-
-  - id: X9-reviewer-convergence
-    atom: X
-    issues: [9]
-    pull_request: 44
-    state: REMOTE_INTEGRATED_LOCAL_RESIDUALS_OPEN
-    git_parent: X5-failure-recovery
-    exact_side_inputs: [A8-demo-console]
-
-  - id: D4-local-handoff-bootstrap
-    atom: D
-    pull_request: 45
-    state: HISTORICAL_INTEGRATED_CLOSE_PENDING
-    git_parent: X9-reviewer-convergence
-
-  - id: K5-live-kind-runner
-    atom: K
-    issues: [2]
-    pull_request: 51
-    state: CONTRACT_INTEGRATED_PHYSICAL_RECEIPT_ABSENT
-    git_parent: D4-local-handoff-bootstrap
-
-  - id: D5-canonical-local-handoff
-    atom: D
-    issues: [48]
-    pull_request: 52
-    state: CONTRACT_INTEGRATED_SUPERSEDED_BY_M8_QUEUE
-    git_parent: K5-live-kind-runner
-
-  - id: A6-argo-runner
-    atom: A
-    issues: [54]
-    pull_request: 55
-    state: CLOSED_INTEGRATED_VIA_68_69
-    historical_head: 8d976171f4aa2eba72bee360823b660f9bed99d4
-    runtime_state: NOT_EXERCISED
-
-  - id: A6-model-runner
-    atom: A
-    issues: [54]
-    pull_request: 56
-    state: CLOSED_INTEGRATED_VIA_68_69
-    historical_head: 63355992f382cf260c624e2c7c7c3733cce82c20
-    runtime_state: NOT_EXERCISED
-
-  - id: E6-capacity-runner
-    atom: E
-    issues: [54]
-    pull_request: 57
-    state: CLOSED_INTEGRATED_VIA_68_69
-    historical_head: 2240e8ee7ae9f151503d5c03d8043938dbbdce95
-    runtime_state: NOT_EXERCISED
-
-  - id: E6-registry-signing-runner
-    atom: E
-    issues: [54]
-    pull_request: 58
-    state: CLOSED_INTEGRATED_VIA_68_69
-    historical_head: 1b543fdfad73377fa6ba51e3f190b56ed60452fa
-    runtime_state: NOT_EXERCISED
-
-  - id: X7-advanced-execution-bundle
-    atom: X
-    issues: [60, 61, 62, 64]
-    pull_request: 65
-    state: INTEGRATED_VIA_PR_68_CLOSE_PENDING
-    git_parent: D5-canonical-local-handoff
-    exact_side_inputs: [A6-argo-runner, A6-model-runner, E6-capacity-runner, E6-registry-signing-runner]
-    contract_run: 32275551599
-    physical_runtime: NOT_EXERCISED
-
-  - id: X8-main-backbone-integration
-    atom: X
-    pull_request: 68
-    state: MERGED
-    merge_commit: d0ecbd05c1dfecc6ae65f62c9869cd6a1412da43
-
-  - id: X8-advanced-contract-evidence-integration
-    atom: X
-    pull_request: 69
-    state: MERGED
-    merge_commit: bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7
-    source_prs: [55, 56, 57, 58]
-    workflow_runs: [32325970179, 32325970269, 32325970231, 32325970178]
-
-  - id: D8-main-integration-closure
+m8_atoms:
+  - {id: X8-main-backbone-integration, atom: X, pull_request: 68, state: MERGED, merge_commit: d0ecbd05c1dfecc6ae65f62c9869cd6a1412da43}
+  - {id: X8-advanced-contract-evidence-integration, atom: X, pull_request: 69, state: MERGED, merge_commit: bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7}
+  - id: D8-main-integration-handoff
     atom: D
     issues: [9]
-    pull_request: null
-    state: BRANCH_READY_PR_PENDING
-    branch: docs/m8-main-integration-closure
-    git_parent: X8-advanced-contract-evidence-integration
+    pull_request: 70
+    state: MERGED
+    merge_commit: e18bd3762de42ae8baeacc10ed595ecfdd203260
     execution_subject: e7b4e23799a3579572598ebd5864a80831d49db4
+  - {id: D8-traceability-finalization, atom: D, pull_request: 71, state: MERGED, merge_commit: 5d0c5db1626bf5c1a83334ea864b6a3eb7613df3}
+
+m9_atoms:
+  - id: A9-local-receipt-admission
+    atom: A
+    issues: [76]
+    pull_request: 77
+    state: PR_DRAFT_HARDENED_FIRST_GREEN
+    stack_class: child_of_main
+    git_parent: main
+    branch: feat/m9-local-receipt-admission
+    base_commit: 5d0c5db1626bf5c1a83334ea864b6a3eb7613df3
+    head: fc7ae40c0a5ea0a403c2ed27555de3cbbc8d042b
+    tree: 67acc95ed6ee85091dfe30c8b853bc54203c3cda
+    contract_validation:
+      workflow: M9 local receipt admission contract
+      workflow_run_id: 32376416583
+      result: SUCCESS
+      evidence_ceiling: GITHUB_HOSTED_M9_RECEIPT_ADMISSION_CONTRACT_ONLY
+    outputs:
+      - scripts/handoff/compile_public_receipt_packet.py
+      - scripts/handoff/admit_public_receipt_packet.py
+      - tests/handoff/test_public_receipt_packet.py
+      - tests/handoff/test_public_receipt_admission_policy.py
+      - tests/handoff/fixtures/m9/
+      - .github/workflows/m9-local-receipt-admission.yml
+    shadow_deltas:
+      - AUTHORITY_DELTA_OUTPUT_AND_INPUT_ALIAS_BOUND
+      - STATE_DELTA_BLOCKED_FUTURE_RECEIPT_REJECTED
+      - EVIDENCE_DELTA_EXTENDED_SENSITIVE_KEY_GUARD
+      - RESOURCE_DELTA_RECEIPT_ROOTS_BOUNDED
+    physical_runtime: NOT_EXERCISED
+    blockers: [D9_TRACEABILITY, HUMAN_ADMIT_MERGE]
+
+  - id: D9-local-receipt-admission-index
+    atom: D
+    issues: [78]
+    pull_request: null
+    state: BRANCH_CREATED_PR_PENDING
+    stack_class: true_child
+    git_parent: A9-local-receipt-admission
+    branch: docs/m9-local-receipt-admission-index
+    base_branch: feat/m9-local-receipt-admission
     outputs:
       - README.md
       - AGENTS.md
       - docs/INDEX.md
-      - docs/milestones/PUBLIC_M8_MAIN_INTEGRATION.md
-      - registry/public-m8-main-integration.json
+      - docs/milestones/PUBLIC_M9_LOCAL_RECEIPT_ADMISSION_READY.md
+      - registry/public-m9-local-receipt-admission.json
       - registry/stack-plan.yaml
-      - handoff/local-handoff-queue.json
-    blockers: [PR_IDENTITY_PENDING, EXACT_HEAD_CI_PENDING, HUMAN_ADMIT_MERGE]
+      - .github/workflows/m9-receipt-admission-index.yml
+    evidence_ceiling: GITHUB_HOSTED_M9_TRACEABILITY_INDEX_ONLY
+    blockers: [PR_IDENTITY_PENDING, INDEX_CI_PENDING, HUMAN_ADMIT_MERGE]
 
-historical_docs_stack:
-  pull_requests: [41, 43, 46, 53, 59, 66]
-  state: EXACT_MILESTONE_AND_REGISTRY_BLOBS_COPIED_BY_D8_CLOSE_AFTER_MERGE
-
-stage_complete_issues_after_d8_merge:
-  - 1
-  - 4
-  - 5
-  - 8
-  - 10
-  - 11
-  - 16
-  - 22
-  - 26
-  - 48
-  - 54
-  - 60
-  - 61
-  - 62
-  - 63
-  - 64
+local_handoff_data_flow:
+  - LOCAL_COMMAND
+  - RAW_TYPED_RECEIPT
+  - M9_EXACT_SUBJECT_ADMISSION
+  - PUBLIC_SAFE_PACKET
+  - HUMAN_TRUSTED_QUEUE_REVIEW
+  - DELIBERATE_QUEUE_ADVANCE_OR_LOCAL_GAP
 
 open_residual_issues:
   - {issue: 2, reason: LIVE_KIND_RECEIPT_ABSENT}
@@ -249,10 +169,12 @@ open_residual_issues:
   - {issue: 7, reason: EXACT_MODEL_AND_LIVE_CANARY_RECEIPTS_ABSENT}
   - {issue: 9, reason: LOCAL_HANDOFF_AND_ADVANCED_RUNTIME_OPEN}
   - {issue: 67, reason: REPOSITORY_ADMIN_BRANCH_DELETION_REQUIRED}
+  - {issue: 76, reason: M9_NOT_YET_ON_MAIN}
+  - {issue: 78, reason: M9_TRACEABILITY_NOT_YET_ON_MAIN}
 
 notes:
   - Exact historical evidence remains bound to the commit and run that produced it.
-  - Direct replay merging is forbidden when exact bytes are already reachable from main through another convergence path.
-  - The M8 queue binds one stable execution subject and keeps exactly one ACTIVE item.
-  - Queue compilation does not execute Argo, model, load or signing lanes.
-  - No repository artifact promotes to production, adoption, incident-history, legal-clearance, employment or people-management evidence.
+  - A9 receipt admission does not execute physical runtime and does not advance the queue.
+  - D9 is a true child because it consumes A9 unmerged contracts; local receipts are process dependencies, not Git parents.
+  - A public packet contains only allowlisted summaries and raw receipt identity metadata.
+  - No queue/packet/CI/repository artifact promotes to production, adoption, incident-history, legal-clearance, employment or people-management evidence.
