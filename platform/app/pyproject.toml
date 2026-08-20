@@ -14,12 +14,16 @@ dependencies = [
   "alembic==1.19.1",
   "psycopg[binary]==3.3.4",
   "uvicorn==0.52.4",
+  "opentelemetry-api==1.44.0",
+  "opentelemetry-sdk==1.44.0",
+  "prometheus-client==0.26.0",
 ]
 
 [project.optional-dependencies]
 dev = [
   "httpx==0.28.1",
   "pytest==8.4.2",
+  "locust==2.46.2",
 ]
 
 [tool.setuptools.packages.find]

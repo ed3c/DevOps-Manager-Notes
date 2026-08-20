@@ -17,6 +17,7 @@ from .contracts import (
     EvidenceState,
 )
 from .db import Base, Database
+from .observability import install_observability, record_business_oracle
 from .repository import IdempotencyConflict, register_candidate
 
 
@@ -33,6 +34,7 @@ def create_app(
     create_schema: bool = False,
 ) -> FastAPI:
     app = FastAPI(title="Full Manager MVP Control Plane", version="0.1.0")
+    install_observability(app)
     db = Database(database_url or _database_url())
     app.state.db = db
 
@@ -73,6 +75,7 @@ def create_app(
     @app.post("/v1/oracle/evaluate", response_model=BusinessOracleResponse)
     def evaluate_business(payload: BusinessOracleRequest) -> BusinessOracleResponse:
         ok = payload.expected_value == payload.observed_value and not payload.force_failure
+        record_business_oracle(ok)
         verdict = EvidenceState.PASS if ok else EvidenceState.FAIL
         reasons = [] if ok else ["BUSINESS_ORACLE_MISMATCH"]
         return BusinessOracleResponse(
