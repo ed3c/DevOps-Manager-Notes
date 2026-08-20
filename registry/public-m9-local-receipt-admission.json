@@ -57,10 +57,11 @@
   },
   "d9_traceability": {
     "issue": 78,
-    "pull_request": null,
+    "pull_request": 79,
     "branch": "docs/m9-local-receipt-admission-index",
     "base_branch": "feat/m9-local-receipt-admission",
-    "state": "BRANCH_CREATED_PR_PENDING",
+    "base_head": "fc7ae40c0a5ea0a403c2ed27555de3cbbc8d042b",
+    "state": "PR_DRAFT_INDEX_PENDING_FIRST_GREEN",
     "evidence_ceiling": "GITHUB_HOSTED_M9_TRACEABILITY_INDEX_ONLY"
   },
   "receipt_flow": [
