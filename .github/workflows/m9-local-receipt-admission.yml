@@ -1,0 +1,108 @@
+name: M9 local receipt admission contract
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/handoff/compile_public_receipt_packet.py'
+      - 'tests/handoff/test_public_receipt_packet.py'
+      - 'tests/handoff/fixtures/m9/**'
+      - '.github/workflows/m9-local-receipt-admission.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m9-local-receipt-admission-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Checkout exact workflow subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_COMMIT }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Compile receipt admission surface
+        run: |
+          python3 -m py_compile scripts/handoff/compile_public_receipt_packet.py
+          python3 scripts/handoff/compile_public_receipt_packet.py --help >/dev/null
+
+      - name: Run receipt admission and planted negative controls
+        run: python3 tests/handoff/test_public_receipt_packet.py -v
+
+      - name: Compile explicit fixture packet
+        run: |
+          python3 scripts/handoff/compile_public_receipt_packet.py \
+            --fixture-mode \
+            --queue tests/handoff/fixtures/m9/queue.json \
+            --receipt-root tests/handoff/fixtures/m9 \
+            --receipt M9-LOCAL-REVIEWER-001=reviewer-pass.json \
+            --receipt M9-LIVE-KIND-002=kind-pass.json \
+            --receipt M9-COMPILE-QUEUE-003=compile-pass.json \
+            --output /tmp/m9-public-receipt-packet.json
+
+          jq -e '
+            .schema_version == "full-manager-mvp/public-local-receipt-packet/v1" and
+            .evidence_kind == "FIXTURE" and
+            .evidence_ceiling == "FIXTURE_PUBLIC_RECEIPT_PACKET_ONLY" and
+            .aggregate.state == "QUEUE_COMPLETION_REVIEW_REQUIRED" and
+            .aggregate.admitted_item_count == 3 and
+            .aggregate.pass_count == 3 and
+            .aggregate.fail_count == 0 and
+            .aggregate.queue_mutated == false and
+            .aggregate.queue_advanced == false and
+            .aggregate.compiler_physical_runtime_executed == false
+          ' /tmp/m9-public-receipt-packet.json >/dev/null
+
+          if grep -q 'SHOULD_NOT_APPEAR_IN_PUBLIC_PACKET' /tmp/m9-public-receipt-packet.json; then
+            echo 'raw log/output tail leaked into public packet'
+            exit 1
+          fi
+
+      - name: Prove fixture cannot enter live admission mode
+        run: |
+          if python3 scripts/handoff/compile_public_receipt_packet.py \
+            --queue tests/handoff/fixtures/m9/queue.json \
+            --receipt-root tests/handoff/fixtures/m9 \
+            --receipt M9-LOCAL-REVIEWER-001=reviewer-pass.json \
+            --output /tmp/should-not-exist.json \
+            >/tmp/m9-live-reject.out 2>&1; then
+            echo 'fixture receipt unexpectedly entered live admission mode'
+            exit 1
+          fi
+          grep -q 'fixture receipt is forbidden' /tmp/m9-live-reject.out
+          test ! -e /tmp/should-not-exist.json
+
+      - name: Public fixture disclosure guard
+        run: |
+          if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_|AKIA[0-9A-Z]{16})' \
+            tests/handoff/fixtures/m9; then
+            echo 'secret-like material found in M9 fixtures'
+            exit 1
+          fi
+
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M9 local receipt admission boundary
+          - exact queue/receipt schema and subject validation: exercised with explicit fixtures
+          - PASS/FAIL, cleanup, ceiling, prefix-order and byte-bound controls: exercised
+          - fixture/live isolation: exercised
+          - public packet allowlist and raw receipt SHA-256 projection: exercised
+          - queue mutation or advancement: **NOT_PERFORMED**
+          - local reviewer/kind/Argo/model/1,000-VU/signing execution: **NOT_EXERCISED**
+          - evidence ceiling: `GITHUB_HOSTED_M9_RECEIPT_ADMISSION_CONTRACT_ONLY`
+          EOF
