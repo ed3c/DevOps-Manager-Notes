@@ -1,0 +1,66 @@
+name: M6 local model runner contract
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/handoff/run_local_model.py'
+      - 'scripts/handoff/run_local_model_from_env.sh'
+      - 'tests/handoff/test_local_model_runner_contract.py'
+      - '.github/workflows/m6-local-model-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m6-local-model-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact workflow subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Compile Python and shell wrapper
+        run: |
+          python3 -m py_compile scripts/handoff/run_local_model.py
+          bash -n scripts/handoff/run_local_model_from_env.sh
+      - name: Run no-side-effect contract tests
+        run: python3 tests/handoff/test_local_model_runner_contract.py -v
+      - name: Assert wrapper rejects absent artifact identity
+        run: |
+          if env -u M6_LLAMA_CPP_COMMIT -u M6_MODEL_URL -u M6_MODEL_SHA256 -u M6_MODEL_LICENSE_ID \
+            bash scripts/handoff/run_local_model_from_env.sh --plan-only >/tmp/m6-model-missing.out 2>&1; then
+            echo 'wrapper unexpectedly accepted missing identity'
+            exit 1
+          fi
+          grep -q 'M6_LLAMA_CPP_COMMIT' /tmp/m6-model-missing.out
+      - name: Assert hardened plan-only boundary
+        run: |
+          M6_LLAMA_CPP_COMMIT='1111111111111111111111111111111111111111' \
+          M6_MODEL_URL='https://example.invalid/model.gguf' \
+          M6_MODEL_SHA256='2222222222222222222222222222222222222222222222222222222222222222' \
+          M6_MODEL_LICENSE_ID='Apache-2.0' \
+            bash scripts/handoff/run_local_model_from_env.sh --plan-only > /tmp/m6-model-plan.json
+          jq -e '.evidence_ceiling_after_real_execution == "LOCAL_LLAMA_CPP_MODEL_INFERENCE_ONLY"' /tmp/m6-model-plan.json >/dev/null
+          jq -e '.resource_budget.threads <= 8 and .resource_budget.max_tokens <= 128 and .resource_budget.timeout_seconds <= 300' /tmp/m6-model-plan.json >/dev/null
+          jq -e '.resource_budget.max_model_bytes <= 2000000000 and .resource_budget.build_parallelism == 2 and .resource_budget.persistent_model_cache == false' /tmp/m6-model-plan.json >/dev/null
+          jq -e '.operations | any(contains("hard byte ceiling"))' /tmp/m6-model-plan.json >/dev/null
+          jq -e '.operations | any(contains("verify the model SHA-256"))' /tmp/m6-model-plan.json >/dev/null
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M6 local model runner boundary
+          - Python/shell contract compile: exercised
+          - exact llama.cpp commit format gate: exercised
+          - exact model URL/SHA/license gate: exercised
+          - thread/token/time/build-parallelism bounds: exercised
+          - model-download hard byte ceiling: exercised
+          - real llama.cpp clone/build: **NOT_EXERCISED**
+          - real model download/inference: **NOT_EXERCISED**
+          - contract evidence ceiling: `GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY`
+          EOF

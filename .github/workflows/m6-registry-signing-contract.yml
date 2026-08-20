@@ -1,0 +1,65 @@
+name: M6 local registry signing runner contract
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/handoff/run_local_registry_signing.py'
+      - 'scripts/handoff/run_local_registry_signing_from_env.sh'
+      - 'tests/handoff/test_local_registry_signing_contract.py'
+      - '.github/workflows/m6-registry-signing-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m6-registry-signing-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact workflow subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Compile Python and shell wrapper
+        run: |
+          python3 -m py_compile scripts/handoff/run_local_registry_signing.py
+          bash -n scripts/handoff/run_local_registry_signing_from_env.sh
+      - name: Run no-side-effect contract tests
+        run: python3 tests/handoff/test_local_registry_signing_contract.py -v
+      - name: Assert wrapper rejects missing exact identities
+        run: |
+          if env -u M6_REGISTRY_IMAGE -u M6_COSIGN_BIN -u M6_COSIGN_SHA256 \
+            bash scripts/handoff/run_local_registry_signing_from_env.sh --plan-only >/tmp/m6-registry-missing.out 2>&1; then
+            echo 'wrapper unexpectedly accepted missing identities'
+            exit 1
+          fi
+          grep -q 'M6_REGISTRY_IMAGE' /tmp/m6-registry-missing.out
+      - name: Assert hardened plan-only boundary
+        run: |
+          M6_REGISTRY_IMAGE='registry.example.invalid/distribution@sha256:1111111111111111111111111111111111111111111111111111111111111111' \
+          M6_COSIGN_BIN='/usr/local/bin/cosign' \
+          M6_COSIGN_SHA256='2222222222222222222222222222222222222222222222222222222222222222' \
+            bash scripts/handoff/run_local_registry_signing_from_env.sh --plan-only > /tmp/m6-registry-plan.json
+          jq -e '.evidence_ceiling_after_real_execution == "LOCAL_REGISTRY_STORED_IMAGE_SIGNATURE_ONLY"' /tmp/m6-registry-plan.json >/dev/null
+          jq -e '.registry.host == "127.0.0.1" and .resource_budget.max_registry_containers == 1 and .resource_budget.max_signatures == 1 and .resource_budget.max_local_images_built == 1' /tmp/m6-registry-plan.json >/dev/null
+          jq -e '.resource_budget.ephemeral_keypair_only == true and .resource_budget.external_registry_credentials == false' /tmp/m6-registry-plan.json >/dev/null
+          jq -e '.operations | any(contains("sign only the digest reference"))' /tmp/m6-registry-plan.json >/dev/null
+          jq -e '.operations | any(contains("remove the built local image tag"))' /tmp/m6-registry-plan.json >/dev/null
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M6 registry signing runner contract boundary
+          - exact local registry image digest gate: exercised
+          - exact cosign binary path/SHA gate: exercised
+          - loopback-port/resource/ephemeral-key cleanup contract: exercised
+          - local built-image cleanup contract: exercised
+          - digest-addressed sign/verify plan: exercised
+          - real local registry/push/sign/verify: **NOT_EXERCISED**
+          - production registry/key custody: **NOT_EXERCISED**
+          - contract evidence ceiling: `GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY`
+          EOF
