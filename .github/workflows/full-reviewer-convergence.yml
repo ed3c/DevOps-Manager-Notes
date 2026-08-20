@@ -1,0 +1,131 @@
+name: Full MVP public reviewer convergence
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/demo/**'
+      - 'evidence/receipts/convergence/**'
+      - 'demo-console/**'
+      - '.github/workflows/full-reviewer-convergence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: full-reviewer-convergence-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  remote-first-green:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      INPUT_MANIFEST: evidence/receipts/convergence/public-m4-inputs.json
+    steps:
+      - name: Checkout exact convergence subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Validate exact convergence manifest
+        run: |
+          python -m json.tool "$INPUT_MANIFEST" >/dev/null
+          jq -e '.schema_version == "full-manager-mvp/public-m4-inputs/v1"' "$INPUT_MANIFEST" >/dev/null
+          jq -e '(.artifacts | length) == 6' "$INPUT_MANIFEST" >/dev/null
+          jq -e '([.artifacts[].lane] | unique | length) == 6' "$INPUT_MANIFEST" >/dev/null
+          jq -e 'any(.artifacts[]; .lane == "demo-console")' "$INPUT_MANIFEST" >/dev/null
+          jq -e 'any(.artifacts[]; .lane == "failure-recovery")' "$INPUT_MANIFEST" >/dev/null
+          jq -e 'all(.artifacts[]; (.artifact_digest | test("^sha256:[0-9a-f]{64}$")) and (.head | test("^[0-9a-f]{40}$")) and (.artifact_id > 0) and (.workflow_run > 0))' "$INPUT_MANIFEST" >/dev/null
+
+      - name: Re-download and verify exact GitHub Actions artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p live-inputs
+          while IFS= read -r item; do
+            lane="$(jq -r '.lane' <<<"$item")"
+            artifact_id="$(jq -r '.artifact_id' <<<"$item")"
+            expected="$(jq -r '.artifact_digest' <<<"$item")"
+            archive="live-inputs/${lane}.zip"
+            curl --fail --silent --show-error --location \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'Accept: application/vnd.github+json' \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/artifacts/${artifact_id}/zip" \
+              --output "$archive"
+            actual="sha256:$(sha256sum "$archive" | awk '{print $1}')"
+            if [[ "$actual" != "$expected" ]]; then
+              echo "artifact digest mismatch for ${lane}: expected ${expected}, got ${actual}" >&2
+              exit 1
+            fi
+            printf '%s %s\n' "$lane" "$actual"
+          done < <(jq -c '.artifacts[]' "$INPUT_MANIFEST")
+
+      - name: Assemble bounded reviewer packet
+        run: |
+          rm -rf live-evidence
+          mkdir -p live-evidence
+          python scripts/demo/assemble_public_reviewer_bundle.py \
+            --manifest "$INPUT_MANIFEST" \
+            --artifact-dir live-inputs \
+            --output live-evidence/reviewer-bundle \
+            --workflow-run-id "$GITHUB_RUN_ID"
+
+      - name: Semantic convergence assertions
+        run: |
+          INDEX=live-evidence/reviewer-bundle/reviewer-index.json
+          CONSOLE=live-evidence/reviewer-bundle/console/evidence-index.json
+          DRILLS=live-evidence/reviewer-bundle/evidence/failure-recovery/failure-drills.json
+          jq -e '.verdict == "PASS"' "$INDEX" >/dev/null
+          jq -e '(.verified_inputs | length) == 6 and all(.verified_inputs[]; .verification == "PASS")' "$INDEX" >/dev/null
+          jq -e '.checks.artifact_redownload == "PASS" and .checks.artifact_digest_verification == "PASS"' "$INDEX" >/dev/null
+          jq -e '.checks.production_runtime == "NOT_EXERCISED" and .checks.real_incident_history == "NOT_EXERCISED"' "$INDEX" >/dev/null
+          jq -e 'any(.records[]; .id == "M4-PUBLIC-REVIEWER-CONVERGENCE" and .state == "PASS")' "$CONSOLE" >/dev/null
+          jq -e 'any(.gaps[]; .id == "LIVE_KIND_KUBERNETES_NOT_EXERCISED")' "$CONSOLE" >/dev/null
+          jq -e '.summary.total == 7 and .summary.pass == 7 and all(.scenarios[]; .classification == "DRILL" and .verdict == "PASS")' "$DRILLS" >/dev/null
+          test -f live-evidence/reviewer-bundle/serve.py
+          test -f live-evidence/reviewer-bundle/console/index.html
+
+      - name: Public disclosure and resource gates
+        run: |
+          if grep -R -I -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|ghp_[A-Za-z0-9]{20,}|github_pat_)' live-evidence/reviewer-bundle; then
+            echo 'secret-like material found in reviewer bundle' >&2
+            exit 1
+          fi
+          BYTES="$(du -sb live-evidence/reviewer-bundle | awk '{print $1}')"
+          test "$BYTES" -lt 5000000
+          printf '%s\n' "$BYTES" > live-evidence/reviewer-bundle/bundle-bytes.txt
+          sha256sum live-evidence/reviewer-bundle/reviewer-index.json > live-evidence/reviewer-bundle/reviewer-index.sha256
+
+      - name: Persist reviewer packet
+        id: upload
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: full-manager-mvp-reviewer-${{ github.run_id }}-${{ github.run_attempt }}
+          path: live-evidence/reviewer-bundle
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## Public reviewer convergence FIRST_GREEN boundary
+          - exact M2/M3 Actions artifacts re-downloaded: exercised
+          - GitHub artifact SHA-256 verification: exercised
+          - bounded reviewer packet + static console: exercised
+          - seven DRILL failure records preserved: exercised
+          - live Kubernetes / Argo / local model / 1,000-VU recovery: **NOT_EXERCISED**
+          - production users/incidents/management tenure: **NOT CLAIMED**
+          - artifact digest: `${{ steps.upload.outputs.artifact-digest }}`
+          - evidence ceiling: `GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY`
+          EOF

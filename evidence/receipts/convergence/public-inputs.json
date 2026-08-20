@@ -1,0 +1,93 @@
+{
+  "schema_version": "full-manager-mvp/reviewer-inputs/v2",
+  "issue": 9,
+  "git_base": {
+    "pull_request": 42,
+    "current_head": "c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e",
+    "evidence_head": "e48711055572d83c872e72445cdf1389592ce85e",
+    "artifact_id": 9365550423,
+    "artifact_digest": "sha256:098ba3e3427323c9c4651d5d8683d174723039d5fe32285045f95773d7419558",
+    "evidence_ceiling": "GITHUB_HOSTED_DETERMINISTIC_AND_LOCAL_PROCESS_FAILURE_DRILLS_ONLY",
+    "head_delta_note": "PR #42 advanced through a temporary noop marker and revert with no net implementation diff; the successful failure-recovery artifact remains bound to evidence_head."
+  },
+  "byte_inputs": [
+    {
+      "issue": 8,
+      "pull_request": 37,
+      "current_head": "1081f471710158a5e76cc0e373504cbcd0a27940",
+      "evidence_head": "1081f471710158a5e76cc0e373504cbcd0a27940",
+      "paths": ["demo-console/**"],
+      "artifact_id": 9364438271,
+      "artifact_digest": "sha256:544a3c968918814c03e24144b373393735a5e25f6825052d26e08b45ff284a0a",
+      "evidence_ceiling": "FRONTEND_BUILD_AND_CANONICAL_PUBLIC_EVIDENCE_RENDER_ONLY"
+    }
+  ],
+  "receipt_inputs": [
+    {
+      "issue": 3,
+      "pull_request": 36,
+      "current_head": "f52763b8b6df6c3ed5d9fc4117412e06129f2f17",
+      "evidence_head": "f52763b8b6df6c3ed5d9fc4117412e06129f2f17",
+      "workflow_run": 32249524958,
+      "artifact_id": 9363866816,
+      "artifact_digest": "sha256:de464ff881638a42f9bf536ff7ba6e255d1e419647ce1522002fdbaac4201430",
+      "evidence_ceiling": "GITHUB_HOSTED_OBSERVABILITY_AND_SYNTHETIC_LOAD_SMOKE_ONLY"
+    },
+    {
+      "issue": 4,
+      "pull_request": 38,
+      "current_head": "b0c9db1ed691ca8c32770ad666ca6708c6294c1f",
+      "evidence_head": "b0c9db1ed691ca8c32770ad666ca6708c6294c1f",
+      "workflow_run": 32251169964,
+      "artifact_id": 9364485321,
+      "artifact_digest": "sha256:68ac7b4ce0b7bfc2535c54b1960d3b56152fd4947bf031c56c00eb5f7f5f7b4b",
+      "evidence_ceiling": "GITHUB_HOSTED_POLICY_SECURITY_AND_LICENSE_METADATA_ONLY_NOT_LEGAL_CLEARANCE"
+    },
+    {
+      "issue": 7,
+      "pull_request": 39,
+      "current_head": "f8141534541b0e87f3065e5dd9d60f459539a3ba",
+      "evidence_head": "f8141534541b0e87f3065e5dd9d60f459539a3ba",
+      "workflow_run": 32250421421,
+      "artifact_id": 9364219603,
+      "artifact_digest": "sha256:ba3a173b4d64935449836b09881d7e490cf3873de7218af66b293bc17c5d4e27",
+      "evidence_ceiling": "GITHUB_HOSTED_DETERMINISTIC_MLFLOW_LIFECYCLE_ONLY"
+    },
+    {
+      "issue": 10,
+      "pull_request": 40,
+      "current_head": "b03133142c987125eacf173131311bf12de370ed",
+      "evidence_head": "b03133142c987125eacf173131311bf12de370ed",
+      "workflow_run": 32251234101,
+      "artifact_id": 9364488819,
+      "artifact_digest": "sha256:74b1664bdd836d4bf94cf4e089e5549d6917dd48aafef0b5e6d82bf6df493eda",
+      "evidence_ceiling": "GITHUB_HOSTED_SBOM_SAME_RUN_BLOB_SIGNING_AND_BOUNDED_FAULT_DRILL_ONLY"
+    },
+    {
+      "issue": 5,
+      "pull_request": 42,
+      "current_head": "c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e",
+      "evidence_head": "e48711055572d83c872e72445cdf1389592ce85e",
+      "workflow_run": 32254018953,
+      "artifact_id": 9365550423,
+      "artifact_digest": "sha256:098ba3e3427323c9c4651d5d8683d174723039d5fe32285045f95773d7419558",
+      "evidence_ceiling": "GITHUB_HOSTED_DETERMINISTIC_AND_LOCAL_PROCESS_FAILURE_DRILLS_ONLY"
+    }
+  ],
+  "residuals": {
+    "live_kind_kubernetes": "NOT_EXERCISED",
+    "real_argo_cd_reconcile": "NOT_EXERCISED",
+    "load_1000_vu": "NOT_EXERCISED",
+    "local_qwen_llama_cpp": "NOT_EXERCISED",
+    "live_argo_rollouts_canary": "NOT_EXERCISED",
+    "side_input_artifact_redownload": "NOT_EXERCISED",
+    "production_incident_history": "NOT_EXERCISED",
+    "production_users_adoption": "OUTSIDE_REPOSITORY_PROOF",
+    "people_management_tenure": "OUTSIDE_REPOSITORY_PROOF"
+  },
+  "authority": {
+    "merge_release_visibility_permissions": "HUMAN_ONLY",
+    "production_promotion_rollback": "HUMAN_ONLY",
+    "real_experience_claims": "HUMAN_ONLY"
+  }
+}
