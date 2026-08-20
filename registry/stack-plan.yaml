@@ -1,4 +1,4 @@
-version: 8
+version: 9
 method_owner: ed3c/skills-shared/skills/git-town-stacked-pr-worker
 consumer: ed3c/DevOps-Manager-Notes
 canonical_tech_lead_subject: 4ca9417b1da5ff32f1d4d3e7af64a15908749024
@@ -16,12 +16,12 @@ policy:
   local_queue_existence_is_not_local_execution: true
   runner_contract_pass_is_not_physical_runtime_pass: true
   local_handoff_must_pass_portable_assertion: true
+  fixture_evidence_cannot_satisfy_live_admission: true
   task_siblings_do_not_require_same_git_parent: true
 
 atoms:
   - id: C0-bootstrap-contract
     atom: C
-    issues: []
     pull_request: 6
     state: PR_OPEN
     stack_class: root
@@ -35,7 +35,7 @@ atoms:
     pull_request: 12
     state: PR_DRAFT_DESIGN_COMPLETE
     stack_class: child
-    parent: C0-bootstrap-contract
+    git_parent: C0-bootstrap-contract
     branch: agent/full-manager-mvp-demo-stack
     base_branch: bootstrap/devops-evidence-contract
     blockers: [TRANSITIVE_IMAGE_MODEL_LICENSE_AUDIT_REMAINS, HUMAN_ADMIT_MERGE]
@@ -46,10 +46,10 @@ atoms:
     pull_request: 13
     state: PR_OPEN_STAGE_COMPLETE
     stack_class: child
-    parent: C11-full-mvp-contract
+    git_parent: C11-full-mvp-contract
     branch: audit/devops-invariants-evidence
     base_branch: agent/full-manager-mvp-demo-stack
-    head_commit: f0e99dd354c5bbbb67cf6d898b647e7cc8582ede
+    evidence_head: f0e99dd354c5bbbb67cf6d898b647e7cc8582ede
     blockers: [HUMAN_ADMIT_MERGE]
 
   - id: K2-base-delivery
@@ -58,10 +58,10 @@ atoms:
     pull_request: 14
     state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: child
-    parent: E1-requirement-invariant-audit
+    git_parent: E1-requirement-invariant-audit
     branch: feat/core-platform-vertical-slice
     base_branch: audit/devops-invariants-evidence
-    head_commit: a4ce65dbd66b32bdd2d313f03f8ac97b6bf01f10
+    evidence_head: a4ce65dbd66b32bdd2d313f03f8ac97b6bf01f10
     remote_evidence:
       workflow_run_id: 32247635007
       artifact_id: 9363215699
@@ -75,10 +75,9 @@ atoms:
     pull_request: 36
     state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
-    parent_completion: K2-base-delivery
+    git_parent: K2-base-delivery
     branch: feat/observability-slo-load
-    base_branch: feat/core-platform-vertical-slice
-    head_commit: f52763b8b6df6c3ed5d9fc4117412e06129f2f17
+    evidence_head: f52763b8b6df6c3ed5d9fc4117412e06129f2f17
     observed_path_lease_delta: [platform/app/pyproject.toml, platform/app/src/manager_demo/main.py]
     remote_evidence:
       workflow_run_id: 32249524958
@@ -93,10 +92,9 @@ atoms:
     pull_request: 38
     state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
-    parent_completion: K2-base-delivery
+    git_parent: K2-base-delivery
     branch: feat/policy-security-license
-    base_branch: feat/core-platform-vertical-slice
-    head_commit: b0c9db1ed691ca8c32770ad666ca6708c6294c1f
+    evidence_head: b0c9db1ed691ca8c32770ad666ca6708c6294c1f
     remote_evidence:
       workflow_run_id: 32251169964
       artifact_id: 9364485321
@@ -110,16 +108,15 @@ atoms:
     pull_request: 39
     state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
-    parent_completion: K2-base-delivery
+    git_parent: K2-base-delivery
     branch: feat/llmops-progressive-delivery
-    base_branch: feat/core-platform-vertical-slice
-    head_commit: f8141534541b0e87f3065e5dd9d60f459539a3ba
+    evidence_head: f8141534541b0e87f3065e5dd9d60f459539a3ba
     remote_evidence:
       workflow_run_id: 32250421421
       artifact_id: 9364219603
       artifact_digest: sha256:ba3a173b4d64935449836b09881d7e490cf3873de7218af66b293bc17c5d4e27
       evidence_ceiling: GITHUB_HOSTED_DETERMINISTIC_MLFLOW_LIFECYCLE_ONLY
-    blockers: [MODEL_ARTIFACT_DIGEST_NOT_EXERCISED, LLAMA_CPP_RUNTIME_NOT_EXERCISED, LIVE_ARGO_ROLLOUTS_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
+    blockers: [MODEL_RUNTIME_NOT_EXERCISED, LIVE_ARGO_ROLLOUTS_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
 
   - id: A8-demo-console
     atom: A
@@ -127,10 +124,9 @@ atoms:
     pull_request: 37
     state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
-    parent_completion: K2-base-delivery
+    git_parent: K2-base-delivery
     branch: feat/manager-demo-console
-    base_branch: feat/core-platform-vertical-slice
-    head_commit: 1081f471710158a5e76cc0e373504cbcd0a27940
+    evidence_head: 1081f471710158a5e76cc0e373504cbcd0a27940
     remote_evidence:
       workflow_run_id: 32251120563
       artifact_id: 9364438271
@@ -144,10 +140,9 @@ atoms:
     pull_request: 40
     state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: sibling
-    parent_completion: K2-base-delivery
+    git_parent: K2-base-delivery
     branch: feat/supply-chain-fault
-    base_branch: feat/core-platform-vertical-slice
-    head_commit: b03133142c987125eacf173131311bf12de370ed
+    evidence_head: b03133142c987125eacf173131311bf12de370ed
     remote_evidence:
       workflow_run_id: 32251234101
       artifact_id: 9364488819
@@ -162,10 +157,9 @@ atoms:
     state: PR_DRAFT_REMOTE_FIRST_GREEN
     stack_class: convergence
     git_parent: A3-observability-load
-    parent_completion: [A3-observability-load, E4-policy-security-license, A7-llmops-progressive-delivery, E10-supply-chain-fault]
+    completion_inputs: [A3-observability-load, E4-policy-security-license, A7-llmops-progressive-delivery, E10-supply-chain-fault]
     branch: feat/failure-recovery-convergence
-    base_branch: feat/observability-slo-load
-    current_pr_head: c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e
+    current_head: c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e
     evidence_head: e48711055572d83c872e72445cdf1389592ce85e
     remote_evidence:
       workflow_run_id: 32254018953
@@ -182,10 +176,9 @@ atoms:
     state: PR_DRAFT_REMOTE_REVIEWER_FIRST_GREEN
     stack_class: convergence
     git_parent: X5-failure-recovery-convergence
-    parent_completion: [X5-failure-recovery-convergence, A8-demo-console]
+    completion_inputs: [X5-failure-recovery-convergence, A8-demo-console]
     branch: feat/full-reviewer-convergence
-    base_branch: feat/failure-recovery-convergence
-    head_commit: 55d18cdc556ca5d66c67406318ae25196c077fd2
+    evidence_head: 55d18cdc556ca5d66c67406318ae25196c077fd2
     tree: a4ad37d9baf73a5239f79c516c67b0182420336a
     remote_evidence:
       deterministic_reviewer:
@@ -204,13 +197,11 @@ atoms:
     atom: D
     issues: [9]
     pull_request: 45
-    state: PR_DRAFT_SUPERSEDED_BY_CANONICAL_M5_QUEUE
+    state: SUPERSEDED_BY_CANONICAL_PR52
     stack_class: child
     git_parent: X9-full-demo-convergence
     branch: handoff/m4-local-runtime
-    base_branch: feat/full-reviewer-convergence
-    head_commit: a697c74a11d5d6492eaddb44aabd1a331899ee32
-    blockers: [SUPERSEDED_BY_PR_52_CANONICAL_QUEUE, HUMAN_ADMIT_MERGE]
+    blockers: [SUPERSEDED_BY_PR_52, HUMAN_ADMIT_MERGE]
 
   - id: K5-live-kind-runner
     atom: K
@@ -220,16 +211,12 @@ atoms:
     stack_class: child
     git_parent: D9-m4-local-handoff-bootstrap
     branch: handoff/m5-live-kind-runner
-    base_branch: handoff/m4-local-runtime
-    head_commit: 20d2ccb0ed8c877309452eece7c755bb3411c4c1
+    head: 20d2ccb0ed8c877309452eece7c755bb3411c4c1
     tree: 7d4b5d5aaba2d023803b152ce5ac7f23f274eba0
     contract_validation:
       workflow_run_id: 32259961112
-      verdict: PASS
       evidence_ceiling: GITHUB_HOSTED_LOCAL_RUNNER_CONTRACT_ONLY
-    local_execution:
-      state: NOT_EXERCISED
-      evidence_ceiling_after_pass: LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY
+    physical_execution: {state: NOT_EXERCISED, potential_evidence_ceiling: LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY}
     blockers: [LOCAL_EXECUTION_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
   - id: D5-canonical-local-handoff-queue
@@ -240,9 +227,7 @@ atoms:
     stack_class: child
     git_parent: K5-live-kind-runner
     branch: handoff/m5-live-kind-queue
-    base_branch: handoff/m5-live-kind-runner
     current_head: f7a3937d7d0979e3adfaf1ebc4adc0532450d925
-    current_tree: ff9febf611b4a88d424e0ee95e4667eba6a11bf3
     canonical_method_subject: 4ca9417b1da5ff32f1d4d3e7af64a15908749024
     execution_epoch:
       commit: 4cc3e162c00a3af240bab9e62482e07bb3e4f9a1
@@ -250,7 +235,6 @@ atoms:
       rollback_commit: 660d4deea81712f3d6ab5288ae09288b2e15cc27
     contract_validation:
       workflow_run_id: 32263239722
-      verdict: PASS
       checks: [portable_assertion, negative_control_selftest, exact_execution_subject_readback, consumer_routing]
       evidence_ceiling: GITHUB_HOSTED_CANONICAL_LOCAL_HANDOFF_CONTRACT_ONLY
     queue_state:
@@ -261,19 +245,19 @@ atoms:
 
   - id: A6-argo-control-plane-runner
     atom: A
-    issues: [54]
+    issues: [54, 60]
     pull_request: 55
-    state: PR_DRAFT_CONTRACT_FIRST_GREEN
+    state: PR_DRAFT_HARDENED_CONTRACT_FIRST_GREEN
     stack_class: child
     git_parent: A7-llmops-progressive-delivery
     task_sibling_group: M6-advanced-runner-contracts
     branch: handoff/m6-argo-runtime
-    base_branch: feat/llmops-progressive-delivery
-    head_commit: 284dbf1d2e9a1759cab0a8cb21987f76112946b5
-    tree: fff48ba347d9f9004af84f18008e64e33a186073
-    contract_validation: {workflow_run_id: 32265921102, verdict: PASS, evidence_ceiling: GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY}
+    head: 8d976171f4aa2eba72bee360823b660f9bed99d4
+    tree: fada58f36c83de296decb41dcd34531b9d73145a
+    contract_validation: {workflow_run_id: 32274548200, evidence_ceiling: GITHUB_HOSTED_ARGO_RUNNER_CONTRACT_ONLY}
     physical_execution: {state: NOT_EXERCISED, potential_evidence_ceiling: LOCAL_ARGO_CONTROLLERS_READY_ONLY}
-    blockers: [LOCAL_QUEUE_EPOCH_NOT_COMPILED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
+    shadow_corrections: [SELF_CONTAINED_EPHEMERAL_KIND_OWNER, CLUSTER_TAKEOVER_REFUSAL, CONTEXT_RESTORE, 20MB_MANIFEST_BOUNDS]
+    blockers: [PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
   - id: A6-local-model-runner
     atom: A
@@ -284,12 +268,11 @@ atoms:
     git_parent: A7-llmops-progressive-delivery
     task_sibling_group: M6-advanced-runner-contracts
     branch: handoff/m6-local-model
-    base_branch: feat/llmops-progressive-delivery
-    head_commit: 63355992f382cf260c624e2c7c7c3733cce82c20
+    head: 63355992f382cf260c624e2c7c7c3733cce82c20
     tree: 973f91c0354d43a679c558394ef9f2a6da58ac9a
-    contract_validation: {workflow_run_id: 32265971683, verdict: PASS, evidence_ceiling: GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY}
+    contract_validation: {workflow_run_id: 32265971683, evidence_ceiling: GITHUB_HOSTED_LOCAL_MODEL_RUNNER_CONTRACT_ONLY}
     physical_execution: {state: NOT_EXERCISED, potential_evidence_ceiling: LOCAL_LLAMA_CPP_MODEL_INFERENCE_ONLY}
-    blockers: [EXACT_MODEL_ARTIFACT_NOT_ADMITTED, LOCAL_QUEUE_EPOCH_NOT_COMPILED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
+    blockers: [EXACT_MODEL_ARTIFACT_NOT_ADMITTED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
   - id: E6-capacity-runner
     atom: E
@@ -300,12 +283,11 @@ atoms:
     git_parent: A3-observability-load
     task_sibling_group: M6-advanced-runner-contracts
     branch: handoff/m6-capacity
-    base_branch: feat/observability-slo-load
-    head_commit: 2240e8ee7ae9f151503d5c03d8043938dbbdce95
+    head: 2240e8ee7ae9f151503d5c03d8043938dbbdce95
     tree: 7965e4c544715d601de455d0839a9576649d8f73
-    contract_validation: {workflow_run_id: 32266078175, verdict: PASS, evidence_ceiling: GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY}
+    contract_validation: {workflow_run_id: 32266078175, evidence_ceiling: GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY}
     physical_execution: {state: NOT_EXERCISED, potential_evidence_ceiling: LOCAL_SYNTHETIC_1000_VU_ONLY}
-    blockers: [LOCAL_QUEUE_EPOCH_NOT_COMPILED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
+    blockers: [PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
   - id: E6-registry-signing-runner
     atom: E
@@ -316,45 +298,81 @@ atoms:
     git_parent: E10-supply-chain-fault
     task_sibling_group: M6-advanced-runner-contracts
     branch: handoff/m6-registry-signing
-    base_branch: feat/supply-chain-fault
-    head_commit: 1b543fdfad73377fa6ba51e3f190b56ed60452fa
+    head: 1b543fdfad73377fa6ba51e3f190b56ed60452fa
     tree: 266d81dbb51b0d2422deafdb829b2ef8f1f163ff
-    contract_validation: {workflow_run_id: 32266026763, verdict: PASS, evidence_ceiling: GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY}
+    contract_validation: {workflow_run_id: 32266026763, evidence_ceiling: GITHUB_HOSTED_REGISTRY_SIGNING_RUNNER_CONTRACT_ONLY}
     physical_execution: {state: NOT_EXERCISED, potential_evidence_ceiling: LOCAL_REGISTRY_STORED_IMAGE_SIGNATURE_ONLY}
-    blockers: [EXACT_REGISTRY_AND_COSIGN_SUBJECTS_NOT_ADMITTED, LOCAL_QUEUE_EPOCH_NOT_COMPILED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
+    blockers: [EXACT_REGISTRY_AND_COSIGN_SUBJECTS_NOT_ADMITTED, PHYSICAL_RECEIPT_ABSENT, HUMAN_ADMIT_MERGE]
 
   - id: D6-m6-traceability-index
     atom: D
     issues: [54]
     pull_request: 59
+    state: PR_DRAFT_INDEX_REVERIFIED_AFTER_ARGO_HARDENING
+    stack_class: documentation_convergence
+    branch: docs/public-m6-runner-contract-index
+    evidence_head: 01b9743938bcd0446c826e208eaf45af1134fcc8
+    evidence_tree: d247f7c5acb6ba55b279149e59c6d67eb8aa8e4d
+    index_validation: {workflow_run_id: 32275948872, evidence_ceiling: GITHUB_HOSTED_M6_TRACEABILITY_INDEX_ONLY}
+    exact_side_inputs: [D5-canonical-local-handoff-queue, A6-argo-control-plane-runner, A6-local-model-runner, E6-capacity-runner, E6-registry-signing-runner]
+    blockers: [HUMAN_ADMIT_MERGE]
+
+  - id: X7-advanced-execution-bundle
+    atom: X
+    issues: [60, 61, 62, 64]
+    pull_request: 65
+    state: PR_DRAFT_CONTRACT_FIRST_GREEN
+    stack_class: convergence
+    git_parent: D5-canonical-local-handoff-queue
+    branch: handoff/m7-advanced-runtime-bundle
+    base_branch: handoff/m5-live-kind-queue
+    head: cf63e2fc85d56c2e49cfefd33fefbec30316e1fa
+    tree: 7dce94e01dd3630662deb6dfb3c67c8b5f272bb0
+    exact_side_inputs:
+      - {pull_request: 55, head: 8d976171f4aa2eba72bee360823b660f9bed99d4, mode: exact_runner_byte_parity}
+      - {pull_request: 56, head: 63355992f382cf260c624e2c7c7c3733cce82c20, mode: exact_runner_byte_parity}
+      - {pull_request: 57, head: 2240e8ee7ae9f151503d5c03d8043938dbbdce95, mode: exact_runner_byte_parity}
+      - {pull_request: 58, head: 1b543fdfad73377fa6ba51e3f190b56ed60452fa, mode: exact_runner_byte_parity}
+    contract_validation:
+      workflow_run_id: 32275551599
+      checks: [runner_byte_parity, compiler_tests, fixture_live_isolation, portable_queue_assertion, portable_queue_selftest, no_runtime_boundary]
+      evidence_ceiling: GITHUB_HOSTED_M7_ADVANCED_BUNDLE_AND_QUEUE_COMPILER_ONLY
+    fixture_queue:
+      active_item: M7-ARGO-CONTROLLERS-001
+      blocked_items: [M7-LOCAL-MODEL-002, M7-CAPACITY-003, M7-REGISTRY-SIGNING-004]
+      physical_runtime_executed: false
+      evidence_ceiling: FIXTURE_COMPILER_CONTRACT_ONLY
+    live_queue:
+      state: NOT_COMPILED
+      requires_predecessor_receipts: [M5-LOCAL-REVIEWER-001, M5-LIVE-KIND-002]
+    intermediate_failed_runs: [32275347591, 32275449122]
+    blockers: [LIVE_PREDECESSOR_RECEIPTS_ABSENT, PHYSICAL_ADVANCED_EXECUTION_NOT_EXERCISED, HUMAN_ADMIT_MERGE]
+
+  - id: D7-m7-traceability-index
+    atom: D
+    issues: [63]
+    pull_request: 66
     state: PR_DRAFT_INDEX_FIRST_GREEN
     stack_class: documentation_convergence
-    git_parent: null
-    branch: docs/public-m6-runner-contract-index
-    base_branch: docs/public-m5-local-kind-readiness-index
-    exact_side_inputs:
-      - {pull_request: 52, mode: canonical_queue_subject}
-      - {pull_request: 55, mode: exact_contract_subject}
-      - {pull_request: 56, mode: exact_contract_subject}
-      - {pull_request: 57, mode: exact_contract_subject}
-      - {pull_request: 58, mode: exact_contract_subject}
-    evidence_head: c62f411c82f20169456441c0c7dd6e0388a25fa8
+    branch: docs/public-m7-advanced-bundle-index
+    base_branch: docs/public-m6-runner-contract-index
+    exact_side_inputs: [D6-m6-traceability-index, X7-advanced-execution-bundle]
+    evidence_head: 7abfe21a31540ea5b9af947a581e128f1d6bfceb
+    evidence_tree: 961ca8e0a2ab2c3f49852d3a44d423c7533c0e24
     index_validation:
-      workflow_run_id: 32267711620
-      verdict: PASS
-      evidence_ceiling: GITHUB_HOSTED_M6_TRACEABILITY_INDEX_ONLY
-    provides_artifacts: [m6-public-runner-contract-index-v1]
+      workflow_run_id: 32277405093
+      evidence_ceiling: GITHUB_HOSTED_M7_TRACEABILITY_INDEX_ONLY
     blockers: [HUMAN_ADMIT_MERGE]
 
 notes:
   - PR #12 → #13 → #14 are true children because each consumes prior unmerged contract bytes.
-  - PRs #36/#38/#39/#37/#40 are sibling implementation leaves based on frozen PR #14 Core.
-  - PR #42 has one real Git parent (#36) and task-converges #38/#39/#40 by exact side evidence.
-  - PR #44 has one real Git parent (#42) and consumes exact PR #37 bytes plus M2/M3 artifacts.
-  - PR #45 is an earlier Local Handoff bootstrap. Current canonical queue contract is PR #52.
-  - PR #52 was recompiled after Shadow CONTRACT_DRIFT; the portable assertion in skills-shared@4ca9417... is now a CI gate.
-  - PRs #55/#56/#57/#58 are one M6 task-sibling group but have different real Git parents according to the unmerged implementation bytes they consume.
-  - PR #59 is a docs/registry convergence surface; it binds execution subjects as side inputs and does not consume their unmerged implementation bytes.
-  - M6 runner-contract PASS is not physical execution and does not skip the active M5 Local Handoff predecessor chain.
-  - A future advanced queue epoch may consume exact PR #55/#56/#57/#58 subjects only after current local reviewer and live-kind receipts pass.
-  - No runner contract, local receipt or synthetic test promotes to production, real adoption, legal clearance, real incidents or tenure evidence.
+  - PR #36/#38/#39/#37/#40 are sibling implementation leaves based on frozen Core.
+  - PR #42 and PR #44 are convergence owners with one real Git parent and typed side inputs.
+  - PR #45 is historical Local Handoff bootstrap; PR #52 is the canonical queue contract.
+  - PR #55/#56/#57/#58 are task siblings with different real Git parents according to unmerged byte consumption.
+  - PR #55 was re-hardened after M7 exposed a false lifecycle assumption about the M5 cluster surviving cleanup.
+  - PR #65 is a true child of PR #52 and a convergence owner for exact runner bytes from #55/#56/#57/#58.
+  - PR #66 is a docs/registry convergence child of the corrected M6 traceability branch; it does not consume PR #65 implementation bytes.
+  - Fixture receipts validate compiler behavior only; they never satisfy live completion edges.
+  - The future advanced Local Handoff epoch cannot be compiled from live mode until both real predecessor receipts are admitted.
+  - No runner/queue/compiler/local receipt promotes to production, real adoption, legal clearance, real incidents or tenure evidence.
