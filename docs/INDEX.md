@@ -8,10 +8,11 @@ Machine/evidence authority remains with exact Git subjects, executable checks, A
 README.md
 → AGENTS.md
 → docs/architecture/FULL_MVP_DEMO.md
-→ docs/milestones/PUBLIC_M8_MAIN_INTEGRATION.md
-→ registry/public-m8-main-integration.json
+→ docs/milestones/PUBLIC_M9_LOCAL_RECEIPT_ADMISSION_READY.md
+→ registry/public-m9-local-receipt-admission.json
 → registry/stack-plan.yaml
 → handoff/local-handoff-queue.json
+→ exact issue / PR / current head / evidence head / workflow run / raw receipt / admitted packet
 ```
 
 ## Milestone route
@@ -26,26 +27,74 @@ README.md
 | M6 Advanced runner contracts | `docs/milestones/PUBLIC_M6_ADVANCED_RUNNER_CONTRACTS_READY.md` | `registry/public-m6-runner-contracts.json` | `PASS_BOUNDED` |
 | M7 Advanced bundle/compiler | `docs/milestones/PUBLIC_M7_ADVANCED_EXECUTION_BUNDLE_READY.md` | `registry/public-m7-advanced-bundle.json` | `PASS_BOUNDED` |
 | M8 Main integration/handoff | `docs/milestones/PUBLIC_M8_MAIN_INTEGRATION.md` | `registry/public-m8-main-integration.json` | `PASS_BOUNDED` |
+| M9 Local receipt admission | `docs/milestones/PUBLIC_M9_LOCAL_RECEIPT_ADMISSION_READY.md` | `registry/public-m9-local-receipt-admission.json` | `PASS_BOUNDED` |
 
-## Integrated main chain
+## Current M9 Stack
 
 ```text
-PR #68 → d0ecbd05c1dfecc6ae65f62c9869cd6a1412da43
-PR #37 → a47c0de9d5d0a176821a95c7a6c961ed7cf9f058
-PR #38 → cf7f0f5939e75475ce10da14f932de1a7f33b257
-PR #39 → 9e5b9c23467ff90a1c1452a255d4a6cfa245b6bf
-PR #40 → 0b0709946e84e80918a0e50903badb8b7bd4fa12
-PR #69 → bb940bf7d5a3b1f605b79e9fb8f33c463a8ee5a7
+main @ 5d0c5db1626bf5c1a83334ea864b6a3eb7613df3
+└─ A9 PR #77 feat/m9-local-receipt-admission
+   │  exact hardened head fc7ae40c0a5ea0a403c2ed27555de3cbbc8d042b
+   │  tree 67acc95ed6ee85091dfe30c8b853bc54203c3cda
+   │  run 32376416583 SUCCESS
+   └─ D9 docs/m9-local-receipt-admission-index
+      issue #78
 ```
 
-M8 Local Handoff execution subject:
+D9 is a true child because it consumes A9's unmerged admission contract. Local runtime receipts are process dependencies, not Git ancestry.
+
+## M9 evidence route
+
+```text
+current Local Handoff queue
+→ run only current ACTIVE item
+→ raw typed receipt
+→ scripts/handoff/admit_public_receipt_packet.py
+   ├─ exact queue state/subject check
+   ├─ exact receipt schema/verdict/ceiling/cleanup check
+   ├─ blocked-future receipt rejection
+   ├─ fixture/live separation
+   ├─ receipt-root / size / sensitive-content guard
+   └─ queue/raw-receipt overwrite guard
+→ evidence/local-handoff/public-receipt-packet.json
+→ Human/trusted queue review
+→ deliberate queue advance or local gap
+```
+
+The public packet carries allowlisted summaries plus the raw receipt's root-relative path, SHA-256 and byte count. It does not copy arbitrary raw logs/output tails and does not independently reproduce the local run.
+
+## Canonical Local Handoff frontier
+
+Execution subject:
 
 ```text
 commit e7b4e23799a3579572598ebd5864a80831d49db4
 tree   0b72b9f09f73d3829db2f138d457a5691641bf79
 ```
 
-## Molecular implementation route
+Queue:
+
+```text
+M8-LOCAL-REVIEWER-001         ACTIVE
+  ↓ raw receipt → M9 admission → trusted review
+M8-LIVE-KIND-002              BLOCKED_BY_PREDECESSOR
+  ↓ raw receipt → M9 admission → trusted review
+M8-COMPILE-ADVANCED-QUEUE-003 BLOCKED_BY_PREDECESSOR
+  ↓ compile receipt → M9 admission → portable assertion + trusted review
+M7 advanced queue             NOT_COMPILED
+```
+
+Current first local command:
+
+```bash
+python3 scripts/handoff/run_local_reviewer_handoff.py \
+  --output evidence/local-reviewer/handoff-receipt.json \
+  --work-dir evidence/local-reviewer/work
+```
+
+After that receipt exists, public admission uses the authoritative M9 wrapper rather than the core library directly.
+
+## Historical implementation route
 
 ```text
 #6 → #12 → #13 → #14
@@ -54,49 +103,14 @@ tree   0b72b9f09f73d3829db2f138d457a5691641bf79
 #39 → #55 / #56
 #36 → #57
 #40 → #58
-```
 
-Integration route:
-
-```text
-#68 backbone integration
+#68 backbone main integration
 #37/#38/#39/#40 path-disjoint main merges
 #69 exact advanced runner tests/workflows convergence
-M8 closure PR: README/AGENTS/milestones/registries/queue
+#70/#71 M8 routing and issue-closure integration
 ```
 
-PR #55–#58 are historical evidence subjects closed as integrated/superseded after their exact code and contract surfaces reached `main` through #68/#69.
-
-## Runtime and Local Handoff route
-
-```text
-handoff/local-handoff-queue.json
-  M8-LOCAL-REVIEWER-001         ACTIVE
-    ↓ PASS receipt
-  M8-LIVE-KIND-002              BLOCKED_BY_PREDECESSOR
-    ↓ PASS receipt
-  M8-COMPILE-ADVANCED-QUEUE-003 BLOCKED_BY_PREDECESSOR
-    ↓ compile receipt + queue assertion + Human review
-  generated M7 advanced queue   NOT_COMPILED
-```
-
-Current active command:
-
-```bash
-python3 scripts/handoff/run_local_reviewer_handoff.py \
-  --output evidence/local-reviewer/handoff-receipt.json \
-  --work-dir evidence/local-reviewer/work
-```
-
-## Open residual evidence
-
-```text
-DevOps #2  live kind/Kubernetes acceptance
-DevOps #3  actual synthetic 1,000-VU run
-DevOps #7  exact model artifact/local inference/live canary
-DevOps #9  Local Handoff and advanced runtime convergence
-DevOps #67 repository-admin cleanup of temporary branches
-```
+PR #55–#58 remain historical exact evidence/routing subjects after their code/tests reached `main` through convergence. No replay merge is needed solely to simplify diagrams.
 
 ## Control planes
 
@@ -104,8 +118,20 @@ DevOps #67 repository-admin cleanup of temporary branches
 |---|---|---|
 | Method | `ed3c/skills-shared` | Tech Lead / Shadow / Git Town / Local Handoff contracts |
 | Manager routing | `ed3c/Product-Manager-Notes` | requirements, decisions, gaps and interview narrative |
-| Executable evidence | `ed3c/DevOps-Manager-Notes` | code, CI, failure/runtime evidence and receipts |
+| Executable evidence | `ed3c/DevOps-Manager-Notes` | code, CI, failure/runtime evidence, typed receipts and public receipt packets |
 | Human projections | Google Sheet / Google Doc | dashboard and narrative only |
+
+## Open residual evidence
+
+```text
+DevOps #2   live kind/Kubernetes acceptance
+DevOps #3   actual synthetic 1,000-VU run
+DevOps #7   exact model artifact/local inference/live canary
+DevOps #9   physical Local Handoff and advanced runtime convergence
+DevOps #67  repository-admin cleanup of temporary branches
+DevOps #76  M9 receipt admission until merged to main
+DevOps #78  M9 traceability until merged to main
+```
 
 ## Closure route
 
@@ -118,11 +144,11 @@ requirement
 → detection / authority / mitigation / recovery
 → corrective change
 → same-failure re-test
-→ exact receipt
-→ reviewer packet
-→ main integration
-→ Local Handoff for physical residuals
+→ exact raw receipt
+→ exact-subject M9 admission
+→ public-safe packet
+→ Human/trusted routing decision
 → bounded claim
 ```
 
-Missing edges remain `ABSENT`, `NOT_IMPLEMENTED` or `NOT_EXERCISED`. Documentation, UI, issue state and PR state cannot fill a missing receipt.
+Missing edges remain `ABSENT`, `NOT_IMPLEMENTED` or `NOT_EXERCISED`. Documentation, UI, issue state, PR state and packet existence cannot fill a missing physical receipt.
