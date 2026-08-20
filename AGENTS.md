@@ -4,7 +4,7 @@
 
 This public repository is the executable evidence plane for the Full Manager MVP Demo. It must remain independently reviewable and public-safe.
 
-`Product-Manager-Notes` is the public-safe Manager requirement/routing/narrative plane. `skills-shared` owns reusable Tech Lead, Shadow Architect and Git Town methods. This repository owns implementation, CI/runtime/failure evidence, exact receipts, the Demo Console, reviewer convergence and the typed Local Handoff queue.
+`Product-Manager-Notes` is the public-safe Manager requirement/routing/narrative plane. `skills-shared` owns reusable Tech Lead, Shadow Architect and Git Town procedures. This repository owns implementation, CI/runtime/failure evidence, exact receipts, the Demo Console, reviewer convergence and typed Local Handoff.
 
 ## Mandatory read order
 
@@ -14,20 +14,21 @@ This public repository is the executable evidence plane for the Full Manager MVP
 4. `docs/milestones/PUBLIC_REMOTE_FANOUT_FIRST_GREEN.md`
 5. `docs/milestones/PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN.md`
 6. `docs/milestones/PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN.md`
-7. `roles/devops-manager/job-contract.yaml`
-8. `registry/mvp-demo-stack.yaml`
-9. `registry/evidence.yaml`
-10. `registry/gaps.yaml`
-11. `registry/stack-plan.yaml`
-12. `registry/public-m2-first-green.json`
-13. `registry/public-m3-failure-recovery.json`
-14. `registry/public-m4-reviewer-convergence.json`
-15. `handoff/local-handoff-queue.json` when crossing the local/runtime boundary
-16. `prompts/README.md`
-17. exact issue / PR / commit / Actions run / artifact / receipt
-18. nearest directory README/contract/test/receipt when it exists
+7. `docs/milestones/PUBLIC_M5_LOCAL_KIND_RUNNER_READY.md`
+8. `roles/devops-manager/job-contract.yaml`
+9. `registry/mvp-demo-stack.yaml`
+10. `registry/evidence.yaml`
+11. `registry/gaps.yaml`
+12. `registry/stack-plan.yaml`
+13. `registry/public-m2-first-green.json`
+14. `registry/public-m3-failure-recovery.json`
+15. `registry/public-m4-reviewer-convergence.json`
+16. `registry/public-m5-local-kind-readiness.json`
+17. `handoff/local-handoff-queue.json` when crossing the local/runtime boundary
+18. exact issue / PR / commit / Actions run / artifact / receipt
+19. nearest directory README/contract/test/receipt
 
-Reusable procedure must be read from canonical `ed3c/skills-shared` owners rather than copied into local variants:
+Reusable method is read from canonical `ed3c/skills-shared` owners, not copied into consumer variants:
 
 ```text
 skills/agentic-tech-lead-orchestration/
@@ -38,7 +39,7 @@ skills/git-town-stacked-pr-worker/
 Trigger-selected support only:
 
 ```text
-runtime-env                secret-free runtime/profile/workload contract
+runtime-env                secret-free runtime/profile/workload contracts
 truth-verify-loop          mutable/high-risk external claim verification
 openwiki-source-anchoring  exact source/path/quote anchoring
 skill-resume-site          admitted public portfolio projection only
@@ -80,34 +81,38 @@ L2 REVIEW
 L3 BLOCK
 ```
 
-L3 includes unsafe/irreversible changes, secret/private disclosure, destructive migration without rollback, privilege expansion, unbounded fault injection, overlapping mutation authority, semantic conflict, evidence laundering or public claim inflation.
+L3 includes unsafe/irreversible change, secret/private disclosure, destructive migration without rollback, privilege expansion, unbounded fault injection, overlapping mutation authority, semantic conflict, failed cleanup, evidence laundering or public claim inflation.
 
 ## Current checkpoints
 
 ```text
-M1 CORE_REMOTE_FIRST_GREEN                        PASS_BOUNDED
-M2 PUBLIC_REMOTE_FANOUT_FIRST_GREEN               PASS_BOUNDED
-M3 PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN     PASS_BOUNDED
-M4 PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN PASS_BOUNDED
+M1 CORE_REMOTE_FIRST_GREEN                         PASS_BOUNDED
+M2 PUBLIC_REMOTE_FANOUT_FIRST_GREEN                PASS_BOUNDED
+M3 PUBLIC_REMOTE_FAILURE_RECOVERY_FIRST_GREEN      PASS_BOUNDED
+M4 PUBLIC_REMOTE_REVIEWER_CONVERGENCE_FIRST_GREEN  PASS_BOUNDED
+M5 PUBLIC_LOCAL_KIND_RUNNER_AND_QUEUE_READY         PASS_BOUNDED
 ```
 
-M4 remote reviewer evidence is bound to PR #44 source:
+M5 means the local kind/Kubernetes runner and its queue contract are concrete and safety-reviewed. It does **not** mean the local command ran.
+
+Exact M5 subjects:
 
 ```text
-commit 55d18cdc556ca5d66c67406318ae25196c077fd2
-tree   a4ad37d9baf73a5239f79c516c67b0182420336a
+PR #51 runner
+  head 20d2ccb0ed8c877309452eece7c755bb3411c4c1
+  tree 7d4b5d5aaba2d023803b152ce5ac7f23f274eba0
+  CI   32259961112 PASS
+  ceiling GITHUB_HOSTED_LOCAL_RUNNER_CONTRACT_ONLY
+
+PR #52 queue
+  head 660d4deea81712f3d6ab5288ae09288b2e15cc27
+  CI   32260403160 PASS
+  ceiling GITHUB_HOSTED_LOCAL_HANDOFF_CONTRACT_VALIDATION_ONLY
 ```
 
-Remote evidence ceilings remain separate:
+Local runtime receipts are still absent.
 
-```text
-GITHUB_HOSTED_REMOTE_REVIEWER_CONVERGENCE_ONLY
-GITHUB_HOSTED_ARTIFACT_REDOWNLOAD_AND_REVIEWER_BUNDLE_ONLY
-```
-
-These do not prove live Kubernetes, real Argo runtime, local model inference, 1,000-VU recovery, production users/incidents or management tenure.
-
-## Eight-stage execution contract
+## Eight-stage contract
 
 ```text
 P0 SUBJECT_AUTHORITY
@@ -120,7 +125,7 @@ P0 SUBJECT_AUTHORITY
 → P7 CONVERGENCE_HANDOFF
 ```
 
-Start-readiness and completion-readiness are distinct. A task may start with bounded unknowns but cannot close without its own receipt and all completion predecessors.
+Start-readiness and completion-readiness are different edge classes. A task may start with bounded unknowns but cannot close without its own receipt and completion predecessors.
 
 Every zero-context handoff records:
 
@@ -144,42 +149,35 @@ Human-owned operations
 ## Tech Lead laws
 
 - Freeze exact subject, objective, non-goals, invariants, dependencies, acceptance criteria, budgets, rollback and evidence lane before fan-out.
-- Dependency edges require real artifact/state consumption or an admitted receipt.
-- Git ancestry and task-DAG dependencies are separate graphs.
-- Parallel writers require disjoint path/resource leases; observed lease deltas must be recorded.
+- Dependencies require real artifact/state consumption or an admitted receipt.
+- Git ancestry and task DAG are separate graphs.
+- Parallel writers require disjoint path/resource leases; record observed lease deltas.
 - Worker/LLM/issue/branch/process/CI self-report is candidate evidence only.
 - Every deployment side effect has rollback/reconciliation semantics.
 - Retry paths require idempotency and bounded retry budgets.
 - Growing resources require bounds or saturation oracles.
 - Performance claims name workload/environment/window/duration/evidence lane.
-- FIRST_GREEN triggers Shadow review; it never closes production proof.
-- Synthetic incident evidence remains `DRILL`/`SIMULATION`.
+- FIRST_GREEN triggers Shadow review; it does not close production proof.
+- Synthetic incidents remain `DRILL`/`SIMULATION`.
 - 1,000 virtual users are synthetic load evidence, not 1,000 real users.
 - Local Kubernetes is not production-cluster experience.
 - UI state cannot promote backend evidence.
-- Queue existence cannot promote local execution.
+- Queue existence cannot promote queue execution.
+- Runner-contract CI cannot promote physical/local runtime state.
 
 ## Evidence subject law
 
-A mutable PR head and a historical artifact evidence head are different subjects.
+Mutable routing subjects and historical evidence subjects are distinct:
 
 ```text
 current_head
-  = current mutable branch/PR routing subject
+  current PR/branch routing identity
 
 evidence_head
-  = exact commit that produced the admitted workflow artifact
+  exact commit that produced an admitted artifact
 ```
 
-Never relabel an older Actions artifact as evidence for a newer head.
-
-For PR #42, the admitted M3 split is intentional:
-
-```text
-current PR head   c7e6a30af5b70bff6a7ac78eab2eb4bd0d46724e
-evidence head     e48711055572d83c872e72445cdf1389592ce85e
-evidence artifact 9365550423
-```
+Never relabel an older artifact as evidence for a newer head.
 
 ## Molecular Git Town laws
 
@@ -193,7 +191,7 @@ shared multi-input closure              → CONVERGENCE
 physical/local prerequisite             → PROCESS_DEPENDENCY / LOCAL_HANDOFF
 ```
 
-Observed current Stack:
+Observed execution ancestry:
 
 ```text
 PR #14 Core
@@ -205,20 +203,21 @@ PR #14 Core
 
 PR #36
 └─ PR #42 Failure/Recovery
-     ↑ exact evidence side inputs #38/#39/#40
+     ↑ exact side evidence #38/#39/#40
 
 PR #42
 └─ PR #44 Reviewer Convergence
-     ↑ exact Demo Console bytes #37
-     ↑ exact M2/M3 Actions artifacts
-     └─ PR #45 Local Handoff Queue
+     ↑ exact Demo Console bytes #37 + M2/M3 artifacts
+     └─ PR #45 M4 Local Handoff
+          └─ PR #51 M5 Live-kind Runner
+               └─ PR #52 M5 Queue Compiler
 ```
 
-Never fabricate multi-parent Git history. One convergence owner chooses one real Git base and consumes other prerequisites as typed side inputs.
+Never fabricate multi-parent Git history. A convergence owner has one real Git base and typed side inputs.
 
-## M4 reviewer convergence laws
+## M4 reviewer laws
 
-Issue #9 / PR #44 has two intentionally distinct proof lanes:
+Issue #9 / PR #44 uses two distinct remote proof lanes:
 
 ```text
 full-reviewer-demo.yml
@@ -230,37 +229,34 @@ full-reviewer-demo.yml
 
 full-reviewer-convergence.yml
 → six exact Actions artifact re-downloads
-→ SHA-256 archive verification
+→ archive SHA-256 verification
 → required-path admission
-→ bounded static reviewer bundle
+→ bounded reviewer bundle
 ```
 
-The two workflows must not promote each other's evidence ceiling. If their proof obligations become identical, collapse them into one owner.
+Their evidence ceilings remain separate.
 
-The deterministic developer entrypoint is:
+Deterministic reviewer entrypoint:
 
 ```bash
 bash scripts/demo/run_reviewer_demo.sh <output-directory>
 ```
 
-It has no paid model/provider API dependency. It is still not live-substrate proof.
+This has no paid model/provider API dependency, but it is not live-substrate proof.
 
-## Local Handoff
+## M5 Local Handoff laws
 
-PR #45 owns the current typed Local Handoff leaf. Queue subject:
+The canonical queue is `handoff/local-handoff-queue.json`.
 
-```text
-commit 55d18cdc556ca5d66c67406318ae25196c077fd2
-tree   a4ad37d9baf73a5239f79c516c67b0182420336a
-```
-
-ACTIVE item:
+Current state:
 
 ```text
-M4-LOCAL-REVIEWER-001
+M4-LOCAL-REVIEWER-001       ACTIVE
+M4-LIVE-SUBSTRATE-002       WAITING_PREDECESSOR
+M5-ARGO-MODEL-CAPACITY-003  BLOCKED_UNRESOLVED
 ```
 
-Command:
+### Current ACTIVE item
 
 ```bash
 bash scripts/demo/run_reviewer_demo.sh evidence/local-reviewer
@@ -270,17 +266,81 @@ Expected receipt:
 
 ```text
 evidence/local-reviewer/reviewer-demo-receipt.json
+verdict PASS_BOUNDED
+ceiling LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY
 ```
 
-Evidence ceiling:
+Until this receipt exists and passes, **do not execute the live-kind item**.
+
+### Concrete live-kind item
+
+Runner subject:
 
 ```text
-LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY
+PR #51
+commit 20d2ccb0ed8c877309452eece7c755bb3411c4c1
+tree   7d4b5d5aaba2d023803b152ce5ac7f23f274eba0
 ```
 
-The next item `M4-LIVE-SUBSTRATE-002` is `BLOCKED_UNRESOLVED`. Do not invent kind/Kubernetes, Argo, Qwen/llama.cpp or 1,000-VU commands. First commit a bounded runner with exact tool/model/image subjects, resource limits, timeouts, cleanup and receipt schema; only then make the queue item executable.
+Required local artifact identity input:
 
-## Evidence states and ladder
+```text
+M5_KIND_NODE_IMAGE=<exact-name>@sha256:<64-lowercase-hex>
+```
+
+Command after predecessor admission:
+
+```bash
+bash scripts/handoff/run_live_kind_from_env.sh \
+  --output evidence/local-kind/local-kind-receipt.json \
+  --cluster-name manager-demo-m5 \
+  --local-port 18030
+```
+
+The runner:
+
+- refuses cluster names outside `manager-demo-*`;
+- refuses takeover of a pre-existing target cluster;
+- creates at most one cluster;
+- binds one exact OCI descriptor digest;
+- uses the existing bounded two-replica CPU/memory K8s contract;
+- proves liveness/readiness separately from business PASS/forced FAIL;
+- captures pod runtime image IDs;
+- treats partial `kind create` as owned for cleanup;
+- terminates port-forward, deletes the attempted cluster and temporary files;
+- restores caller kubectl current-context when one existed.
+
+A real PASS can reach only:
+
+```text
+LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY
+```
+
+It cannot prove Argo runtime, model runtime, 1,000-VU behavior or production tenure.
+
+### Advanced item
+
+`M5-ARGO-MODEL-CAPACITY-003` remains `BLOCKED_UNRESOLVED` and has no command. Do not activate it until exact Argo CD/Rollouts image/tool subjects, exact Qwen revision/file/digest/license, exact llama.cpp build/binary and 1,000-VU host budgets/abort thresholds/cleanup are committed.
+
+## Local Handoff schema law
+
+Every ACTIVE executable item binds:
+
+```text
+exact target commit + tree
+required capabilities
+concrete argv + cwd + timeout
+environment names, never secret values
+resource budget
+sanitized durable receipt
+required PASS exit
+cleanup obligation
+next item only when its runner exists
+```
+
+Do not put credentials, arbitrary shell strings, private reasoning or fabricated future commands into a queue.
+
+## Evidence states / ladder
 
 ```text
 PASS
@@ -304,50 +364,56 @@ L6 PRODUCTION_OBSERVATION
 
 Lower evidence never self-promotes.
 
-Forbidden promotions include:
+Forbidden promotions:
 
 ```text
 CI_GREEN               → BUSINESS_CORRECT
 REMOTE_FIRST_GREEN     → PRODUCTION_RUNTIME
-LOCAL_REVIEWER_PASS    → LIVE_K8S_PASS
+RUNNER_CONTRACT_PASS   → LOCAL_KIND_PASS
+QUEUE_CONTRACT_PASS    → QUEUE_EXECUTED
+LOCAL_REVIEWER_PASS    → LIVE_KIND_PASS
 LOCAL_K8S_PASS         → PRODUCTION_INFRA_EXPERIENCE
 1000_VU_PASS           → 1000_REAL_USERS
 DRILL_COMPLETE         → PRODUCTION_INCIDENT_HISTORY
 LICENSE_METADATA_PASS  → BLANKET_LEGAL_CLEARANCE
 UI_GREEN               → BACKEND_EVIDENCE_PASS
-ISSUE_CLOSED           → RUNTIME_CLOSED
 CURRENT_PR_HEAD         → HISTORICAL_ARTIFACT_EVIDENCE
-QUEUE_EXISTS            → QUEUE_EXECUTED
 ```
 
-## Public disclosure stop law
+## Technology admission
 
-Before public artifact persistence or portfolio projection, stop if any output contains or could expose:
+`registry/mvp-demo-stack.yaml` is the selected stack inventory. Default distribution prefers permissive families; top-level license identity is not recursive clearance.
+
+Separate subjects include Python/npm transitives, container images, K8s/Argo/MLflow/Jaeger/Prometheus images, plugins, Actions, model weights/tokenizers and hosted service terms. Every downloaded model/image/tool artifact requires digest + license record before admission.
+
+## Public disclosure / Google boundary
+
+GitHub is canonical for public executable evidence. Google Doc/Sheet are non-authoritative human mirrors. Public code/evidence must not contain credentials, private customer/user data, employer/client confidential material, private source bodies or restricted redistribution material.
+
+## Automation boundary
+
+Unattended workers may update bounded code/docs/tests, run deterministic CI, emit candidate receipts and prepare draft PRs. Stop on:
 
 ```text
-credentials / private keys / tokens
-customer or user private data
-employer/client confidential material
-private repository source/body content
-restricted paid/source material
-unredacted machine/user identifiers
-claims above the admitted evidence ceiling
+stale/wrong subject
+overlapping writer/resource lease
+missing predecessor receipt
+semantic conflict
+required local capability unavailable
+secret/private disclosure risk
+unbounded side effect/resource/fault
+invalid receipt
+failed cleanup
+Human-owned transition
 ```
 
-Public repo reachability itself is never proof of safety or capability.
-
-## Human-owned operations
-
-Do not automate:
+Human/trusted-owner operations:
 
 ```text
-semantic merge-conflict resolution
-force push
-merge / release
-repository visibility or permission changes
+semantic conflict resolution
+force push / merge / release
+repository visibility / permission changes
 production promotion / rollback admission
-claiming real users / incidents / production experience
-claiming people-management or TPM tenure
+credential/provider enrollment
+claims of real users, real incidents, production tenure or people-management tenure
 ```
-
-Stop on stale subjects, overlapping leases, invalid receipts, unavailable physical runtime, unbounded side effects, semantic conflicts or any Human-owned transition.
