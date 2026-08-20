@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: full-manager-mvp
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ed3c/DevOps-Manager-Notes.git
+    targetRevision: ${TARGET_REVISION}
+    path: platform/kubernetes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: manager-demo
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=false

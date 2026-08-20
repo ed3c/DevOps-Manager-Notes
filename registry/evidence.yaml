@@ -1,0 +1,91 @@
+version: 2
+evidence_states:
+  - PASS
+  - FAIL
+  - ABSENT
+  - NOT_IMPLEMENTED
+  - NOT_EXERCISED
+  - SKIPPED_BY_POLICY
+  - HUMAN_ADMIT_REQUIRED
+ladder:
+  L0: SOURCE_CLAIM
+  L1: STATIC_REASONING
+  L2: DETERMINISTIC_TEST
+  L3: LOCAL_INTEGRATION
+  L4: REAL_SUBSTRATE
+  L5: ADVERSARIAL_OR_CHAOS
+  L6: PRODUCTION_OBSERVATION
+records:
+  - id: DEVOPS-EV-001
+    requirements: [DEVOPS-REQ-001, DEVOPS-REQ-002, DEVOPS-REQ-004]
+    subject: ed3c/bettor-arena@6bf8f7966c02b49294e22b329a6fce68fa50a815:ARCHITECTURE.md
+    state: PASS
+    lane: L1
+    proves: architecture ownership, verification gates, delivery/runtime/evidence and authority-boundary reasoning
+    ceiling: not management tenure, team development, or production operation
+
+  - id: DEVOPS-EV-002
+    requirements: [DEVOPS-REQ-002, DEVOPS-REQ-003]
+    subject: ed3c/bettor-arena@a9fb682b04241024b24e7022083f774b3312a2d6
+    tree: bffc45ab646e5c6dd8b6fc943c83bf1c5c9d5830
+    receipt_snapshot: ed3c/bettor-arena@6bf8f7966c02b49294e22b329a6fce68fa50a815:data/proof-workflow/container-a9fb682b0424.json
+    state: PASS
+    lane: L3
+    proves: bounded container workflow receipt with executed-vs-hashed step distinction
+    ceiling: Docker/container mechanism only; not Kubernetes or production infrastructure
+
+  - id: DEVOPS-EV-003
+    requirements: [DEVOPS-REQ-002, DEVOPS-REQ-004]
+    subject: ed3c/bettor-arena@6bf8f7966c02b49294e22b329a6fce68fa50a815:.github/workflows/provider-canaries.yml
+    state: PASS
+    lane: L1
+    proves: pinned CI dependencies, least read permission, timeout, concurrency cancellation and planted mutation test wiring
+    ceiling: workflow definition only; no bound green workflow run
+
+  - id: DEVOPS-EV-004
+    requirements: [DEVOPS-REQ-002, DEVOPS-REQ-003]
+    subject: ed3c/post-training-rsi-pipeline@486fda8d025fd362652f0b5509ded515e4e5e336:.github/workflows/ci.yml
+    state: PASS
+    lane: L1
+    proves: Python 3.11/3.12 CI with static checks, coverage floor and CLI smoke test
+    ceiling: workflow definition only
+
+  - id: DEVOPS-EV-005
+    requirements: [DEVOPS-REQ-002, DEVOPS-REQ-004]
+    subject: ed3c/post-training-rsi-pipeline@486fda8d025fd362652f0b5509ded515e4e5e336:README.md
+    state: PASS
+    lane: L1
+    proves: resumable state machine, bounded serving lifecycle, rollback, recovery, audit and evidence-identity reasoning
+    ceiling: deterministic/reference design; real provider/GPU/production explicitly unverified
+
+  - id: DEVOPS-EV-006
+    requirements: [DEVOPS-REQ-002, DEVOPS-REQ-004]
+    subject: ed3c/truth-verify-loop@ce0c90f0c9bc87427d433ce537eea7f3a0fca008:.github-delivery/receipts/truth-verify-loop-delivery.json
+    source_commit: 5bf7726d2feced60f9270eb4eb1d6bbf10f39808
+    state: PASS
+    lane: L2
+    proves: machine-readable PRD, issue, PR and project delivery routing
+    ceiling: traceability only; not team leadership or Agile employment tenure
+
+  - id: DEVOPS-HUMAN-001
+    requirements: [DEVOPS-REQ-001]
+    state: HUMAN_ADMIT_REQUIRED
+    lane: L0
+    proves: nothing from GitHub
+    ceiling: 5+ years engineering-management employment and real team-development history require Human evidence
+
+  - id: DEVOPS-HUMAN-004
+    requirements: [DEVOPS-REQ-004]
+    state: HUMAN_ADMIT_REQUIRED
+    lane: L0
+    proves: nothing from GitHub
+    ceiling: real leadership/Agile/Scrum employment context requires Human evidence
+rules:
+  - exact subject, revision, workload and environment must be bound before PASS
+  - CI green does not prove business or operational correctness
+  - local Kubernetes does not prove production Kubernetes behavior
+  - virtual users do not prove real user adoption
+  - synthetic incidents must remain DRILL or SIMULATION
+  - rollback and recovery evidence are distinct from successful deployment evidence
+  - evidence PASS closes only the named narrow subclaim
+  - repository artifacts cannot prove employment tenure or people-management history

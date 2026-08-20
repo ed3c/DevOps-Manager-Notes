@@ -1,0 +1,33 @@
+id: JOB-2026-08-19-DEVOPS-001
+role: DevOps Manager
+source:
+  type: screenshot
+  platform: Threads
+  captured_date: 2026-08-19
+  evidence_state: SOURCE_CLAIM
+context:
+  open_for_expat: true
+  relocation_package: provided
+  english: fluent
+  work_mode: hybrid
+  compensation_display: "320K"
+  compensation_currency: UNKNOWN
+requirements:
+  - id: DEVOPS-REQ-001
+    statement: "5+ years of Engineering Management experience, with proven experience managing and developing engineering teams."
+    kind: REQUIREMENT
+  - id: DEVOPS-REQ-002
+    statement: "Strong hands-on experience across DevOps / SDLC including CI/CD, automation, deployment, and engineering best practices."
+    kind: REQUIREMENT
+  - id: DEVOPS-REQ-003
+    statement: "Strong technical skills in Python or Go, with solid knowledge of Git, Docker, and Kubernetes."
+    kind: REQUIREMENT
+  - id: DEVOPS-REQ-004
+    statement: "Strong leadership, ownership, and data-driven decision-making skills, with experience working in Agile/Scrum environments."
+    kind: REQUIREMENT
+claim_policy:
+  management_tenure_from_repo: FORBIDDEN
+  real_team_management_from_solo_repo: FORBIDDEN
+  real_user_adoption_from_load_test: FORBIDDEN
+  simulated_incident_as_production_incident: FORBIDDEN
+  local_kubernetes_as_production_cluster: FORBIDDEN

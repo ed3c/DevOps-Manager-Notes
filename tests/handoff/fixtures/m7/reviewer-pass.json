@@ -1,0 +1,19 @@
+{
+  "schema_version": "full-manager-mvp/local-reviewer-handoff-receipt/v1",
+  "evidence_kind": "FIXTURE",
+  "state": "PASS",
+  "subject": {
+    "repository": "ed3c/DevOps-Manager-Notes",
+    "commit": "4cc3e162c00a3af240bab9e62482e07bb3e4f9a1",
+    "tree": "5ff3349c1eb5c7976263c2e89347a353ccbc1072"
+  },
+  "evidence_ceiling": "LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY",
+  "checks": {
+    "reviewer_demo_pass_bounded": "PASS",
+    "seven_failure_drills": "PASS",
+    "same_failure_retest": "PASS",
+    "business_pass_fail_metrics_visible": "PASS",
+    "generated_workspace_cleanup": "PASS"
+  },
+  "fixture_notice": "NON-LIVE TEST FIXTURE. This file cannot authorize runtime state advancement."
+}

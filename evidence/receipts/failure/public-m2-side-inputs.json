@@ -1,0 +1,51 @@
+{
+  "schema_version": "full-manager-mvp/public-m2-side-inputs/v1",
+  "core": {
+    "pull_request": 14,
+    "source_commit": "a4ce65dbd66b32bdd2d313f03f8ac97b6bf01f10",
+    "evidence_ceiling": "GITHUB_HOSTED_DETERMINISTIC_AND_CONTAINER_INTEGRATION_ONLY"
+  },
+  "lanes": [
+    {
+      "issue": 3,
+      "pull_request": 36,
+      "head": "f52763b8b6df6c3ed5d9fc4117412e06129f2f17",
+      "workflow_run": 32249524958,
+      "artifact_id": 9363866816,
+      "artifact_digest": "sha256:de464ff881638a42f9bf536ff7ba6e255d1e419647ce1522002fdbaac4201430",
+      "evidence_ceiling": "GITHUB_HOSTED_OBSERVABILITY_AND_SYNTHETIC_LOAD_SMOKE_ONLY"
+    },
+    {
+      "issue": 4,
+      "pull_request": 38,
+      "head": "b0c9db1ed691ca8c32770ad666ca6708c6294c1f",
+      "workflow_run": 32251169964,
+      "artifact_id": 9364485321,
+      "artifact_digest": "sha256:68ac7b4ce0b7bfc2535c54b1960d3b56152fd4947bf031c56c00eb5f7f5f7b4b",
+      "evidence_ceiling": "GITHUB_HOSTED_POLICY_SECURITY_AND_LICENSE_METADATA_ONLY_NOT_LEGAL_CLEARANCE"
+    },
+    {
+      "issue": 7,
+      "pull_request": 39,
+      "head": "f8141534541b0e87f3065e5dd9d60f459539a3ba",
+      "workflow_run": 32250421421,
+      "artifact_id": 9364219603,
+      "artifact_digest": "sha256:ba3a173b4d64935449836b09881d7e490cf3873de7218af66b293bc17c5d4e27",
+      "evidence_ceiling": "GITHUB_HOSTED_DETERMINISTIC_MLFLOW_LIFECYCLE_ONLY"
+    },
+    {
+      "issue": 10,
+      "pull_request": 40,
+      "head": "b03133142c987125eacf173131311bf12de370ed",
+      "workflow_run": 32251234101,
+      "artifact_id": 9364488819,
+      "artifact_digest": "sha256:74b1664bdd836d4bf94cf4e089e5549d6917dd48aafef0b5e6d82bf6df493eda",
+      "evidence_ceiling": "GITHUB_HOSTED_SBOM_SAME_RUN_BLOB_SIGNING_AND_BOUNDED_FAULT_DRILL_ONLY"
+    }
+  ],
+  "authority": {
+    "merge_release_production": "HUMAN_ONLY",
+    "production_incident_history": "OUTSIDE_REPOSITORY_PROOF",
+    "people_management_tenure": "OUTSIDE_REPOSITORY_PROOF"
+  }
+}

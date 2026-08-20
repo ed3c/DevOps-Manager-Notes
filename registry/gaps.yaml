@@ -1,0 +1,53 @@
+version: 2
+gaps:
+  - id: DEVOPS-GAP-001
+    requirement: DEVOPS-REQ-001
+    state: HUMAN_ADMIT_REQUIRED
+    description: operating-model and delivery artifacts are bound, but GitHub cannot prove 5+ years engineering-management employment or real team-development history
+    existing_evidence: [DEVOPS-EV-001, DEVOPS-EV-006]
+    next_gate: Human resume/employer/interview evidence; #5 adds bounded incident-command DRILL artifacts only
+
+  - id: DEVOPS-GAP-002
+    requirement: DEVOPS-REQ-002
+    state: NOT_IMPLEMENTED
+    description: existing CI/container/automation evidence is bound, but the target Full MVP commit → build → policy → Kubernetes → observe → fail → recover → verify loop is not closed
+    existing_evidence: [DEVOPS-EV-002, DEVOPS-EV-003, DEVOPS-EV-004, DEVOPS-EV-005, DEVOPS-EV-006]
+    next_gate: #2 then #3/#4/#7/#10 → #5 → #9
+
+  - id: DEVOPS-GAP-003
+    requirement: DEVOPS-REQ-003
+    state: NOT_IMPLEMENTED
+    description: Python/Git/CI and Docker evidence exists; no audited Kubernetes runtime receipt exists for this evidence program
+    existing_evidence: [DEVOPS-EV-002, DEVOPS-EV-003, DEVOPS-EV-004]
+    next_gate: #2 deterministic core plus Local Handoff Docker/kind/Kubernetes receipt
+
+  - id: DEVOPS-GAP-004
+    requirement: DEVOPS-REQ-004
+    state: NOT_EXERCISED
+    description: ownership and evidence-led decision artifacts exist; incident-command drill and real leadership/Agile employment context remain unproven
+    existing_evidence: [DEVOPS-EV-001, DEVOPS-EV-003, DEVOPS-EV-005, DEVOPS-EV-006]
+    next_gate: #5 for bounded decision/recovery drill; Human evidence for real team/Agile history
+
+  - id: DEVOPS-GAP-005
+    requirement: CROSS-ROLE-SCALE
+    state: NOT_EXERCISED
+    description: reproducible 1,000-VU capacity evidence has not been produced; real adoption remains out of scope
+    next_gate: #3 then #9
+
+  - id: DEVOPS-GAP-006
+    requirement: FULL-MVP-SUPPLY-CHAIN
+    state: NOT_IMPLEMENTED
+    description: target artifact SBOM/scan/policy/signature chain and planted rejection controls are not yet executed
+    next_gate: #4/#10
+
+  - id: DEVOPS-GAP-007
+    requirement: FULL-MVP-LLMOPS
+    state: NOT_IMPLEMENTED
+    description: target MLflow/local-model/offline-eval/canary/rollback lane is not yet executed
+    next_gate: #7 then #5/#9
+
+closure:
+  audit_artifact: docs/evidence-audit/DEVOPS_EXISTING_EVIDENCE_AUDIT.md
+  invariant_contract: system-design/FULL_MVP_INVARIANTS.md
+  issue_1_audit_stage: COMPLETE
+  all_job_requirements_closed: false
