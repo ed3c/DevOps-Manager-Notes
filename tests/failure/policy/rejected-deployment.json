@@ -1,0 +1,5 @@
+{
+  "image": "example.invalid/full-manager-mvp:mutable",
+  "securityContext": {"runAsNonRoot": false, "privileged": true},
+  "resources": {"requests": {}, "limits": {}}
+}

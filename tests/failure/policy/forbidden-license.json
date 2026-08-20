@@ -1,0 +1,4 @@
+[
+  {"Name": "permissive-demo", "Version": "1.0", "License": "Apache-2.0"},
+  {"Name": "blocked-demo", "Version": "1.0", "License": "GPL-3.0-only"}
+]
