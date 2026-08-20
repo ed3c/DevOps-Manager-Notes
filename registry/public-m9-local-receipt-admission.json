@@ -1,0 +1,111 @@
+{
+  "schema_version": "full-manager-mvp/public-m9-local-receipt-admission/v1",
+  "milestone": "PUBLIC_LOCAL_RECEIPT_ADMISSION_READY",
+  "verdict": "PASS_BOUNDED",
+  "method": {
+    "repository": "ed3c/skills-shared",
+    "commit": "4ca9417b1da5ff32f1d4d3e7af64a15908749024",
+    "local_handoff_schema": "agentic-tech-lead/local-handoff-queue/v1",
+    "portable_assertion": "skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py"
+  },
+  "m8_predecessor": {
+    "main_before_m9": "5d0c5db1626bf5c1a83334ea864b6a3eb7613df3",
+    "execution_subject": {
+      "repository": "ed3c/DevOps-Manager-Notes",
+      "commit": "e7b4e23799a3579572598ebd5864a80831d49db4",
+      "tree": "0b72b9f09f73d3829db2f138d457a5691641bf79"
+    },
+    "active_item": "M8-LOCAL-REVIEWER-001",
+    "physical_runtime_state": "NOT_EXERCISED"
+  },
+  "a9_receipt_admission": {
+    "issue": 76,
+    "pull_request": 77,
+    "branch": "feat/m9-local-receipt-admission",
+    "base": "main",
+    "head": "fc7ae40c0a5ea0a403c2ed27555de3cbbc8d042b",
+    "tree": "67acc95ed6ee85091dfe30c8b853bc54203c3cda",
+    "workflow": "M9 local receipt admission contract",
+    "workflow_run": 32376416583,
+    "workflow_result": "SUCCESS",
+    "contract_evidence_ceiling": "GITHUB_HOSTED_M9_RECEIPT_ADMISSION_CONTRACT_ONLY",
+    "authoritative_cli": "scripts/handoff/admit_public_receipt_packet.py",
+    "core_library": "scripts/handoff/compile_public_receipt_packet.py",
+    "packet_schema": "full-manager-mvp/public-local-receipt-packet/v1",
+    "live_packet_ceiling": "PUBLIC_SAFE_LOCAL_RECEIPT_PROJECTION_ONLY",
+    "controls": [
+      "exact_queue_schema_subject_and_linear_edges",
+      "complete_active_blocked_state_shape",
+      "contiguous_receipt_prefix",
+      "blocked_future_receipt_rejection",
+      "completed_fail_receipt_rejection",
+      "exact_receipt_schema_subject_verdict_ceiling_cleanup",
+      "fixture_live_isolation",
+      "receipt_byte_bound",
+      "bounded_explicit_receipt_roots",
+      "filesystem_root_rejection",
+      "secret_and_sensitive_key_rejection",
+      "allowlisted_public_summary_only",
+      "raw_receipt_sha256_size_relative_path",
+      "live_output_under_evidence_local_handoff_only",
+      "queue_and_raw_receipt_overwrite_rejection",
+      "queue_mutated_false",
+      "queue_advanced_false"
+    ],
+    "physical_runtime_executed": false,
+    "physical_runtime_state": "NOT_EXERCISED"
+  },
+  "d9_traceability": {
+    "issue": 78,
+    "pull_request": 79,
+    "branch": "docs/m9-local-receipt-admission-index",
+    "base_branch": "feat/m9-local-receipt-admission",
+    "base_head": "fc7ae40c0a5ea0a403c2ed27555de3cbbc8d042b",
+    "state": "PR_DRAFT_INDEX_PENDING_FIRST_GREEN",
+    "evidence_ceiling": "GITHUB_HOSTED_M9_TRACEABILITY_INDEX_ONLY"
+  },
+  "receipt_flow": [
+    "LOCAL_COMMAND",
+    "RAW_TYPED_RECEIPT",
+    "EXACT_SUBJECT_ADMISSION",
+    "PUBLIC_SAFE_PACKET",
+    "HUMAN_TRUSTED_QUEUE_REVIEW",
+    "DELIBERATE_QUEUE_ADVANCE_OR_LOCAL_GAP"
+  ],
+  "aggregate_states": [
+    "LOCAL_GAP_OPEN",
+    "ACTIVE_RECEIPT_REQUIRED",
+    "HUMAN_QUEUE_ADVANCE_REQUIRED",
+    "QUEUE_COMPLETION_REVIEW_REQUIRED"
+  ],
+  "residuals": {
+    "local_deterministic_reviewer": "NOT_EXERCISED",
+    "local_kind_kubernetes": "NOT_EXERCISED",
+    "live_advanced_queue_compilation": "NOT_EXERCISED",
+    "argo_controllers": "NOT_EXERCISED",
+    "argo_cd_application_reconciliation": "NOT_EXERCISED",
+    "live_argo_rollouts_canary": "NOT_EXERCISED",
+    "local_qwen_llama_cpp": "NOT_EXERCISED",
+    "load_1000_vu": "NOT_EXERCISED",
+    "registry_stored_image_signing": "NOT_EXERCISED",
+    "production_users_incidents_tenure": "OUTSIDE_CURRENT_PROOF",
+    "people_management_tenure": "OUTSIDE_REPOSITORY_PROOF"
+  },
+  "authority": {
+    "queue_advance": "HUMAN_OR_TRUSTED_CONTROLLER_ONLY",
+    "merge_release_visibility_permissions": "HUMAN_ONLY",
+    "production_promotion_rollback": "HUMAN_ONLY",
+    "provider_or_credential_enrollment": "HUMAN_ONLY",
+    "real_experience_claims": "HUMAN_ONLY"
+  },
+  "forbidden_promotions": [
+    "RECEIPT_ADMISSION_PASS_TO_LOCAL_RUNTIME_PASS",
+    "PUBLIC_PACKET_TO_RAW_RUNTIME_REEXECUTION",
+    "PUBLIC_PACKET_TO_QUEUE_ADVANCEMENT",
+    "BLOCKED_RECEIPT_TO_BLOCKED_ITEM_COMPLETION",
+    "LOCAL_EVIDENCE_TO_PRODUCTION_INFRASTRUCTURE",
+    "SYNTHETIC_1000_VU_TO_1000_REAL_USERS",
+    "DRILL_TO_PRODUCTION_INCIDENT_HISTORY",
+    "REPOSITORY_ARTIFACT_TO_EMPLOYMENT_OR_MANAGEMENT_TENURE"
+  ]
+}
