@@ -1,0 +1,127 @@
+{
+  "authority": {
+    "automation_forbidden": [
+      "merge",
+      "force_push",
+      "issue_close",
+      "queue_advance",
+      "provider_activation",
+      "semantic_conflict_resolution"
+    ],
+    "human_owned": [
+      "queue advancement after receipt review"
+    ]
+  },
+  "current": {
+    "active_item": "M9-LOCAL-REVIEWER-001",
+    "state": "ACTIVE"
+  },
+  "items": [
+    {
+      "entry": {
+        "predecessor": null,
+        "required_capabilities": [
+          "LOCAL_HOST"
+        ],
+        "required_subject_commit": "1111111111111111111111111111111111111111"
+      },
+      "exit": {
+        "cleanup_required": true,
+        "required_verdict": "PASS",
+        "requires_receipt": true
+      },
+      "id": "M9-LOCAL-REVIEWER-001",
+      "next": "M9-LIVE-KIND-002",
+      "receipt": {
+        "forbidden_promotions": [],
+        "path": "reviewer-pass.json",
+        "required_states": [
+          "PASS",
+          "FAIL"
+        ],
+        "schema": "full-manager-mvp/local-reviewer-handoff-receipt/v1"
+      },
+      "runtime_lane": {
+        "class": "LOCAL_RUNTIME",
+        "commands": [],
+        "live_evidence_required": true,
+        "unresolved_operations": []
+      },
+      "state": "ACTIVE",
+      "task_ref": "ed3c/DevOps-Manager-Notes#76"
+    },
+    {
+      "entry": {
+        "predecessor": "M9-LOCAL-REVIEWER-001",
+        "required_capabilities": [
+          "LOCAL_HOST"
+        ],
+        "required_subject_commit": "1111111111111111111111111111111111111111"
+      },
+      "exit": {
+        "cleanup_required": true,
+        "required_verdict": "PASS",
+        "requires_receipt": true
+      },
+      "id": "M9-LIVE-KIND-002",
+      "next": "M9-COMPILE-QUEUE-003",
+      "receipt": {
+        "forbidden_promotions": [],
+        "path": "kind-pass.json",
+        "required_states": [
+          "PASS",
+          "FAIL"
+        ],
+        "schema": "full-manager-mvp/local-kind-substrate-receipt/v1"
+      },
+      "runtime_lane": {
+        "class": "LOCAL_RUNTIME",
+        "commands": [],
+        "live_evidence_required": true,
+        "unresolved_operations": []
+      },
+      "state": "BLOCKED_BY_PREDECESSOR",
+      "task_ref": "ed3c/DevOps-Manager-Notes#76"
+    },
+    {
+      "entry": {
+        "predecessor": "M9-LIVE-KIND-002",
+        "required_capabilities": [
+          "LOCAL_HOST"
+        ],
+        "required_subject_commit": "1111111111111111111111111111111111111111"
+      },
+      "exit": {
+        "cleanup_required": false,
+        "required_verdict": "PASS",
+        "requires_receipt": true
+      },
+      "id": "M9-COMPILE-QUEUE-003",
+      "next": null,
+      "receipt": {
+        "forbidden_promotions": [],
+        "path": "compile-pass.json",
+        "required_states": [
+          "PASS",
+          "FAIL"
+        ],
+        "schema": "full-manager-mvp/m7-advanced-queue-compile-receipt/v1"
+      },
+      "runtime_lane": {
+        "class": "LOCAL_HOST",
+        "commands": [],
+        "live_evidence_required": true,
+        "unresolved_operations": []
+      },
+      "state": "BLOCKED_BY_PREDECESSOR",
+      "task_ref": "ed3c/DevOps-Manager-Notes#76"
+    }
+  ],
+  "schema_version": "agentic-tech-lead/local-handoff-queue/v1",
+  "subject": {
+    "commit": "1111111111111111111111111111111111111111",
+    "repository": "ed3c/DevOps-Manager-Notes",
+    "rollback_commit": "3333333333333333333333333333333333333333",
+    "tree": "2222222222222222222222222222222222222222"
+  }
+}

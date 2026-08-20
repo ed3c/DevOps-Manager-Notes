@@ -110,7 +110,7 @@ jobs:
           print('m8-queue-routing=PASS')
           PY
 
-      - name: Validate machine indexes and integrated DAG
+      - name: Validate machine indexes and integrated DAG monotonically
         run: |
           python3 - <<'PY'
           import json
@@ -133,11 +133,16 @@ jobs:
               'public-m7-advanced-bundle.json',
           ):
               assert (Path('registry') / name).is_file(), name
-          print('m8-machine-index=PASS')
+
+          stack = Path('registry/stack-plan.yaml').read_text(encoding='utf-8')
+          first = stack.splitlines()[0]
+          assert first.startswith('version: ')
+          version = int(first.split(':', 1)[1].strip())
+          assert version >= 10, version
+          for token in ('pull_request: 68', 'pull_request: 69', 'D8-main-integration-handoff'):
+              assert token in stack, token
+          print(f'm8-machine-index=PASS stack-version={version}')
           PY
-          grep -q '^version: 10$' registry/stack-plan.yaml
-          grep -q 'pull_request: 68' registry/stack-plan.yaml
-          grep -q 'pull_request: 69' registry/stack-plan.yaml
           grep -q 'M8 PUBLIC_MAIN_INTEGRATION_AND_HANDOFF_READY' README.md
           grep -q 'Directory → State Machine → DAG ownership' README.md
           grep -q 'Molecular Git Town / Stack PR index' README.md
@@ -168,7 +173,7 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           ## M8 main integration and Local Handoff boundary
           - exact integrated main merge ancestry: exercised
-          - M2–M8 traceability and machine indexes: exercised
+          - M2–M8 machine invariants: exercised monotonically on descendant Stack versions
           - M8 stable execution subject/path readback: exercised
           - explicit-subject advanced queue wrapper tests: exercised
           - canonical queue assertion + negative-control selftest: exercised

@@ -1,0 +1,26 @@
+{
+  "command_output_tail": "SHOULD_NOT_APPEAR_IN_PUBLIC_PACKET",
+  "evidence_ceiling": "FIXTURE_COMPILER_CONTRACT_ONLY",
+  "evidence_kind": "FIXTURE",
+  "physical_runtime_executed": false,
+  "predecessor_epoch": {
+    "commit": "1111111111111111111111111111111111111111",
+    "tree": "2222222222222222222222222222222222222222"
+  },
+  "predecessor_receipts": {
+    "kind_sha256": "7777777777777777777777777777777777777777777777777777777777777777",
+    "reviewer_sha256": "6666666666666666666666666666666666666666666666666666666666666666"
+  },
+  "queue": {
+    "active_item": "M7-ARGO-CONTROLLERS-001",
+    "path": "fixture/advanced.json",
+    "sha256": "8888888888888888888888888888888888888888888888888888888888888888"
+  },
+  "schema_version": "full-manager-mvp/m7-advanced-queue-compile-receipt/v1",
+  "state": "PASS",
+  "subject": {
+    "commit": "1111111111111111111111111111111111111111",
+    "repository": "ed3c/DevOps-Manager-Notes",
+    "tree": "2222222222222222222222222222222222222222"
+  }
+}

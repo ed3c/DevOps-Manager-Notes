@@ -1,0 +1,188 @@
+name: M9 receipt admission traceability index
+
+on:
+  pull_request:
+    paths:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'docs/INDEX.md'
+      - 'docs/milestones/PUBLIC_M9_LOCAL_RECEIPT_ADMISSION_READY.md'
+      - 'registry/public-m9-local-receipt-admission.json'
+      - 'registry/stack-plan.yaml'
+      - '.github/workflows/m9-receipt-admission-index.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: m9-receipt-admission-index-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    env:
+      SOURCE_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+      GITHUB_TOKEN: ${{ github.token }}
+      A9_HEAD: fc7ae40c0a5ea0a403c2ed27555de3cbbc8d042b
+      A9_TREE: 67acc95ed6ee85091dfe30c8b853bc54203c3cda
+      SKILLS_SHARED_COMMIT: 4ca9417b1da5ff32f1d4d3e7af64a15908749024
+    steps:
+      - name: Checkout exact index subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_COMMIT }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Checkout exact canonical Tech Lead method
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ed3c/skills-shared
+          ref: ${{ env.SKILLS_SHARED_COMMIT }}
+          path: _skills-shared
+          persist-credentials: false
+
+      - name: Re-read mutable A9 PR head and exact tree
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from urllib import request
+
+          req = request.Request(
+              'https://api.github.com/repos/ed3c/DevOps-Manager-Notes/pulls/77',
+              headers={
+                  'Authorization': f'Bearer {os.environ["GITHUB_TOKEN"]}',
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+              },
+          )
+          with request.urlopen(req, timeout=10) as response:
+              payload = json.load(response)
+          observed = payload['head']['sha']
+          if observed != os.environ['A9_HEAD']:
+              raise SystemExit(f'stale A9 PR #77 head: expected {os.environ["A9_HEAD"]}, got {observed}')
+          print('a9-current-head-readback=PASS')
+          PY
+          git cat-file -e "$A9_HEAD^{commit}"
+          test "$(git rev-parse "$A9_HEAD^{tree}")" = "$A9_TREE"
+
+      - name: Validate M9 machine index
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          x = json.loads(Path('registry/public-m9-local-receipt-admission.json').read_text())
+          assert x['schema_version'] == 'full-manager-mvp/public-m9-local-receipt-admission/v1'
+          assert x['milestone'] == 'PUBLIC_LOCAL_RECEIPT_ADMISSION_READY'
+          assert x['verdict'] == 'PASS_BOUNDED'
+          assert x['method']['commit'] == '4ca9417b1da5ff32f1d4d3e7af64a15908749024'
+          a9 = x['a9_receipt_admission']
+          assert a9['pull_request'] == 77
+          assert a9['head'] == 'fc7ae40c0a5ea0a403c2ed27555de3cbbc8d042b'
+          assert a9['tree'] == '67acc95ed6ee85091dfe30c8b853bc54203c3cda'
+          assert a9['workflow_run'] == 32376416583
+          assert a9['workflow_result'] == 'SUCCESS'
+          assert a9['physical_runtime_executed'] is False
+          assert a9['physical_runtime_state'] == 'NOT_EXERCISED'
+          assert a9['authoritative_cli'] == 'scripts/handoff/admit_public_receipt_packet.py'
+          assert 'blocked_future_receipt_rejection' in a9['controls']
+          assert 'queue_and_raw_receipt_overwrite_rejection' in a9['controls']
+          assert all(
+              value in {'NOT_EXERCISED', 'OUTSIDE_CURRENT_PROOF', 'OUTSIDE_REPOSITORY_PROOF'}
+              for value in x['residuals'].values()
+          )
+          print('m9-machine-index=PASS')
+          PY
+
+      - name: Re-run M9 admission contract controls
+        run: |
+          python3 -m py_compile \
+            scripts/handoff/compile_public_receipt_packet.py \
+            scripts/handoff/admit_public_receipt_packet.py
+          python3 tests/handoff/test_public_receipt_packet.py -v
+          python3 tests/handoff/test_public_receipt_admission_policy.py -v
+
+      - name: Re-exercise current ACTIVE fixture projection only
+        run: |
+          python3 scripts/handoff/admit_public_receipt_packet.py \
+            --fixture-mode \
+            --queue tests/handoff/fixtures/m9/queue.json \
+            --receipt-root tests/handoff/fixtures/m9 \
+            --receipt M9-LOCAL-REVIEWER-001=reviewer-pass.json \
+            --output /tmp/m9-index-public-packet.json
+          jq -e '
+            .evidence_kind == "FIXTURE" and
+            .aggregate.state == "HUMAN_QUEUE_ADVANCE_REQUIRED" and
+            .aggregate.admitted_item_count == 1 and
+            .aggregate.queue_mutated == false and
+            .aggregate.queue_advanced == false and
+            .admission_policy.future_blocked_receipts_accepted == false and
+            .admission_policy.queue_or_receipt_overwrite_allowed == false
+          ' /tmp/m9-index-public-packet.json >/dev/null
+
+          if python3 scripts/handoff/admit_public_receipt_packet.py \
+            --fixture-mode \
+            --queue tests/handoff/fixtures/m9/queue.json \
+            --receipt-root tests/handoff/fixtures/m9 \
+            --receipt M9-LOCAL-REVIEWER-001=reviewer-pass.json \
+            --receipt M9-LIVE-KIND-002=kind-pass.json \
+            --output /tmp/m9-index-blocked.json \
+            >/tmp/m9-index-blocked.out 2>&1; then
+            echo 'blocked future receipt unexpectedly admitted'
+            exit 1
+          fi
+          grep -q 'blocked future item' /tmp/m9-index-blocked.out
+
+      - name: Validate README AGENTS Stack and milestone routing
+        run: |
+          grep -q 'M9 PUBLIC_LOCAL_RECEIPT_ADMISSION_READY' README.md
+          grep -q 'LOCAL_RECEIPT_ADMISSION' README.md
+          grep -q 'admit_public_receipt_packet.py' README.md
+          grep -q 'authoritative M9 admission CLI' AGENTS.md
+          grep -q 'blocked-future receipt' AGENTS.md
+          grep -q 'PUBLIC_M9_LOCAL_RECEIPT_ADMISSION_READY.md' docs/INDEX.md
+          grep -q '^version: 11' registry/stack-plan.yaml
+          grep -q 'A9-local-receipt-admission' registry/stack-plan.yaml
+          grep -q 'D9-local-receipt-admission-index' registry/stack-plan.yaml
+          grep -q '# M9 — PUBLIC_LOCAL_RECEIPT_ADMISSION_READY' docs/milestones/PUBLIC_M9_LOCAL_RECEIPT_ADMISSION_READY.md
+
+          if grep -R -E '(BEGIN (RSA|OPENSSH|EC) PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{20,}|github_pat_|AKIA[0-9A-Z]{16})' \
+            README.md AGENTS.md docs/INDEX.md \
+            docs/milestones/PUBLIC_M9_LOCAL_RECEIPT_ADMISSION_READY.md \
+            registry/public-m9-local-receipt-admission.json; then
+            echo 'secret-like material found in M9 public index'
+            exit 1
+          fi
+
+      - name: Prove canonical Local Handoff remains independently valid
+        run: |
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue handoff/local-handoff-queue.json
+          python3 _skills-shared/skills/agentic-tech-lead-orchestration/scripts/assert_local_handoff_queue.py \
+            --queue handoff/local-handoff-queue.json \
+            --selftest
+
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M9 receipt-admission traceability boundary
+          - exact PR #77 current-head/tree readback: exercised
+          - M9 admission policy tests and planted negative controls: exercised
+          - current ACTIVE fixture projection only: exercised
+          - blocked-future receipt rejection: exercised
+          - canonical Local Handoff assertion + selftest: exercised
+          - README/AGENTS/Stack/milestone machine routing: exercised
+          - physical local reviewer/kind/Argo/model/1,000-VU/signing: **NOT_EXERCISED**
+          - queue advancement: **NOT_PERFORMED**
+          - evidence ceiling: `GITHUB_HOSTED_M9_TRACEABILITY_INDEX_ONLY`
+          EOF

@@ -1,0 +1,28 @@
+{
+  "build_log_tail": "SHOULD_NOT_APPEAR_IN_PUBLIC_PACKET",
+  "checks": {
+    "business_oracle_forced_fail_visible": "PASS",
+    "business_oracle_pass": "PASS",
+    "cleanup": "PASS",
+    "deployment_ready": "PASS",
+    "kubectl_context_restored": "SKIPPED_NO_PRIOR_CONTEXT",
+    "local_kind_cluster_created": "PASS",
+    "oci_digest_bound": "PASS",
+    "pod_image_ids_captured": "PASS",
+    "real_argo_cd_reconcile": "NOT_EXERCISED"
+  },
+  "evidence_ceiling": "LOCAL_KIND_KUBERNETES_APPLICATION_SMOKE_ONLY",
+  "evidence_kind": "FIXTURE",
+  "oci": {
+    "descriptor_digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "immutable_image_ref": "docker.io/library/manager-demo@sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "media_type": "application/vnd.oci.image.manifest.v1+json"
+  },
+  "schema_version": "full-manager-mvp/local-kind-substrate-receipt/v1",
+  "subject": {
+    "commit": "1111111111111111111111111111111111111111",
+    "repository": "ed3c/DevOps-Manager-Notes",
+    "tree": "2222222222222222222222222222222222222222"
+  },
+  "verdict": "PASS"
+}

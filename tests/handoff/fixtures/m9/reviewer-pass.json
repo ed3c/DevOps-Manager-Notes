@@ -1,0 +1,27 @@
+{
+  "checks": {
+    "business_pass_fail_metrics_visible": "PASS",
+    "generated_workspace_cleanup": "PASS",
+    "live_kind_kubernetes": "NOT_EXERCISED",
+    "paid_api_required": "NO",
+    "reviewer_demo_pass_bounded": "PASS",
+    "same_failure_retest": "PASS",
+    "seven_failure_drills": "PASS"
+  },
+  "command_output_tail": "SHOULD_NOT_APPEAR_IN_PUBLIC_PACKET",
+  "evidence_ceiling": "LOCAL_DETERMINISTIC_REVIEWER_RUN_ONLY",
+  "evidence_kind": "FIXTURE",
+  "schema_version": "full-manager-mvp/local-reviewer-handoff-receipt/v1",
+  "source_receipt": {
+    "path": "fixture/raw.json",
+    "schema_version": "fixture/v1",
+    "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+    "verdict": "PASS"
+  },
+  "state": "PASS",
+  "subject": {
+    "commit": "1111111111111111111111111111111111111111",
+    "repository": "ed3c/DevOps-Manager-Notes",
+    "tree": "2222222222222222222222222222222222222222"
+  }
+}
