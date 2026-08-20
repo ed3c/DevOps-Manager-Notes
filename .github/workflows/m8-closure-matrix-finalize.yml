@@ -1,0 +1,134 @@
+name: M8 closure matrix finalize
+
+on:
+  push:
+    branches:
+      - audit/m8-closure-matrix-finalize
+    paths:
+      - '.github/workflows/m8-closure-matrix-finalize.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: read
+
+concurrency:
+  group: m8-closure-finalize-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Checkout exact branch subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Verify merged-main and issue classifications
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          from __future__ import annotations
+          import json
+          import os
+          from pathlib import Path
+          from urllib import request
+
+          owner = 'ed3c'
+          repo = 'DevOps-Manager-Notes'
+          headers = {
+              'Authorization': f'Bearer {os.environ["GITHUB_TOKEN"]}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+          }
+
+          def github(path: str):
+              req = request.Request(f'https://api.github.com/repos/{owner}/{repo}/{path}', headers=headers)
+              with request.urlopen(req, timeout=15) as response:
+                  return json.load(response)
+
+          pr70 = github('pulls/70')
+          assert pr70['merged'] is True and pr70['state'] == 'closed', pr70
+
+          closed = [1, 8, 11, 60, 61, 62, 63, 64, 69]
+          opened = [2, 3, 4, 5, 7, 9, 10, 54, 67]
+          observed = {'closed': {}, 'open': {}}
+          for number in closed:
+              issue = github(f'issues/{number}')
+              observed['closed'][str(number)] = issue['state']
+              assert issue['state'] == 'closed', (number, issue['state'])
+          for number in opened:
+              issue = github(f'issues/{number}')
+              observed['open'][str(number)] = issue['state']
+              assert issue['state'] == 'open', (number, issue['state'])
+
+          for path in (
+              'docs/milestones/PUBLIC_M8_MAIN_INTEGRATION_AND_HANDOFF_READY.md',
+              'registry/public-m8-main-integration.json',
+              'handoff/LOCAL_HANDOFF_EXECUTION_QUEUE.md',
+              'scripts/handoff/compile_m7_advanced_queue.py',
+          ):
+              assert Path(path).exists(), path
+
+          matrix = '''schema_version: full-manager-mvp/closure-matrix/v2
+milestone: M8
+verified_against:
+  pull_request: 70
+  main_integration: MERGED
+policy:
+  issue_state_is_not_capability_evidence: true
+  merged_pr_is_not_physical_runtime_evidence: true
+  close_contract_only_when_own_acceptance_complete: true
+  keep_physical_lanes_open_until_receipt: true
+closed_completed:
+  - {issue: 1, reason: evidence_audit_and_invariant_freeze_merged}
+  - {issue: 8, reason: manager_demo_console_merged}
+  - {issue: 11, reason: technology_architecture_contract_merged}
+  - {issue: 60, reason: m7_bundle_and_compiler_contract_merged}
+  - {issue: 61, reason: m7_shadow_contract_review_complete}
+  - {issue: 62, reason: m7_contract_ci_and_portable_assertion_complete}
+  - {issue: 63, reason: m7_traceability_index_merged}
+  - {issue: 64, reason: fixture_and_negative_controls_complete}
+  - {issue: 69, reason: m8_merged_main_audit_complete}
+keep_open:
+  - {issue: 2, reason: live_kind_receipt_absent}
+  - {issue: 3, reason: synthetic_1000_vu_receipt_absent}
+  - {issue: 4, reason: higher_security_or_legal_scope_requires_explicit_acceptance_review}
+  - {issue: 5, reason: higher_substrate_failure_recovery_receipt_absent}
+  - {issue: 7, reason: local_model_and_live_delivery_receipts_absent}
+  - {issue: 9, reason: full_physical_convergence_not_complete}
+  - {issue: 10, reason: registry_stored_signing_receipt_absent}
+  - {issue: 54, reason: advanced_physical_runner_receipts_absent}
+  - {issue: 67, reason: exact_branch_admin_cleanup_pending}
+local_handoff:
+  active: M5-LOCAL-REVIEWER-001
+  blocked: [M5-LIVE-KIND-002, M6-ADVANCED-SUBSTRATE-003]
+  physical_receipts_admitted: 0
+'''
+          Path('registry/closure-matrix.yaml').write_text(matrix, encoding='utf-8')
+
+          registry_path = Path('registry/public-m8-main-integration.json')
+          registry = json.loads(registry_path.read_text(encoding='utf-8'))
+          registry['schema_version'] = 'full-manager-mvp/public-m8-main-integration/v2'
+          registry['main_integration_state'] = 'MERGED_MAIN_VERIFIED'
+          registry['audit_pull_request'] = 70
+          registry['issue_state_snapshot'] = observed
+          registry['closure_matrix'] = 'registry/closure-matrix.yaml'
+          registry_path.write_text(json.dumps(registry, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print('m8-closure-matrix-finalized=PASS')
+          PY
+
+      - name: Commit finalized matrix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add registry/closure-matrix.yaml registry/public-m8-main-integration.json
+          git commit -m 'registry: finalize M8 merged-main issue classifications'
+          git push origin HEAD:${{ github.ref_name }}
