@@ -1,0 +1,52 @@
+name: M6 1000-VU capacity runner contract
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/handoff/run_local_capacity.py'
+      - 'tests/handoff/test_local_capacity_runner_contract.py'
+      - '.github/workflows/m6-capacity-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m6-capacity-contract-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact workflow subject
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Compile runner
+        run: python3 -m py_compile scripts/handoff/run_local_capacity.py
+      - name: Run no-side-effect contract tests
+        run: python3 tests/handoff/test_local_capacity_runner_contract.py -v
+      - name: Assert hardened 1000-VU plan boundary
+        run: |
+          python3 scripts/handoff/run_local_capacity.py --plan-only > /tmp/m6-capacity-plan.json
+          jq -e '.workload.users == 1000' /tmp/m6-capacity-plan.json >/dev/null
+          jq -e '.workload.host | startswith("http://127.0.0.1:")' /tmp/m6-capacity-plan.json >/dev/null
+          jq -e '.resource_budget.max_users == 1000 and .resource_budget.max_spawn_rate_per_second <= 100 and .resource_budget.max_duration_seconds <= 60' /tmp/m6-capacity-plan.json >/dev/null
+          jq -e '.resource_budget.loopback_only == true and .resource_budget.persistent_service == false and .resource_budget.pip_cache == false' /tmp/m6-capacity-plan.json >/dev/null
+          jq -e '.operations | any(contains("refuse to take over an occupied loopback port"))' /tmp/m6-capacity-plan.json >/dev/null
+          jq -e '.evidence_ceiling_after_real_execution == "LOCAL_SYNTHETIC_1000_VU_ONLY"' /tmp/m6-capacity-plan.json >/dev/null
+      - name: Evidence boundary
+        run: |
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          ## M6 capacity runner contract boundary
+          - 1,000 virtual-user workload contract: exercised
+          - loopback-only/occupied-port refusal: exercised
+          - spawn-rate/duration/port bounds: exercised
+          - temporary venv + no persistent pip cache contract: exercised
+          - p95/failure-ratio acceptance contract: exercised
+          - real 1,000-VU execution: **NOT_EXERCISED**
+          - production traffic/adoption: **NOT_EXERCISED**
+          - contract evidence ceiling: `GITHUB_HOSTED_1000_VU_RUNNER_CONTRACT_ONLY`
+          EOF
